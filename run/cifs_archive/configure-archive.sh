@@ -1,7 +1,14 @@
 #!/bin/bash -eu
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "configure-archive: $1"
+  fi
+  echo "configure-archive: $1"
+}
+
 function configure_archive () {
-  echo "Configuring the archive..."
+  log_progress "Configuring the archive..."
   
   local archive_path="/mnt/archive"
   local music_archive_path="/mnt/musicarchive"
@@ -27,7 +34,7 @@ function configure_archive () {
     echo "//$archiveserver/$musicsharename $music_archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
   fi
 
-  echo "Configured the archive."
+  log_progress "Configured the archive."
 }
 
 configure_archive
