@@ -147,6 +147,10 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 1. Unplug the Pi from the computer.
 1. Plug the Pi into your Tesla.
 
+Alternatively, you can configure the Pi to automatically copy from a CIFS share. To do this, define the "musicsharename" variable to point at a CIFS share and folder. The share currently must exist on the same server as the one where recordings will be backed up, and use the same credentials. The Pi will sync down ALL music it finds under the specified folder, so be sure there is enough space on the Pi's music drive.
+For example, if you have your music on a share called 'Music', and on that share have a folder called 'CarMusic' where you copied all the songs that you want to have available in the car, use `export musicsharename=Music/CarMusic` in the setup file.
+
+
 ## Optional: Making changes to the system after setup
 The setup process configures the Pi with read-only file systems for the operating system but with read-write
 access through the USB interface. This means that you'll be able to record dashcam video and add and remove
