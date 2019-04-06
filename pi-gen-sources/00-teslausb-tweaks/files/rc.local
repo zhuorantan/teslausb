@@ -21,8 +21,8 @@ fi
 SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 
 function setup_progress () {
-    echo "$( date ) : $1" >> "$SETUP_LOGFILE"
-    echo $1
+  echo "$( date ) : $1" >> "$SETUP_LOGFILE" || echo "can't write to $SETUP_LOGFILE"
+  echo $1
 }
 
 function get_script () {
@@ -59,15 +59,18 @@ function enable_wifi () {
 
 
 if [ -e "/boot/teslausb_setup_variables.conf" ]
+then
+  if [ -e /root/bin/remountfs_rw ]
   then
-    if [ -e /root/bin/remountfs_rw ]
-    then
-      /root/bin/remountfs_rw
-    fi
-    cp /boot/teslausb_setup_variables.conf /root/
-    dos2unix /root/teslausb_setup_variables.conf
-    source "/root/teslausb_setup_variables.conf"
+    /root/bin/remountfs_rw
   fi
+  mv /boot/teslausb_setup_variables.conf /root/
+  dos2unix /root/teslausb_setup_variables.conf
+fi
+if [ -e "/root/teslausb_setup_variables.conf" ]
+then
+  source "/root/teslausb_setup_variables.conf"
+fi
 
 # Check for headless setup
 if [ -z "${HEADLESS_SETUP+x}" ]
@@ -92,17 +95,18 @@ then
  
     # Grab the setup variables. Should still be there since setup isn't finished.
     # This is a double check to cover various scenarios of mixed headless/not headless setup attempts
-    if [ -e "/boot/teslausb_setup_variables.conf" ]
+    if [ -e "/boot/teslausb_setup_variables.conf" -a ! -e  "/root/teslausb_setup_variables.conf"]
     then
-      cp /boot/teslausb_setup_variables.conf /root/
+      mv /boot/teslausb_setup_variables.conf /root/
       dos2unix /root/teslausb_setup_variables.conf
+    fi
+    if [ -e "/root/teslausb_setup_variables.conf" ]
+    then
       source "/root/teslausb_setup_variables.conf"
     else
       # No conf file found, can't complete setup
       setup_progress "Setup appears not to have completed, but you didn't provide a teslausb_setup_variables.conf."
     fi
-
-
 
     # Make the bin dir if needed to grab the setup script into it and persist
     if [ ! -d "/root/bin" ]
