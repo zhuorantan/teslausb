@@ -1,5 +1,14 @@
 #!/bin/bash -eu
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "create-backingfiles: $1"
+  fi
+  echo "create-backingfiles: $1"
+}
+
+log_progress "starting"
+
 CAM_SIZE="$1"
 MUSIC_SIZE="$2"
 BACKINGFILES_MOUNTPOINT="$3"
@@ -46,13 +55,14 @@ function add_drive () {
   local name="$1"
   local label="$2"
   local size="$3"
-
   local filename="$4"
-  echo "Allocating ${size}K for $filename..."
+
+  log_progress "Allocating ${size}K for $filename..."
   fallocate -l "$size"K "$filename"
   echo "type=c" | sfdisk "$filename" > /dev/null
   local partition_offset=$(first_partition_offset "$filename")
   losetup -o $partition_offset loop0 "$filename"
+  log_progress "Creating filesystem with label '$label'"
   mkfs.vfat /dev/loop0 -F 32 -n "$label"
   losetup -d /dev/loop0
 
@@ -62,6 +72,9 @@ function add_drive () {
   then
     mkdir "$mountpoint"
     echo "$filename $mountpoint vfat noauto,users,umask=000,offset=$partition_offset 0 0" >> /etc/fstab
+    log_progress "updated /etc/fstab for $mountpoint"
+  else
+    log_progress "mountpoint $mountpoint does not exist"
   fi
 }
 
@@ -83,14 +96,17 @@ CAM_DISK_SIZE="$(calc_size $CAM_SIZE)"
 MUSIC_DISK_SIZE="$(calc_size $MUSIC_SIZE)"
 
 add_drive "cam" "CAM" "$CAM_DISK_SIZE" "$CAM_DISK_FILE_NAME"
+log_progress "created camera backing file"
 
 REMAINING_SPACE="$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)"
 if [ "$REMAINING_SPACE" -gt 0 -a "$MUSIC_SIZE" != "" ]
 then
   add_drive "music" "MUSIC" "$MUSIC_DISK_SIZE" "$MUSIC_DISK_FILE_NAME"
+  log_progress "created music backing file"
   echo "options g_mass_storage file=$MUSIC_DISK_FILE_NAME,$CAM_DISK_FILE_NAME removable=1,1 ro=0,0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 else
   echo "options g_mass_storage file=$CAM_DISK_FILE_NAME removable=1 ro=0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 fi
 
 create_teslacam_directory
+log_progress "done"

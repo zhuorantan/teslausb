@@ -2,19 +2,28 @@
 
 # Adapted from https://github.com/adafruit/Raspberry-Pi-Installer-Scripts/blob/master/read-only-fs.sh
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "make-root-fs-readonly: $1"
+  fi
+  echo "make-root-fs-readonly: $1"
+}
+
+log_progress "start"
+
 function append_cmdline_txt_param() {
   local toAppend="$1"
   sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
 }
 
-echo "Removing unwanted packages..."
+log_progress "Removing unwanted packages..."
 apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
 apt-get -y --force-yes autoremove --purge
 # Replace log management with busybox (use logread if needed)
-echo "Installing ntp and busybox-syslogd..."
+log_progress "Installing ntp and busybox-syslogd..."
 apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
 
-echo "Configuring system..."
+log_progress "Configuring system..."
   
 # Add fastboot, noswap and/or ro to end of /boot/cmdline.txt
 append_cmdline_txt_param fastboot
@@ -24,9 +33,9 @@ append_cmdline_txt_param ro
 # Move fake-hwclock.data to /mutable directory so it can be updated
 if ! findmnt --mountpoint /mutable
 then
-    echo "Mounting the mutable partition..."
+    log_progress "Mounting the mutable partition..."
     mount /mutable
-    echo "Mounted."
+    log_progress "Mounted."
 fi
 if [ ! -e "/mutable/etc" ]
 then
@@ -35,7 +44,7 @@ fi
 
 if [ ! -L "/etc/fake-hwclock.data" ] && [ -e "/etc/fake-hwclock.data" ]
 then
-    echo "Moving fake-hwclock data"
+    log_progress "Moving fake-hwclock data"
     mv /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
     ln -s /mutable/etc/fake-hwclock.data /etc/fake-hwclock.data
 fi
@@ -70,3 +79,4 @@ echo "tmpfs /var/log tmpfs nodev,nosuid 0 0" >> /etc/fstab
 echo "tmpfs /var/tmp tmpfs nodev,nosuid 0 0" >> /etc/fstab
 echo "tmpfs /tmp    tmpfs nodev,nosuid 0 0" >> /etc/fstab
 
+log_progress "done"
