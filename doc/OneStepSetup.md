@@ -32,6 +32,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     Example file:
 
     ```
+    export ARCHIVE_SYSTEM=cifs
     export archiveserver=Nautilus
     export sharename=SailfishCam
     export shareuser=sailfish
