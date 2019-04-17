@@ -22,11 +22,6 @@ function fix_errors_in_mount_point () {
   log "Finished fsck on $mount_point."
 }
 
-function fix_errors_in_mounted_files () {
-  fix_errors_in_mount_point "$CAM_MOUNT"
-  fix_errors_in_mount_point "$MUSIC_MOUNT"
-}
-
 function archive_is_reachable () {
   local reachable=true
 

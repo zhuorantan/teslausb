@@ -33,15 +33,6 @@ function headless_setup_populate_variables () {
   fi
 }
 
-
-function headless_setup_mark_setup_failed () {
-  if [ $HEADLESS_SETUP = "true" ]
-  then
-    setup_progress "ERROR: Setup Failed."
-    touch /boot/TESLAUSB_SETUP_FAILED
-  fi
-}
-
 function headless_setup_mark_setup_success () {
   if [ $HEADLESS_SETUP = "true" ]
   then
@@ -81,29 +72,6 @@ function setup_led_on () {
   then
     echo 0 | sudo tee /sys/class/leds/led0/brightness > /dev/null
   fi
-}
-
-function check_variable () {
-  local var_name="$1"
-  if [ -z "${!var_name+x}" ]
-  then
-    setup_progress "STOP: Define the variable $var_name like this: export $var_name=value"
-    exit 1
-  fi
-}
-
-function check_available_space () {
-  setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
-
-  local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
-
-  if [ "$available_space" -lt  4294967296 ]
-  then
-    setup_progress "STOP: The MicroSD card is too small."
-    exit 1
-  fi
-
-  setup_progress "There is sufficient space available."
 }
 
 function verify_configuration () {
