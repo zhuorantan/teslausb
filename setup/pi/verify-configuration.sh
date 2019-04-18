@@ -12,6 +12,14 @@ function check_variable () {
 function check_available_space () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
+  if blkid -L backingfiles > /dev/null && blkid -L mutable > /dev/null
+  then
+    # assume these were either created previously by the setup scripts,
+    # or manually by the user, and that they're big enough
+    setup_progress "using existing backingfiles and mutable partitions"
+    return
+  fi
+
   local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
 
   if [ "$available_space" -lt  4294967296 ]

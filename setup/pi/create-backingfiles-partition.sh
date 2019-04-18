@@ -10,6 +10,14 @@ function setup_progress () {
     echo $1
 }
 
+if blkid -L backingfiles > /dev/null && blkid -L mutable > /dev/null
+then
+  # assume these were either created previously by the setup scripts,
+  # or manually by the user, and that they're big enough
+  setup_progress "using existing backingfiles and mutable partitions"
+  return &> /dev/null || exit 0
+fi
+
 BACKINGFILES_MOUNTPOINT="$1"
 MUTABLE_MOUNTPOINT="$2"
 
@@ -41,8 +49,8 @@ sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 
 setup_progress "Formatting new partitions..."
-mkfs.ext4 -F /dev/mmcblk0p3
-mkfs.ext4 -F /dev/mmcblk0p4
+mkfs.ext4 -L backingfiles /dev/mmcblk0p3
+mkfs.ext4 -L mutable /dev/mmcblk0p4
 
-echo "/dev/mmcblk0p3 $BACKINGFILES_MOUNTPOINT ext4 auto,rw,noatime 0 2" >> /etc/fstab
-echo "/dev/mmcblk0p4 $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT ext4 auto,rw,noatime 0 2" >> /etc/fstab
+echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
