@@ -23,7 +23,10 @@ function configure_archive () {
   local credentials_file_path="/root/.teslaCamArchiveCredentials"
   /root/bin/write-archive-configs-to.sh "$credentials_file_path"
 
-  echo "//$archiveserver/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  if ! grep -w -q "$archive_path" /etc/fstab
+  then
+    echo "//$archiveserver/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  fi
 
   if [ ! -z ${musicsharename:+x} ]
   then
@@ -31,7 +34,10 @@ function configure_archive () {
     then
       mkdir "$music_archive_path"  
     fi
-    echo "//$archiveserver/$musicsharename $music_archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+    if ! grep -w -q "$music_archive_path" /etc/fstab
+    then
+      echo "//$archiveserver/$musicsharename $music_archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+    fi
   fi
 
   log_progress "Configured the archive."

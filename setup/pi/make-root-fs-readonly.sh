@@ -72,11 +72,29 @@ ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
 # tmpfs /var/log tmpfs nodev,nosuid 0 0
 # tmpfs /var/tmp tmpfs nodev,nosuid 0 0
 # tmpfs /tmp     tmpfs nodev,nosuid 0 0
-sed -i -r "s@(/boot\s+vfat\s+\S+)@\1,ro@" /etc/fstab
-sed -i -r "s@(/\s+ext4\s+\S+)@\1,ro@" /etc/fstab
-echo "" >> /etc/fstab
-echo "tmpfs /var/log tmpfs nodev,nosuid 0 0" >> /etc/fstab
-echo "tmpfs /var/tmp tmpfs nodev,nosuid 0 0" >> /etc/fstab
-echo "tmpfs /tmp    tmpfs nodev,nosuid 0 0" >> /etc/fstab
+if ! grep -P -q "/boot\s+vfat\s+.+?(?=,ro)" /etc/fstab
+then
+  sed -i -r "s@(/boot\s+vfat\s+\S+)@\1,ro@" /etc/fstab
+fi
+
+if ! grep -P -q "/\s+ext4\s+.+?(?=,ro)" /etc/fstab
+then
+  sed -i -r "s@(/\s+ext4\s+\S+)@\1,ro@" /etc/fstab
+fi
+
+if ! grep -w -q "/var/log" /etc/fstab
+then
+  echo "tmpfs /var/log tmpfs nodev,nosuid 0 0" >> /etc/fstab
+fi
+
+if ! grep -w -q "/var/tmp" /etc/fstab
+then
+  echo "tmpfs /var/tmp tmpfs nodev,nosuid 0 0" >> /etc/fstab
+fi
+
+if ! grep -w -q "/tmp" /etc/fstab
+then
+  echo "tmpfs /tmp    tmpfs nodev,nosuid 0 0" >> /etc/fstab
+fi
 
 log_progress "done"
