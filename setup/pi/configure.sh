@@ -1,5 +1,26 @@
 #!/bin/bash -eu
 
+if [ "$BASH_SOURCE" != "$0" ]
+then
+  echo "$BASH_SOURCE must be executed, not sourced"
+  return 1 # shouldn't use exit when sourced
+fi
+
+if [ "${FLOCKED:-}" != "$0" ]
+then
+  if FLOCKED="$0" flock -en -E 99 "$0" "$0" "$@" || case "$?" in
+  99) echo already running
+      exit 99
+      ;;
+  *)  exit $?
+      ;;
+  esac
+  then
+    # success
+    exit 0
+  fi
+fi
+
 REPO=${REPO:-marcone}
 BRANCH=${BRANCH:-main-dev}
 
