@@ -135,7 +135,7 @@ function ensure_cam_file_is_mounted () {
 function ensure_music_file_is_mounted () {
   log "Ensuring music backing file is mounted..."
   ensure_mountpoint_is_mounted_with_retry "$MUSIC_MOUNT"
-  log "Ensured cam drive is mounted."
+  log "Ensured music drive is mounted."
 }
 
 function unmount_mount_point () {
