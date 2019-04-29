@@ -106,7 +106,7 @@ For example, if there is 100 gigabyte of free space, then
 would allocate 50 gigabytes for camera and 10 gigabytes for music, leaving 40 gigabytes free.
 
 
-### Optional: Configure push notification via Pushover
+### Optional: Configure push notification via Pushover or Gotify
 If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
 
 ### Optional: Configure a hostname
