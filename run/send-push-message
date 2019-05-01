@@ -30,7 +30,7 @@ function send_gotify () {
   -F "title=$TITLE" \
   -F "message=$MESSAGE" \
   -F "priority=$gotify_priority" \
-  "$gotify_url/message?token=$gotify_app_token" 
+  "$gotify_domain/message?token=$gotify_app_token" 
 }
 
 if [ $NUM_FILES_MOVED -gt 0 ]
