@@ -21,8 +21,6 @@ then
   fi
 fi
 
-ARCHIVE_HOST_NAME="$1"
-
 export LOG_FILE=/mutable/archiveloop.log
 
 export CAM_MOUNT=/mnt/cam
@@ -34,6 +32,20 @@ function log () {
   echo -n "$( date ): " >> "$LOG_FILE"
   echo "$1" >> "$LOG_FILE"
 }
+
+if [ ! -f /root/teslausb.conf ]
+then
+  log "couldn't find /root/teslausb.conf"
+  exit 1
+fi
+
+source /root/teslausb.conf
+
+if [ -z "${ARCHIVE_HOST_NAME+x}" ]
+then
+  log "ARCHIVE_HOST_NAME not set"
+  exit 1
+fi
 
 function fix_errors_in_mount_point () {
   local mount_point="$1"
