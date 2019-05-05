@@ -209,6 +209,31 @@ function upgrade_packages () {
   fi
 }
 
+function set_timezone () {
+  if [ ! -z ${timezone:+x} ]
+  then
+    if [ -f "/usr/share/zoneinfo/$timezone" ]
+    then
+      ln -sf "/usr/share/zoneinfo/$timezone" /etc/localtime
+    elif [ "$timezone" = "auto" ]
+    then
+      if curl -o /root/bin/tzupdate.py https://raw.githubusercontent.com/marcone/tzupdate/develop/tzupdate.py
+      then
+        apt-get -y --force-yes install python-requests
+        chmod +x /root/bin/tzupdate.py
+        if ! tzout=$(/root/bin/tzupdate.py 2>&1)
+        then
+          setup_progress "auto timezone failed: $tzout"
+        else
+          setup_progress "$tzout"
+        fi
+      fi
+    else
+      setup_progress "invalid timezone: $timezone"
+    fi
+  fi
+}
+
 export -f setup_progress
 export HEADLESS_SETUP
 
@@ -218,6 +243,9 @@ headless_setup_populate_variables
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_off
+
+# set time zone so we get decent timestamps in the rest of the setup log
+set_timezone
 
 # Flash for stage 2 headless (verify requested configuration)
 headless_setup_progress_flash 1

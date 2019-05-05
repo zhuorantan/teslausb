@@ -35,6 +35,10 @@ export WIFIPASS=your_pass
 # If doing a headless (i.e. automatic) setup
 export HEADLESS_SETUP=true
 
+# uncomment if you want to set the time zone to something other than the default 'BST'
+# Can be an actual timezone, or "auto" to attempt automatic timezone detection
+export timezone="America/Los_Angeles"
+
 # Uncomment if you want to override the default hostname of "teslausb"
 # export TESLAUSB_HOSTNAME=teslausb-Model3
 

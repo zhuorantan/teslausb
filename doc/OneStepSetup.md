@@ -46,6 +46,10 @@ A sample conf file is located in the `boot` folder on the SD card.
     # By default will use the main repo, but if you've been asked to test the image, 
     # these variables should be uncommunted and updated to point to the right repo/branch 
 
+    # Set to either an actual timezone, or "auto" to attempt automatic timezone detection.
+    # If unset, defaults to the default Raspbian timezone, Europe/London (BST).
+    # export timezone=America/Los_Angeles
+
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
