@@ -95,7 +95,7 @@ then
  
     # Grab the setup variables. Should still be there since setup isn't finished.
     # This is a double check to cover various scenarios of mixed headless/not headless setup attempts
-    if [ -e "/boot/teslausb_setup_variables.conf" -a ! -e  "/root/teslausb_setup_variables.conf"]
+    if [ -e "/boot/teslausb_setup_variables.conf" -a ! -e  "/root/teslausb_setup_variables.conf" ]
     then
       mv /boot/teslausb_setup_variables.conf /root/
       dos2unix /root/teslausb_setup_variables.conf
