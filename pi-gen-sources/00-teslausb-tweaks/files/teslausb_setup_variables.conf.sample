@@ -40,6 +40,12 @@ export HEADLESS_SETUP=true
 # export pushover_user_key=user_key
 # export pushover_app_key=app_key
 
+# Uncomment if setting up Gotify push notifications
+# export gotify_enabled=false
+# export gotify_domain=https://gotify.domain.com
+# export gotify_app_token=put_your_token_here
+# export gotify_priority=5
+
 # Uncomment and change if you want setup scripts to be pulled
 # from a different repo than github.com/marcone/teslausb
 # export REPO=marcone

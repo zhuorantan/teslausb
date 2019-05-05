@@ -181,6 +181,24 @@ function check_pushover_configuration () {
     fi
 }
 
+function check_gotify_configuration () {
+    if [ ! -z "${gotify_enabled+x}" ]
+    then
+        if [ ! -n "${gotify_domain+x}" ] || [ ! -n "${gotify_app_token+x}"  ]
+        then
+            log_progress "STOP: You're trying to setup Gotify but didn't provide your Domain and/or App token."
+            log_progress "Define the variables like this:"
+            log_progress "export gotify_domain=https://gotify.domain.com"
+            log_progress "export gotify_app_token=put_your_token_here"
+            exit 1
+        elif [ "${gotify_domain}" = "https://gotify.domain.com" ] || [  "${gotify_app_token}" = "put_your_token_here" ]
+        then
+            log_progress "STOP: You're trying to setup Gotify, but didn't replace the default Domain and/or App token values."
+            exit 1
+        fi
+    fi
+}
+
 function configure_pushover () {
     if [ ! -z "${pushover_enabled+x}" ]
     then
@@ -193,15 +211,34 @@ function configure_pushover () {
     fi
 }
 
+function configure_gotify () {
+    if [ ! -z "${gotify_enabled+x}" ]
+    then
+        log_progress "Enabling Gotify"
+        echo "export gotify_enabled=true" > /root/.teslaCamGotifySettings
+        echo "export gotify_domain=$gotify_domain" >> /root/.teslaCamGotifySettings
+        echo "export gotify_app_token=$gotify_app_token" >> /root/.teslaCamGotifySettings
+        echo "export gotify_priority=$gotify_priority" >> /root/.teslaCamGotifySettings
+    else
+        log_progress "Gotify not configured."
+    fi
+}
+
 function check_and_configure_pushover () {
     check_pushover_configuration
     
     configure_pushover
 }
 
-function install_pushover_scripts() {
+function check_and_configure_gotify () {
+    check_gotify_configuration
+    
+    configure_gotify
+}
+
+function install_push_message_scripts() {
     local install_path="$1"
-    get_script $install_path send-pushover run
+    get_script $install_path send-push-message run
 }
 
 if [ "$ARCHIVE_SYSTEM" = "none" ]
@@ -224,7 +261,8 @@ fi
 log_progress "Getting files from $REPO:$BRANCH"
 
 check_and_configure_pushover
-install_pushover_scripts "$INSTALL_DIR"
+check_and_configure_gotify
+install_push_message_scripts "$INSTALL_DIR"
 
 check_archive_configs
 

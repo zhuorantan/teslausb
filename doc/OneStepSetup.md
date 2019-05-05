@@ -49,6 +49,11 @@ A sample conf file is located in the `boot` folder on the SD card.
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
+
+    # export gotify_enabled=false
+    # export gotify_domain=https://gotify.domain.com
+    # export gotify_app_token=put_your_token_here
+    # export gotify_priority=5
     ```
 
 1. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
