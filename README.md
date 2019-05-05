@@ -7,6 +7,7 @@ This fork contains the following changes compared to the upstream [cimryan/tesla
 1. Supports automatically syncing music from a CIFS share folder
 1. Status indicator while running
 1. Easier and more flexible way to specify sizes of camera and music disks
+1. Support for Gotify in addition to Pushover for notifications
 
 It is recommended to use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md) to get started, as the instructions below may be outdated.
 
