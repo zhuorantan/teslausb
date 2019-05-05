@@ -48,9 +48,21 @@ fi
 
 function headless_setup_populate_variables () {
   # Pull in the conf file variables to make avail to this script and subscripts
-  if [ -e /boot/teslausb_setup_variables.conf ] && [ $HEADLESS_SETUP = "true" ]
+  # If setup-teslausb is run from rc.local, the conf file will have been moved
+  # to /root by rc.local
+  if [ $HEADLESS_SETUP = "true" ]
   then
-    source /boot/teslausb_setup_variables.conf
+    if [ -e /boot/teslausb_setup_variables.conf ]
+    then
+      setup_progress "reading config from /boot/teslausb_setup_variables.conf"
+      source /boot/teslausb_setup_variables.conf
+    elif [ -e /root/teslausb_setup_variables.conf ]
+    then
+      setup_progress "reading config from /root/teslausb_setup_variables.conf"
+      source /root/teslausb_setup_variables.conf
+    else
+      setup_progress "couldn't find config file"
+    fi
   fi
 }
 
@@ -231,8 +243,6 @@ headless_setup_progress_flash 3
 create_usb_drive_backing_files
 
 configure_hostname
-
-echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
 
 # Flash for stage 5 headless (Mark success, FS readonly)
 headless_setup_progress_flash 4

@@ -69,7 +69,6 @@ function install_rc_local () {
 
     log_progress "Configuring /etc/rc.local to run the archive scripts at startup..."
     echo "#!/bin/bash -eu" > ~/rc.local
-    echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
     echo "install_home=\"${install_home}\"" >> ~/rc.local
     cat << 'EOF' >> ~/rc.local
 LOGFILE=/tmp/rc.local.log
@@ -80,7 +79,7 @@ function log () {
 }
 
 log "Launching archival script..."
-"$install_home"/archiveloop "$archiveserver" &
+"$install_home"/archiveloop &
 log "All done"
 exit 0
 EOF
@@ -227,6 +226,8 @@ check_and_configure_pushover
 install_pushover_scripts "$INSTALL_DIR"
 
 check_archive_configs
+
+echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
 
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
