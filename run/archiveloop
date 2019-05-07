@@ -263,7 +263,12 @@ function archive_clips () {
 
   disconnect_usb_drives_from_host
 
-  /root/bin/connect-archive.sh
+  if ! /root/bin/connect-archive.sh
+  then
+    log "Couldn't connect archive, skipping archive step"
+    connect_usb_drives_to_host
+    return
+  fi
 
   if archive_teslacam_clips
   then
