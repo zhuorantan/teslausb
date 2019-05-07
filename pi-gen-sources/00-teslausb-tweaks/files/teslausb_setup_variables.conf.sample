@@ -35,6 +35,18 @@ export WIFIPASS=your_pass
 # If doing a headless (i.e. automatic) setup
 export HEADLESS_SETUP=true
 
+# uncomment if you want to set the time zone to something other than the default 'BST'
+# Can be an actual timezone, or "auto" to attempt automatic timezone detection
+# export timezone="America/Los_Angeles"
+
+# By default there is a 20 second delay between connecting to wifi and
+# starting the archiving of recorded clips. Uncomment this to change
+# the duration of that delay
+# export archivedelay=20
+
+# Uncomment if you want to override the default hostname of "teslausb"
+# export TESLAUSB_HOSTNAME=teslausb-Model3
+
 # Uncomment if setting up Pushover push notifications 
 # export pushover_enabled=false
 # export pushover_user_key=user_key

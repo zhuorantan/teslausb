@@ -361,6 +361,8 @@ do
 
   fastblink
 
+  sleep ${ARCHIVE_DELAY:-20}
+
   archive_clips
 
   truncate_log

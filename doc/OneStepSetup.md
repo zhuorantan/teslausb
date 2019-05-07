@@ -50,6 +50,11 @@ A sample conf file is located in the `boot` folder on the SD card.
     # If unset, defaults to the default Raspbian timezone, Europe/London (BST).
     # export timezone=America/Los_Angeles
 
+    # By default there is a 20 second delay between connecting to wifi and
+    # starting the archiving of recorded clips. Uncomment this to change
+    # the duration of that delay
+    # export archivedelay=20
+
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
