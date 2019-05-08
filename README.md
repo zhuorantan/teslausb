@@ -21,7 +21,7 @@ You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB dri
 Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
 
 ## Contributing
-You're welcome to contribute to this repo by submitting pull requests, creating issues, and joining this [Slack team](https://join.slack.com/t/smartusbdrivefortesla/shared_invite/enQtNDY4NDIzMTQ0NjA4LTdlYjFkOGE0Y2NkNjYyZTBiZTNmZTY4OGNhODMwZjg4NGNkZWU3MGY2ZDNhODIzZTAxODhhNzEzNDQ2OTFhMTI).
+You're welcome to contribute to this repo by submitting pull requests and creating issues.
 
 ## Prerequisites
 
