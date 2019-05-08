@@ -28,8 +28,8 @@ USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
 TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
-export camsize=${camsize:-90}
-export musicsize=${musicsize:-10}
+export camsize=${camsize:-90%}
+export musicsize=${musicsize:-100%}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log

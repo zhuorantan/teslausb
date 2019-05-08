@@ -13,6 +13,8 @@ CAM_SIZE="$1"
 MUSIC_SIZE="$2"
 BACKINGFILES_MOUNTPOINT="$3"
 
+log_progress "cam: $CAM_SIZE, music: $MUSIC_SIZE, mountpoint: $BACKINGFILES_MOUNTPOINT"
+
 G_MASS_STORAGE_CONF_FILE_NAME=/etc/modprobe.d/g_mass_storage.conf
 
 function first_partition_offset () {
@@ -99,7 +101,16 @@ add_drive "cam" "CAM" "$CAM_DISK_SIZE" "$CAM_DISK_FILE_NAME"
 log_progress "created camera backing file"
 
 REMAINING_SPACE="$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)"
-if [ "$REMAINING_SPACE" -gt 0 -a "$MUSIC_SIZE" != "" ]
+
+if [ "$CAM_SIZE" = "100%" ]
+then
+  MUSIC_DISK_SIZE=0
+elif [ "$MUSIC_DISK_SIZE" -gt "$REMAINING_SPACE" ]
+then
+  MUSIC_DISK_SIZE="$REMAINING_SPACE"
+fi
+
+if [ "$REMAINING_SPACE" -ge 1024 -a "$MUSIC_DISK_SIZE" -gt 0 ]
 then
   add_drive "music" "MUSIC" "$MUSIC_DISK_SIZE" "$MUSIC_DISK_FILE_NAME"
   log_progress "created music backing file"
