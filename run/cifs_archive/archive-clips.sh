@@ -61,7 +61,7 @@ log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, deleted $
 
 if [ $NUM_FILES_MOVED -gt 0 ]
 then
-  /root/bin/send-pushover "$NUM_FILES_MOVED"
+  /root/bin/send-push-message "$NUM_FILES_MOVED"
 fi
 
 log "Finished moving clips to archive."
