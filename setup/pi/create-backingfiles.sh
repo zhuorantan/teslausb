@@ -36,9 +36,21 @@ function is_percent() {
   echo "$1" | grep '%' > /dev/null
 }
 
+available_space () {
+  freespace=$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)
+  # leave 1 GB of free space for filesystem bookkeeping (in kilobytes so 1M KB)
+  padding=$(dehumanize "1M")
+  echo $((freespace-padding))
+}
+
 function calc_size () {
   local requestedsize="$1"
-  local availablesize="$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)"
+  local availablesize="$(available_space)"
+  if [ "$availablesize" -lt 0 ]
+  then
+    echo "0"
+    return
+  fi
   if is_percent "$requestedsize"
   then
     local percent=$(echo $requestedsize | sed 's/%//')
@@ -100,7 +112,7 @@ MUSIC_DISK_SIZE="$(calc_size $MUSIC_SIZE)"
 add_drive "cam" "CAM" "$CAM_DISK_SIZE" "$CAM_DISK_FILE_NAME"
 log_progress "created camera backing file"
 
-REMAINING_SPACE="$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)"
+REMAINING_SPACE="$(available_space)"
 
 if [ "$CAM_SIZE" = "100%" ]
 then
