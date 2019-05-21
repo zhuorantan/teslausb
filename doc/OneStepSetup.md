@@ -26,7 +26,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     you would have
 
     ```
-    export sharepassword='a\'b'
+    export WIFIPASS='a\'b'
     ```
 
     Example file:
@@ -39,7 +39,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     export sharepassword='pa$$w0rd'
     export camsize=100%
     export SSID=your_ssid
-    export WIFIPASS=your_wifi_password
+    export WIFIPASS='your_wifi_password'
     export HEADLESS_SETUP=true
     # export REPO=marcone
     # export BRANCH=main-dev
