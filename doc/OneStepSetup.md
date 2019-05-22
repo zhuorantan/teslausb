@@ -38,6 +38,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     export shareuser=sailfish
     export sharepassword='pa$$w0rd'
     export camsize=100%
+    # SSID of your 2.4 GHz network
     export SSID=your_ssid
     export WIFIPASS='your_wifi_password'
     export HEADLESS_SETUP=true

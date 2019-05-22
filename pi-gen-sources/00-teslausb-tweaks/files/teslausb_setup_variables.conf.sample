@@ -28,7 +28,7 @@ export camsize=100%
 # the folder needs to be different.
 # export musicsharename=your_music_share/music_folder
 
-# Wifi setup information
+# Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz wifi
 export SSID=your_ssid
 export WIFIPASS=your_pass
 

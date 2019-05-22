@@ -14,6 +14,7 @@ These instructions will configure a Raspberry Pi so that you can proceed with th
     ```
 1. Set your SSID (Wifi network name) and WIFIPASS environment variables. The script will insert them into the `wpa_supplicant.conf` when creating it:
     ```
+    # the SSID of your 2.4 GHz network
     export SSID=your_ssid_here
     export WIFIPASS=your_wifi_password_here
     ```
