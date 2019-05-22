@@ -149,8 +149,8 @@ function install_archive_scripts () {
     get_script $install_path remountfs_rw run
 
     log_progress "Installing archive module scripts"
-    get_script $install_path verify-archive-configuration.sh $archive_module
-    get_script $install_path configure-archive.sh $archive_module
+    get_script /tmp verify-archive-configuration.sh $archive_module
+    get_script /tmp configure-archive.sh $archive_module
     get_script $install_path archive-clips.sh $archive_module
     get_script $install_path connect-archive.sh $archive_module
     get_script $install_path disconnect-archive.sh $archive_module
@@ -272,8 +272,8 @@ archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
 
 install_archive_scripts $INSTALL_DIR $archive_module
-"$INSTALL_DIR"/verify-archive-configuration.sh
-"$INSTALL_DIR"/configure-archive.sh
+/tmp/verify-archive-configuration.sh
+/tmp/configure-archive.sh
 
 install_rc_local "$INSTALL_DIR"
 

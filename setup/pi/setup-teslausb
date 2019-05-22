@@ -126,7 +126,7 @@ function get_ancillary_setup_scripts () {
   get_script /tmp create-backingfiles-partition.sh setup/pi
   get_script /tmp create-backingfiles.sh setup/pi
   get_script /tmp make-root-fs-readonly.sh setup/pi
-  get_script /root configure.sh setup/pi
+  get_script /tmp configure.sh setup/pi
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -280,7 +280,7 @@ headless_setup_mark_setup_success
 if [ "$CONFIGURE_ARCHIVING" = true ]
 then
   setup_progress "calling configure.sh"
-  /root/configure.sh
+  /tmp/configure.sh
 else
   setup_progress "skipping configure.sh"
 fi
