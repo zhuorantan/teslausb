@@ -237,6 +237,20 @@ function set_timezone () {
 export -f setup_progress
 export HEADLESS_SETUP
 
+if [ "${1:-}" = "selfupdate" ]
+then
+  get_script /tmp setup-teslausb setup/pi &> /dev/null
+  if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
+  then
+    setup_progress "already up to date"
+  else
+    /root/bin/remountfs_rw > /dev/null
+    mv /tmp/setup-teslausb /root/bin/setup-teslausb
+    setup_progress "$0 updated"
+  fi
+  exit 0
+fi
+
 update_package_index
 
 headless_setup_populate_variables

@@ -32,6 +32,27 @@ function check_available_space () {
   setup_progress "There is sufficient space available."
 }
 
+function check_setup_teslausb () {
+  if ! grep selfupdate /root/bin/setup-teslausb
+  then
+    setup_progress "setup-teslausb is outdated, attempting update"
+    if curl --fail -s -o /root/bin/setup-teslausb.new https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/pi/setup-teslausb
+    then
+      if /root/bin/remountfs_rw > /dev/null && mv /root/bin/setup-teslausb.new /root/bin/setup-teslausb && chmod +x /root/bin/setup-teslausb
+      then
+        setup_progress "updated setup-teslausb"
+        setup_progress "restarting updated setup-teslausb"
+        /root/bin/setup-teslausb
+        exit 0
+      fi
+    fi
+    setup_progress "STOP: failed to update setup-teslausb"
+    return 1
+  fi
+}
+
+check_setup_teslausb
+
 check_variable "camsize"
 
 check_available_space
