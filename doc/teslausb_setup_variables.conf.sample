@@ -36,6 +36,11 @@ export WIFIPASS=your_pass
 # If doing a headless (i.e. automatic) setup
 export HEADLESS_SETUP=true
 
+# uncomment to enable a samba server that exports the recordings
+#export SAMBA_ENABLED=true
+# uncomment to enable guest access to the samba server
+#export SAMBA_GUEST=true
+
 # uncomment if you want to set the time zone to something other than the default 'BST'
 # Can be an actual timezone, or "auto" to attempt automatic timezone detection
 # export timezone="America/Los_Angeles"

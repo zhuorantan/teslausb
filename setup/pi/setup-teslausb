@@ -48,6 +48,8 @@ USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
 TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
+SAMBA_ENABLED=${SAMBA_ENABLED:-false}
+SAMBA_GUEST=${SAMBA_GUEST:-false}
 export camsize=${camsize:-90%}
 export musicsize=${musicsize:-100%}
 
@@ -440,6 +442,15 @@ then
   /tmp/configure.sh
 else
   setup_progress "skipping configure.sh"
+fi
+
+if [ "$SAMBA_ENABLED" = "true" ]
+then
+  export SAMBA_GUEST
+  get_script /tmp/ configure-samba.sh setup/pi
+  get_script /root/bin smb-on.sh run
+  get_script /root/bin smb-off.sh run
+  /tmp/configure-samba.sh
 fi
 
 make_root_fs_readonly
