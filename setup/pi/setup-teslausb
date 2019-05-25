@@ -257,6 +257,8 @@ function set_timezone () {
 export -f setup_progress
 export HEADLESS_SETUP
 
+headless_setup_populate_variables
+
 if [ "${1:-}" = "selfupdate" ]
 then
   get_script /tmp setup-teslausb setup/pi &> /dev/null
@@ -272,8 +274,6 @@ then
 fi
 
 update_package_index
-
-headless_setup_populate_variables
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_off
