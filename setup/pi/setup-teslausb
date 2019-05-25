@@ -21,9 +21,29 @@ then
   fi
 fi
 
+HEADLESS_SETUP=${HEADLESS_SETUP:-false}
+if [ "$HEADLESS_SETUP" = "false" -a -t 0 ]
+then
+  # running in terminal in non-headless mode
+  if [ -f /boot/teslausb_setup_variables.conf -o -f /root/teslausb_setup_variables.conf ]
+  then
+    # headless setup variables are available
+    read -p "Read setup info from teslausb_setup_variables.conf (yes/no/cancel)?" answer
+    case ${answer:0:1} in
+      y|Y )
+          HEADLESS_SETUP=true
+      ;;
+      n|N )
+      ;;
+      * )
+          exit
+      ;;
+    esac
+  fi
+fi
+
 REPO=${REPO:-marcone}
 BRANCH=${BRANCH:-main-dev}
-HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
@@ -151,13 +171,13 @@ function create_usb_drive_backing_files () {
   then
     mkdir "$MUTABLE_MOUNTPOINT"
   fi
-  
+
   if ! blkid -L backingfiles
   then
     setup_progress "Starting to create backing files partition..."
     /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
   fi
-  
+
   if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
   then
     setup_progress "Mounting the partition for the backing files..."
