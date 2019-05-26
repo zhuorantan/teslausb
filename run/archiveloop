@@ -235,7 +235,7 @@ function disconnect_usb_drives_from_host () {
 }
 
 function archive_teslacam_clips () {
-  log "Starting..."
+  log "Starting recording archiving..."
 
   ensure_cam_file_is_mounted
 
@@ -247,7 +247,7 @@ function archive_teslacam_clips () {
 }
 
 function copy_music_files () {
-  log "Starting..."
+  log "Starting music sync..."
 
   ensure_music_file_is_mounted
 
@@ -330,8 +330,7 @@ export -f retry
 export -f ensure_mountpoint_is_mounted_with_retry
 export -f log
 
-log "Starting..."
-
+log "Starting archiveloop..."
 
 if archive_is_reachable
 then
