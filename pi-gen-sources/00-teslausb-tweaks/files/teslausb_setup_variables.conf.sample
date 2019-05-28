@@ -14,6 +14,7 @@ export archiveserver=your_archive_name_or_ip
 export sharename=your_archive_share_name
 export shareuser=username
 export sharepassword=password
+# export cifs_version="3.0"
 export camsize=100%
 
 # if you set camsize to less than 100%, but don't want music to use
