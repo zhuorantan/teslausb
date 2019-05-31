@@ -12,20 +12,20 @@ function check_variable () {
 function check_available_space () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
-  if blkid -L backingfiles > /dev/null && blkid -L mutable > /dev/null
-  then
-    # assume these were either created previously by the setup scripts,
-    # or manually by the user, and that they're big enough
-    setup_progress "using existing backingfiles and mutable partitions"
-    return
-  fi
+  # The following assumes that the root and boot partitions are adjacent at the start
+  # of the disk, and that all the free space is at the end.
 
-  local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
+  local totalsize=$(blockdev --getsize64 /dev/mmcblk0)
+  local part1size=$(blockdev --getsize64 /dev/mmcblk0p1)
+  local part2size=$(blockdev --getsize64 /dev/mmcblk0p2)
 
-  if [ "$available_space" -lt  4294967296 ]
+  local available_space=$(($totalsize - $part1size - $part2size))
+
+  # Require at least 12 GB of available space.
+  if [ "$available_space" -lt  $(( (1<<30) * 12)) ]
   then
     setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
-    setup_progress "$(parted -m /dev/mmcblk0 print)"
+    setup_progress "$(parted /dev/mmcblk0 print)"
     exit 1
   fi
 
