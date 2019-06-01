@@ -28,7 +28,7 @@ then
   if [ -f /boot/teslausb_setup_variables.conf -o -f /root/teslausb_setup_variables.conf ]
   then
     # headless setup variables are available
-    read -p "Read setup info from teslausb_setup_variables.conf (yes/no/cancel)?" answer
+    read -p "Read setup info from teslausb_setup_variables.conf (yes/no/cancel)? " answer
     case ${answer:0:1} in
       y|Y )
           HEADLESS_SETUP=true
@@ -127,7 +127,7 @@ function setup_led_on () {
 
 function verify_configuration () {
   get_script /tmp verify-configuration.sh setup/pi
-  
+
   /tmp/verify-configuration.sh
 }
 
@@ -135,7 +135,7 @@ function get_script () {
   local local_path="$1"
   local name="$2"
   local remote_path="${3:-}"
-  
+
   curl --fail -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   chmod +x "$local_path/$name"
@@ -254,13 +254,7 @@ function set_timezone () {
   fi
 }
 
-export -f setup_progress
-export HEADLESS_SETUP
-
-headless_setup_populate_variables
-
-if [ "${1:-}" = "selfupdate" ]
-then
+function cmd_selfupdate {
   get_script /tmp setup-teslausb setup/pi &> /dev/null
   if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
   then
@@ -271,11 +265,144 @@ then
     setup_progress "$0 updated"
   fi
   exit 0
+}
+
+function cmd_diagnose {
+  {
+    echo -e "====== summary ======"
+    if [ -e /root/teslausb_setup_variables.conf ]
+    then
+      echo "headless setup config in /root"
+      source /root/teslausb_setup_variables.conf
+    elif [ -e /boot/teslausb_setup_variables.conf ]
+    then
+      echo "headless setup config in /boot"
+      source /boot/teslausb_setup_variables.conf
+    else
+      echo "headless setup config not found"
+    fi
+
+    if [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
+    then
+      if grep -q '/mnt/archive' /etc/fstab
+      then
+        echo "CIFS archiving selected"
+      else
+        echo "CIFS archiving selected, but archive not defined in fstab"
+      fi
+    else
+      echo "archive method: ${ARCHIVE_SYSTEM:-none}"
+    fi
+
+    if ! blkid -L backingfiles > /dev/null
+    then
+      echo "backingfiles partition does not exist"
+    fi
+    if [ ! -d /backingfiles ]
+    then
+      echo "backingfiles directory does not exist"
+    fi
+    if ! grep -q '/backingfiles' /etc/fstab
+    then
+      echo "backingfiles not in fstab"
+    fi
+
+    if [ ! -f /backingfiles/cam_disk.bin ]
+    then
+      echo "cam disk image does not exist"
+    fi
+    if ! grep -q '/backingfiles/cam_disk.bin' /etc/fstab
+    then
+      echo "cam disk image not in fstab"
+    fi
+
+    if ! blkid -L mutable > /dev/null
+    then
+      echo "mutable partition does not exist"
+    fi
+    if [ ! -d /mutable ]
+    then
+      echo "mutable directory does not exist"
+    fi
+    if ! grep -q '/mutable' /etc/fstab
+    then
+      echo "mutable not in fstab"
+    fi
+
+    if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
+    then
+      echo 'setup did not finish'
+    fi
+
+    echo -e "====== disk ======"
+    parted /dev/mmcblk0 print
+
+    echo -e "====== network ======"
+    ifconfig
+
+    echo -e "====== fstab ======"
+    if [ -e /etc/fstab ]
+    then
+      cat /etc/fstab
+    else
+      echo "no fstab found"
+    fi
+
+    echo -e "====== initial setup boot log ======"
+    mkdir /tmp/root$$
+    mount --bind / /tmp/root$$
+    cat /tmp/root$$/var/log/boot.log
+    umount /tmp/root$$
+    rmdir /tmp/root$$
+
+    echo -e "====== setup log ======"
+    if [ -e /boot/teslausb-headless-setup.log ]
+    then
+      cat /boot/teslausb-headless-setup.log
+    else
+      echo "no setup log found"
+    fi
+
+    echo -e "====== archiveloop log ======"
+    if [ -e /mutable/archiveloop.log ]
+    then
+      cat /mutable/archiveloop.log
+    else
+      echo "no setup log found"
+    fi
+
+    echo -e "====== dmesg ======"
+    dmesg
+    echo -e "====== end of diagnostics ======"
+  } |
+    # clean up the output a bit
+    tr '\r' '\n' |
+    sed '/^ *$/d' |
+    grep -v '^Reading package lists' |
+    grep -v '^(Reading database' |
+    grep -v "^Adding 'diversion of" |
+    grep -v "^Removing 'diversion of"
+}
+
+export -f setup_progress
+export HEADLESS_SETUP
+
+headless_setup_populate_variables
+
+if [ ! -z ${1:+x} ]
+then
+  if typeset -f cmd_$1 > /dev/null; then
+    cmd_$1
+    exit 0
+  else
+    setup_progress "unknown command: $1"
+    exit 1
+  fi
 fi
 
 update_package_index
 
-# If USE_LED_FOR_SETUP_PROGRESS = true. 
+# If USE_LED_FOR_SETUP_PROGRESS = true.
 setup_led_off
 
 # set time zone so we get decent timestamps in the rest of the setup log
@@ -323,7 +450,7 @@ make_root_fs_readonly
 
 upgrade_packages
 
-# If USE_LED_FOR_SETUP_PROGRESS = true. 
+# If USE_LED_FOR_SETUP_PROGRESS = true.
 setup_led_on
 
 setup_progress "All done."
