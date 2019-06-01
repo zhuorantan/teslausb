@@ -4,7 +4,7 @@
 # Example config file for teslausb_setup. Lines with "#" are comments/ignored.
 # Remove the "#" before "export" to activate a line. Be sure to rename this file
 # to "teslausb_setup_variables.conf" and place it in the "boot" folder of your
-# SD card. 
+# SD card.
 #
 ######################################################################
 
@@ -48,7 +48,7 @@ export HEADLESS_SETUP=true
 # Uncomment if you want to override the default hostname of "teslausb"
 # export TESLAUSB_HOSTNAME=teslausb-Model3
 
-# Uncomment if setting up Pushover push notifications 
+# Uncomment if setting up Pushover push notifications
 # export pushover_enabled=false
 # export pushover_user_key=user_key
 # export pushover_app_key=app_key
@@ -58,6 +58,11 @@ export HEADLESS_SETUP=true
 # export gotify_domain=https://gotify.domain.com
 # export gotify_app_token=put_your_token_here
 # export gotify_priority=5
+
+# Uncomment if setting up IFTTT push notifications
+# export ifttt_enabled=false
+# export ifttt_event_name=put_your_event_name_here
+# export ifttt_key=put_your_key_here
 
 # Uncomment and change if you want setup scripts to be pulled
 # from a different repo than github.com/marcone/teslausb

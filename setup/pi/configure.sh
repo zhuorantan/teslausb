@@ -102,7 +102,7 @@ function check_archive_configs () {
         rclone)
             check_variable "RCLONE_DRIVE"
             check_variable "RCLONE_PATH"
-            export archiveserver="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns    
+            export archiveserver="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns
             ;;
         cifs)
             check_variable "sharename"
@@ -117,7 +117,7 @@ function check_archive_configs () {
             exit 1
             ;;
     esac
-    
+
     log_progress "done"
 }
 
@@ -198,6 +198,24 @@ function check_gotify_configuration () {
     fi
 }
 
+function check_ifttt_configuration () {
+    if [ ! -z "${ifttt_enabled+x}" ]
+    then
+        if [ ! -n "${ifttt_event_name+x}" ] || [ ! -n "${ifttt_key+x}"  ]
+        then
+            log_progress "STOP: You're trying to setup IFTTT but didn't provide your Event Name and/or key."
+            log_progress "Define the variables like this:"
+            log_progress "export ifttt_event_name=put_your_event_name_here"
+            log_progress "export ifttt_key=put_your_key_here"
+            exit 1
+        elif [ "${ifttt_event_name}" = "put_your_event_name_here" ] || [  "${ifttt_key}" = "put_your_key_here" ]
+        then
+            log_progress "STOP: You're trying to setup IFTTT, but didn't replace the default Event Name and/or key values."
+            exit 1
+        fi
+    fi
+}
+
 function configure_pushover () {
     if [ ! -z "${pushover_enabled+x}" ]
     then
@@ -223,16 +241,34 @@ function configure_gotify () {
     fi
 }
 
+function configure_ifttt () {
+    if [ ! -z "${ifttt_enabled+x}" ]
+    then
+        log_progress "Enabling IFTTT"
+        echo "export ifttt_enabled=true" > /root/.teslaCamIftttSettings
+        echo "export ifttt_event_name=$ifttt_event_name" >> /root/.teslaCamIftttSettings
+        echo "export ifttt_key=$ifttt_key" >> /root/.teslaCamIftttSettings
+    else
+        log_progress "Gotify not configured."
+    fi
+}
+
 function check_and_configure_pushover () {
     check_pushover_configuration
-    
+
     configure_pushover
 }
 
 function check_and_configure_gotify () {
     check_gotify_configuration
-    
+
     configure_gotify
+}
+
+function check_and_configure_ifttt () {
+    check_ifttt_configuration
+
+    configure_ifttt
 }
 
 function install_push_message_scripts() {
@@ -261,6 +297,7 @@ log_progress "Getting files from $REPO:$BRANCH"
 
 check_and_configure_pushover
 check_and_configure_gotify
+check_and_configure_ifttt
 install_push_message_scripts "$INSTALL_DIR"
 
 check_archive_configs
@@ -276,6 +313,3 @@ install_archive_scripts $INSTALL_DIR $archive_module
 /tmp/configure-archive.sh
 
 install_rc_local "$INSTALL_DIR"
-
-
-

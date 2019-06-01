@@ -30,11 +30,23 @@ function send_gotify () {
   -F "title=$TITLE" \
   -F "message=$MESSAGE" \
   -F "priority=$gotify_priority" \
-  "$gotify_domain/message?token=$gotify_app_token" 
+  "$gotify_domain/message?token=$gotify_app_token"
+}
+
+function send_ifttt () {
+  log "Sending IFTTT message for moved files."
+
+  source /root/.teslaCamIftttSettings
+
+  curl -X POST \
+  -F "value1=$TITLE" \
+  -F "value2=$MESSAGE" \
+  "https://maker.ifttt.com/trigger/$ifttt_event_name/with/key/$ifttt_key"
 }
 
 if [ $NUM_FILES_MOVED -gt 0 ]
 then
   [ -r "/root/.teslaCamPushoverCredentials" ] && send_pushover
   [ -r "/root/.teslaCamGotifySettings" ] && send_gotify
+  [ -r "/root/.teslaCamIftttSettings" ] && send_ifttt
 fi
