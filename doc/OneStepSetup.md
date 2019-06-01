@@ -65,7 +65,6 @@ A sample conf file is located in the `boot` folder on the SD card.
     # export gotify_app_token=put_your_token_here
     # export gotify_priority=5
 
-    # Uncomment if setting up IFTTT push notifications
     # export ifttt_enabled=false
     # export ifttt_event_name=put_your_event_name_here
     # export ifttt_key=put_your_key_here

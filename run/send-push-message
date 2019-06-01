@@ -2,7 +2,7 @@
 
 NUM_FILES_MOVED="$1"
 TITLE="Dashcam Copy Complete"
-MESSAGE="$NUM_FILES_MOVED files(s) were copied."
+MESSAGE="$NUM_FILES_MOVED file(s) were copied."
 
 function log () {
   echo "$( date )" >> "$LOG_FILE"
