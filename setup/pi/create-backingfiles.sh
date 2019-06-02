@@ -85,11 +85,10 @@ function add_drive () {
   if [ ! -e "$mountpoint" ]
   then
     mkdir "$mountpoint"
-    echo "$filename $mountpoint vfat noauto,users,umask=000,offset=$partition_offset 0 0" >> /etc/fstab
-    log_progress "updated /etc/fstab for $mountpoint"
-  else
-    log_progress "mountpoint $mountpoint does not exist"
   fi
+  sed -i "\@^$filename .*@d" /etc/fstab
+  echo "$filename $mountpoint vfat utf8,noauto,users,umask=000,offset=$partition_offset 0 0" >> /etc/fstab
+  log_progress "updated /etc/fstab for $mountpoint"
 }
 
 function create_teslacam_directory () {
@@ -103,6 +102,10 @@ MUSIC_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/music_disk.bin"
 
 # delete existing files, because fallocate doesn't shrink files, and
 # because they interfere with the percentage-of-free-space calculation
+killall archiveloop || true
+modprobe -r g_mass_storage
+umount /mnt/cam || true
+umount /mnt/music || true
 rm -f "$CAM_DISK_FILE_NAME"
 rm -f "$MUSIC_DISK_FILE_NAME"
 
