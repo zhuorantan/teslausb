@@ -276,12 +276,6 @@ function install_push_message_scripts() {
     get_script $install_path send-push-message run
 }
 
-if [ "$ARCHIVE_SYSTEM" = "none" ]
-then
-    log_progress "Skipping archive configuration."
-    exit 0
-fi
-
 if ! [ $(id -u) = 0 ]
 then
     log_progress "STOP: Run sudo -i."
@@ -293,23 +287,34 @@ then
     mkdir "$INSTALL_DIR"
 fi
 
-log_progress "Getting files from $REPO:$BRANCH"
+if [ "$ARCHIVE_SYSTEM" = "none" ]
+then
+    # create dummy archiveloop that just enables the mass storage driver
+    cat <<- EOF > $INSTALL_DIR/archiveloop
+	#!/bin/bash -eu
+	modprobe g_mass_storage
+	EOF
+    chmod +x $INSTALL_DIR/archiveloop
+    get_script $INSTALL_DIR remountfs_rw run
+else
+    log_progress "Getting files from $REPO:$BRANCH"
 
-check_and_configure_pushover
-check_and_configure_gotify
-check_and_configure_ifttt
-install_push_message_scripts "$INSTALL_DIR"
+    check_and_configure_pushover
+    check_and_configure_gotify
+    check_and_configure_ifttt
+    install_push_message_scripts "$INSTALL_DIR"
 
-check_archive_configs
+    check_archive_configs
 
-echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
-echo "ARCHIVE_DELAY=${archivedelay:-20}" >> /root/teslausb.conf
+    echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
+    echo "ARCHIVE_DELAY=${archivedelay:-20}" >> /root/teslausb.conf
 
-archive_module="$( get_archive_module )"
-log_progress "Using archive module: $archive_module"
+    archive_module="$( get_archive_module )"
+    log_progress "Using archive module: $archive_module"
 
-install_archive_scripts $INSTALL_DIR $archive_module
-/tmp/verify-archive-configuration.sh
-/tmp/configure-archive.sh
+    install_archive_scripts $INSTALL_DIR $archive_module
+    /tmp/verify-archive-configuration.sh
+    /tmp/configure-archive.sh
 
-install_rc_local "$INSTALL_DIR"
+    install_rc_local "$INSTALL_DIR"
+fi
