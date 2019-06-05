@@ -68,6 +68,16 @@ A sample conf file is located in the `boot` folder on the SD card.
     # export ifttt_enabled=false
     # export ifttt_event_name=put_your_event_name_here
     # export ifttt_key=put_your_key_here
+
+    # TeslaUSB can optionally use the Tesla API to keep your car awake, so it can
+    # power the Pi long enough for the archiving process to complete. To enable
+    # that, please provide your Tesla account email and password below.
+    # TeslaUSB will only send your credentials to the Tesla API itself.
+    # export tesla_email=joeshmo@gmail.com
+    # export tesla_password=teslapass
+    # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
+    # vehicle awake.
+    # export tesla_vin=5YJ3E1EA4JF000001
     ```
 
 1. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:

@@ -147,6 +147,13 @@ function install_archive_scripts () {
     log_progress "Installing base archive scripts into $install_path"
     get_script $install_path archiveloop run
     get_script $install_path remountfs_rw run
+    # Install the tesla_api.py script only if the user provided credentials for its use.
+    if [ ! -z ${tesla_email:+x} ]
+    then
+      get_script $install_path tesla_api.py run
+    else
+      log_progress "Skipping tesla_api.py install"
+    fi
 
     log_progress "Installing archive module scripts"
     get_script /tmp verify-archive-configuration.sh $archive_module
