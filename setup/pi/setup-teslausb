@@ -366,7 +366,7 @@ function cmd_diagnose {
     then
       cat /mutable/archiveloop.log
     else
-      echo "no setup log found"
+      echo "no archiveloop log found"
     fi
 
     echo -e "====== dmesg ======"
@@ -376,10 +376,10 @@ function cmd_diagnose {
     # clean up the output a bit
     tr '\r' '\n' |
     sed '/^ *$/d' |
-    grep -v '^Reading package lists' |
-    grep -v '^(Reading database' |
-    grep -v "^Adding 'diversion of" |
-    grep -v "^Removing 'diversion of"
+    grep -a -v '^Reading package lists' |
+    grep -a -v '^(Reading database' |
+    grep -a -v "^Adding 'diversion of" |
+    grep -a -v "^Removing 'diversion of"
 }
 
 export -f setup_progress
