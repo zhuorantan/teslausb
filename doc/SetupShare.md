@@ -17,11 +17,11 @@ Now, on the Pi:
     ping 192.168.0.41
     ```
     To get the IP address of the archive machine:
-    * On Windows: Open a PowerShell session and type `ipconfig`. Get the IP address from the line labeled "IPv4 Address". 
+    * On Windows: Open a PowerShell session and type `ipconfig`. Get the IP address from the line labeled "IPv4 Address".
     * On MacOS or Linux open a terminal and type ifconfig.
 
     If you can't ping the archive server by IP address from the Pi, go do whatever you need to on your network to fix that.
-    
+
     If you can't reach the archive server by name but you can by IP address then use its IP address, below, for the `archiveserver` variable.
 
 1. Run these commands, subsituting your values:

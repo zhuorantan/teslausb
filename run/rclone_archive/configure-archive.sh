@@ -2,7 +2,7 @@
 
 function configure_archive () {
   echo "Configuring rclone archive..."
-  
+
   local config_file_path="/root/.teslaCamRcloneConfig"
   /root/bin/write-archive-configs-to.sh "$config_file_path"
 

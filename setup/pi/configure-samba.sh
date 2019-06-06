@@ -80,6 +80,6 @@ then
 
   apt-get -y --force-yes install samba
   service smbd start
-  echo -e "raspberry\nraspberry\n" | smbpasswd -s -a pi 
+  echo -e "raspberry\nraspberry\n" | smbpasswd -s -a pi
   service smbd stop
 fi

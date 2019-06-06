@@ -14,7 +14,7 @@
 #
 # Put the card in your Pi, and reboot!
 
-# Creates the ssh file if needed, since Raspbian now disables 
+# Creates the ssh file if needed, since Raspbian now disables
 # ssh by default if the file isn't present
 
 BOOT_DIR="$1"
@@ -22,12 +22,12 @@ BOOT_DIR="$1"
 function verify_file_exists () {
   local file_name="$1"
   local expected_path="$2"
-  
+
   if [ ! -e "$expected_path/$file_name" ]
     then
       echo "STOP: Didn't find $file_name at $expected_path."
       exit 1
-  fi  
+  fi
 }
 
 function verify_wifi_variables () {
@@ -71,7 +71,7 @@ fi
 echo "Enabling SSH ..."
 touch "$BOOT_DIR/ssh"
 
-# Sets up wifi credentials so wifi will be 
+# Sets up wifi credentials so wifi will be
 # auto configured on first boot
 
 WPA_SUPPLICANT_CONF_PATH="$BOOT_DIR/wpa_supplicant.conf"

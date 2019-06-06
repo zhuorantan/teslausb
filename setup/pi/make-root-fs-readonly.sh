@@ -24,7 +24,7 @@ log_progress "Installing ntp and busybox-syslogd..."
 apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
 
 log_progress "Configuring system..."
-  
+
 # Add fastboot, noswap and/or ro to end of /boot/cmdline.txt
 append_cmdline_txt_param fastboot
 append_cmdline_txt_param noswap

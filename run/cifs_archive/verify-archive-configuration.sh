@@ -23,14 +23,14 @@ function check_archive_server_reachable () {
 
 function check_archive_mountable () {
   local test_mount_location="/tmp/archivetestmount"
-  
+
   log_progress "Verifying that the archive share is mountable..."
-  
+
   if [ ! -e "$test_mount_location" ]
   then
     mkdir "$test_mount_location"
   fi
-  
+
   local cifs_version="${cifs_version:-3.0}"
 
   local tmp_credentials_file_path="/tmp/teslaCamArchiveCredentials"
@@ -48,9 +48,9 @@ function check_archive_mountable () {
     log_progress "Other versions you can try are 2.0 and 1.0"
     exit 1
   fi
-  
+
   log_progress "The archive share is mountable."
-  
+
   umount "$test_mount_location"
 }
 

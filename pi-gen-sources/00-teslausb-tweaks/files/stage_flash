@@ -2,7 +2,7 @@
 
 i=$1
 flash_count=0
-flash_count=$((i + 1 )) 
+flash_count=$((i + 1 ))
 
 function led_off () {
 echo 1 | sudo tee /sys/class/leds/led0/brightness > /dev/null
@@ -22,7 +22,7 @@ function flash () {
   local COUNTER=0
   sleep 2
   while [ ${COUNTER} -lt ${flash_count} ]
-  do  
+  do
     led_flash
     let COUNTER=COUNTER+1
   done

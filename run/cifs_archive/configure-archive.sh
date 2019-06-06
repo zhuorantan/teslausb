@@ -9,13 +9,13 @@ function log_progress () {
 
 function configure_archive () {
   log_progress "Configuring the archive..."
-  
+
   local archive_path="/mnt/archive"
   local music_archive_path="/mnt/musicarchive"
 
   if [ ! -e "$archive_path" ]
   then
-    mkdir "$archive_path"  
+    mkdir "$archive_path"
   fi
 
   local cifs_version="${cifs_version:-3.0}"
@@ -32,7 +32,7 @@ function configure_archive () {
   then
     if [ ! -e "$music_archive_path" ]
     then
-      mkdir "$music_archive_path"  
+      mkdir "$music_archive_path"
     fi
     if ! grep -w -q "$music_archive_path" /etc/fstab
     then
