@@ -33,7 +33,12 @@ function check_available_space () {
 }
 
 function check_setup_teslausb () {
-  if ! grep selfupdate /root/bin/setup-teslausb
+  if [ ! -e /root/bin/setup-teslausb ]
+  then
+    setup_progress "STOP: setup-teslausb is not in /root/bin"
+    exit 1
+  fi
+  if ! grep selfupdate /root/bin/setup-teslausb > /dev/null
   then
     setup_progress "setup-teslausb is outdated, attempting update"
     if curl --fail -s -o /root/bin/setup-teslausb.new https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/pi/setup-teslausb
@@ -47,7 +52,7 @@ function check_setup_teslausb () {
       fi
     fi
     setup_progress "STOP: failed to update setup-teslausb"
-    return 1
+    exit 1
   fi
 }
 

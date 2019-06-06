@@ -128,6 +128,8 @@ Make sure that whatever you speicfy for the new hostname is compliant with the r
 ### Set up the USB storage functionality
 1. Run these commands:
     ```
+    mkdir -p /root/bin
+    cd /root/bin
     wget https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/pi/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
