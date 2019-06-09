@@ -26,9 +26,6 @@ BRANCH=${BRANCH:-main-dev}
 
 ARCHIVE_SYSTEM=${ARCHIVE_SYSTEM:-none}
 
-export INSTALL_DIR=${INSTALL_DIR:-/root/bin}
-
-
 function log_progress () {
   if typeset -f setup_progress > /dev/null; then
     setup_progress "configure: $1"
@@ -36,7 +33,7 @@ function log_progress () {
   echo "configure: $1"
 }
 
-log_progress "$0 starting with REPO=$REPO, BRANCH=$BRANCH, ARCHIVE_SYSTEM=$ARCHIVE_SYSTEM, INSTALL_DIR=$INSTALL_DIR"
+log_progress "$0 starting with REPO=$REPO, BRANCH=$BRANCH, ARCHIVE_SYSTEM=$ARCHIVE_SYSTEM"
 
 function check_variable () {
     local var_name="$1"
@@ -289,27 +286,24 @@ then
     exit 1
 fi
 
-if [ ! -e "$INSTALL_DIR" ]
-then
-    mkdir "$INSTALL_DIR"
-fi
+mkdir -p /root/bin
 
 if [ "$ARCHIVE_SYSTEM" = "none" ]
 then
     # create dummy archiveloop that just enables the mass storage driver
-    cat <<- EOF > $INSTALL_DIR/archiveloop
+    cat <<- EOF > /root/bin/archiveloop
 	#!/bin/bash -eu
 	modprobe g_mass_storage
 	EOF
-    chmod +x $INSTALL_DIR/archiveloop
-    get_script $INSTALL_DIR remountfs_rw run
+    chmod +x /root/bin/archiveloop
+    get_script /root/bin remountfs_rw run
 else
     log_progress "Getting files from $REPO:$BRANCH"
 
     check_and_configure_pushover
     check_and_configure_gotify
     check_and_configure_ifttt
-    install_push_message_scripts "$INSTALL_DIR"
+    install_push_message_scripts /root/bin
 
     check_archive_configs
 
@@ -319,9 +313,9 @@ else
     archive_module="$( get_archive_module )"
     log_progress "Using archive module: $archive_module"
 
-    install_archive_scripts $INSTALL_DIR $archive_module
+    install_archive_scripts /root/bin $archive_module
     /tmp/verify-archive-configuration.sh
     /tmp/configure-archive.sh
 
-    install_rc_local "$INSTALL_DIR"
+    install_rc_local /root/bin
 fi

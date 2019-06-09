@@ -404,6 +404,12 @@ export HEADLESS_SETUP
 
 headless_setup_populate_variables
 
+INSTALL_DIR=${INSTALL_DIR:-/root/bin}
+if [ "$INSTALL_DIR" != "/root/bin" ]
+then
+  setup_progress "WARNING: 'INSTALL_DIR' setup variable no longer supported"
+fi
+
 if [ ! -z ${1:+x} ]
 then
   if typeset -f cmd_$1 > /dev/null; then
