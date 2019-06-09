@@ -279,7 +279,6 @@ function cmd_diagnose {
     else
       echo "headless setup config not found"
     fi
-
     if [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
     then
       if grep -q '/mnt/archive' /etc/fstab
@@ -313,7 +312,16 @@ function cmd_diagnose {
     then
       echo "cam disk image not in fstab"
     fi
-
+    LUN0=/sys/devices/platform/soc/20980000.usb/gadget/lun0/file
+    LUN1=/sys/devices/platform/soc/20980000.usb/gadget/lun1/file
+    if [ -e $LUN0 ]
+    then
+      echo "lun0 connected, from file $(cat $LUN0)"
+    fi
+    if [ -e $LUN1 ]
+    then
+      echo "lun1 connected, from file $(cat $LUN1)"
+    fi
     if ! blkid -L mutable > /dev/null
     then
       echo "mutable partition does not exist"
@@ -379,7 +387,9 @@ function cmd_diagnose {
     grep -a -v '^Reading package lists' |
     grep -a -v '^(Reading database' |
     grep -a -v "^Adding 'diversion of" |
-    grep -a -v "^Removing 'diversion of"
+    grep -a -v "^Removing 'diversion of" |
+    sed -E 's/\o033\[0;32m//' |
+    sed -E 's/\o033\[0m//'
 }
 
 export -f setup_progress
