@@ -55,7 +55,7 @@ export musicsize=${musicsize:-100%}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
-  if [ $HEADLESS_SETUP = "true" ]
+  if [ $HEADLESS_SETUP = "true" -a -w $setup_logfile ]
   then
     echo "$( date ) : $1" >> "$setup_logfile"
   fi
@@ -149,6 +149,12 @@ function get_ancillary_setup_scripts () {
   get_script /tmp create-backingfiles.sh setup/pi
   get_script /tmp make-root-fs-readonly.sh setup/pi
   get_script /tmp configure.sh setup/pi
+}
+
+function get_common_scripts () {
+  get_script /root/bin remountfs_rw run
+  get_script /root/bin mount_snapshot.sh run
+  get_script /root/bin release_snapshot.sh run
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -430,6 +436,10 @@ verify_configuration
 headless_setup_progress_flash 2
 
 setup_progress "Downloading additional setup scripts."
+
+mkdir -p /root/bin
+
+get_common_scripts
 
 get_ancillary_setup_scripts
 
