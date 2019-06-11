@@ -208,6 +208,16 @@ function wait_for_archive_to_be_unreachable () {
   done
 }
 
+function check_if_usb_gadget_is_mounted () {
+    if [ ! -d /sys/devices/platform/soc/20980000.usb/gadget/lun0 ]
+    then
+        log "USB Gadget not mounted. Fixing files and remounting..."
+        disconnect_usb_drives_from_host
+        mount_and_fix_errors_in_files
+        connect_usb_drives_to_host
+    fi
+}
+
 function mount_and_fix_errors_in_cam_file () {
   ensure_cam_file_is_mounted
   fix_errors_in_cam_file
@@ -369,4 +379,6 @@ do
   doubleblink
 
   wait_for_archive_to_be_unreachable
+    
+  check_if_usb_gadget_is_mounted
 done
