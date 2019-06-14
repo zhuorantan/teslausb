@@ -28,6 +28,20 @@ A sample conf file is located in the `boot` folder on the SD card.
     ```
     export WIFIPASS='a\'b'
     ```
+If your WiFi SSID has spaces in its name, make sure they're escaped.
+
+For example, if your SSID were
+```
+Foo Bar 2.4 GHz
+```
+you would use
+```
+export SSID=Foo\ Bar\ 2.4\ GHz
+```
+or
+```
+export SSID='Foo Bar 2.4 GHz'
+```
 
     Example file:
 
@@ -39,7 +53,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     export sharepassword='pa$$w0rd'
     export camsize=100%
     # SSID of your 2.4 GHz network
-    export SSID=your_ssid
+    export SSID='your_ssid'
     export WIFIPASS='your_wifi_password'
     export HEADLESS_SETUP=true
     # export REPO=marcone
