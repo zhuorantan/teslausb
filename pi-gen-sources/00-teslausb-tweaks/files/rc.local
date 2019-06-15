@@ -30,8 +30,11 @@ function get_script () {
   local name="$2"
   local remote_path="${3:-}"
 
-  curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
-  # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  while ! curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  do
+    setup_progress "get_script failed, retrying"
+    sleep 3
+  done
   chmod +x "$local_path/$name"
 }
 
@@ -50,6 +53,16 @@ function enable_wifi () {
         sed -i'.bak' -e "s/TEMPSSID/${SSID}/g" /boot/wpa_supplicant.conf
         sed -i'.bak' -e "s/TEMPPASS/${WIFIPASS}/g" /boot/wpa_supplicant.conf
         cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+        # set the host name now if possible, so it's effective immediately after the reboot
+        local old_host_name=$(cat /etc/hostname)
+        if [[ ! -z "$TESLAUSB_HOSTNAME" ]] && [[ "$TESLAUSB_HOSTNAME" != "$old_host_name" ]]
+        then
+          local new_host_name="$TESLAUSB_HOSTNAME"
+          sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hosts
+          sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
+        fi
+
         touch /boot/WIFI_ENABLED
         setup_progress "Rebooting..."
         reboot
