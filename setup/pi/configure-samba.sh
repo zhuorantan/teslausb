@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "configure-samba: $1"
+  fi
+  echo "configure-samba: $1"
+}
+
 SAMBA_GUEST=${SAMBA_GUEST:-false}
 
 if [ "$SAMBA_GUEST" = "true" ]
@@ -11,6 +18,7 @@ fi
 
 if ! hash smbd &> /dev/null
 then
+  log_progress "Installing samba and dependencies..."
   # before installing, move some of samba's folders off of the
   # soon-to-be-readonly root partition
 
@@ -82,4 +90,5 @@ then
   service smbd start
   echo -e "raspberry\nraspberry\n" | smbpasswd -s -a pi
   service smbd stop
+  log_progress "Done."
 fi

@@ -458,9 +458,9 @@ fi
 if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
-  get_script /tmp/ configure-samba.sh setup/pi
   get_script /root/bin smb-on.sh run
   get_script /root/bin smb-off.sh run
+  get_script /tmp configure-samba.sh setup/pi
   /tmp/configure-samba.sh
 fi
 
