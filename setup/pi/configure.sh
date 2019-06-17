@@ -6,8 +6,21 @@ then
   return 1 # shouldn't use exit when sourced
 fi
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "configure: $1"
+  fi
+  echo "configure: $1"
+}
+
 if [ "${FLOCKED:-}" != "$0" ]
 then
+  PARENT="$(ps -o comm= $PPID)"
+  if [ "$PARENT" != "setup-teslausb" ]
+  then
+    log_progress "WARNING: $0 not called from setup-teslausb: $PARENT"
+  fi
+
   if FLOCKED="$0" flock -en -E 99 "$0" "$0" "$@" || case "$?" in
   99) echo already running
       exit 99
@@ -25,18 +38,6 @@ REPO=${REPO:-marcone}
 BRANCH=${BRANCH:-main-dev}
 
 ARCHIVE_SYSTEM=${ARCHIVE_SYSTEM:-none}
-
-function log_progress () {
-  if typeset -f setup_progress > /dev/null; then
-    setup_progress "configure: $1"
-  fi
-  echo "configure: $1"
-}
-
-if [ "$(ps -o comm= $PPID)" != "setup-teslausb" ]
-then
-  log_progress "WARNING: $0 not called from setup-teslausb"
-fi
 
 log_progress "$0 starting with REPO=$REPO, BRANCH=$BRANCH, ARCHIVE_SYSTEM=$ARCHIVE_SYSTEM"
 
