@@ -33,6 +33,11 @@ function log_progress () {
   echo "configure: $1"
 }
 
+if [ "$(ps -o comm= $PPID)" != "setup-teslausb" ]
+then
+  log_progress "WARNING: $0 not called from setup-teslausb"
+fi
+
 log_progress "$0 starting with REPO=$REPO, BRANCH=$BRANCH, ARCHIVE_SYSTEM=$ARCHIVE_SYSTEM"
 
 function check_variable () {

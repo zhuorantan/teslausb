@@ -423,6 +423,18 @@ fi
 
 configure_hostname
 
+HEAD_VERSION=$(curl -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
+BRANCHNAME="$BRANCH"
+BRANCH="$HEAD_VERSION"
+
+get_script /tmp setup-teslausb setup/pi &> /dev/null
+if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
+then
+  setup_progress "$0 is up to date"
+else
+  setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 selfupdate' to update to that version"
+fi
+
 update_package_index
 
 # If USE_LED_FOR_SETUP_PROGRESS = true.
