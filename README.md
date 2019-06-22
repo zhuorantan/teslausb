@@ -53,6 +53,8 @@ Optional:
 ### Software
 Download: [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
 
+**NOTE:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md).
+
 Download and install: [Etcher](http://etcher.io)
 
 ## Set up the Raspberry Pi
