@@ -384,6 +384,9 @@ function cmd_diagnose {
       echo "no archiveloop log found"
     fi
 
+    echo -e "====== system log ======"
+    logread
+
     echo -e "====== dmesg ======"
     dmesg
     echo -e "====== end of diagnostics ======"
