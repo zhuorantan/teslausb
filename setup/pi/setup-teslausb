@@ -385,7 +385,12 @@ function cmd_diagnose {
     fi
 
     echo -e "====== system log ======"
-    logread
+    if [ -x /bin/logread ]
+    then
+      /bin/logread
+    else
+      echo "logread not installed"
+    fi
 
     echo -e "====== dmesg ======"
     dmesg
