@@ -394,6 +394,9 @@ function cmd_diagnose {
 
     echo -e "====== dmesg ======"
     dmesg
+    echo -e "====== process list and uptime ======"
+    ps -eaf
+    echo "$(hostname) has been $(uptime -p). System time is $(date)"
     echo -e "====== end of diagnostics ======"
   } |
     # clean up the output a bit
