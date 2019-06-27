@@ -38,3 +38,8 @@ do
 done <<< "$(cd "$SRC"; find * -type f)"
 
 log "Copied $NUM_FILES_COPIED music file(s), skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR errors."
+
+if [ $NUM_FILES_COPIED -gt 0 ]
+then
+  /root/bin/send-push-message "$NUM_FILES_COPIED" "Music Copy Complete"
+fi

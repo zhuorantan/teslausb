@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 NUM_FILES_MOVED="$1"
-TITLE="Dashcam Copy Complete"
+TITLE=${2:-"Dashcam Copy Complete"}
 MESSAGE="$NUM_FILES_MOVED file(s) were copied."
 
 function log () {
