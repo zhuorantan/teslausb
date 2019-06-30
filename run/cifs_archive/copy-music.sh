@@ -41,5 +41,5 @@ log "Copied $NUM_FILES_COPIED music file(s), skipped $NUM_FILES_SKIPPED previous
 
 if [ $NUM_FILES_COPIED -gt 0 ]
 then
-  /root/bin/send-push-message "$NUM_FILES_COPIED" "Music Copy Complete"
+  /root/bin/send-push-message "TeslaUSB:" "Copied $NUM_FILES_COPIED music file(s), skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR errors."
 fi

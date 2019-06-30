@@ -247,6 +247,8 @@ function disconnect_usb_drives_from_host () {
 function archive_teslacam_clips () {
   log "Starting recording archiving..."
 
+  /root/bin/send-push-message "TeslaUSB:" "Archiving started at $(date)"
+
   ensure_cam_file_is_mounted
 
   fix_errors_in_cam_file
@@ -379,6 +381,6 @@ do
   doubleblink
 
   wait_for_archive_to_be_unreachable
-    
+
   check_if_usb_gadget_is_mounted
 done
