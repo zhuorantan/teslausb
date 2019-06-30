@@ -15,6 +15,9 @@ for file_name in "$CAM_MOUNT"/TeslaCam/saved* "$CAM_MOUNT"/TeslaCam/SavedClips/*
 done
 log "Moved $NUM_FILES_MOVED file(s)."
 
-/root/bin/send-push-message "$NUM_FILES_MOVED"
+if [ $NUM_FILES_MOVED -gt 0 ]
+then
+  /root/bin/send-push-message "TeslaUSB:" "Moved $NUM_FILES_MOVED dashcam file(s)."
+fi
 
 log "Finished moving clips to rclone archive"
