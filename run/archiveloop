@@ -173,8 +173,18 @@ function ensure_music_file_is_mounted () {
 function unmount_mount_point () {
   local mount_point="$1"
   log "Unmounting $mount_point..."
-  umount "$mount_point" >> "$LOG_FILE" 2>&1
-  log "Unmounted $mount_point."
+  if umount "$mount_point" >> "$LOG_FILE" 2>&1
+  then
+    log "Unmounted $mount_point."
+  else
+    log "Failed to unmount $mount_point, trying lazy unmount."
+    if umount -l "$mount_point" >> "$LOG_FILE" 2>&1
+    then
+      log "lazily unmounted $mount_point"
+    else
+      log "lazy unmount failed"
+    fi
+  fi
 }
 
 function unmount_cam_file () {
@@ -289,7 +299,7 @@ function archive_clips () {
     log "Archiving failed."
   fi
 
-  if [ -d "$MUSIC_ARCHIVE_MOUNT" -a -d "$MUSIC_MOUNT" ]
+  if timeout 5 [ -d "$MUSIC_ARCHIVE_MOUNT" -a -d "$MUSIC_MOUNT" ]
   then
     log "Copying music..."
     if copy_music_files
@@ -299,7 +309,7 @@ function archive_clips () {
       log "Copying music failed."
     fi
   else
-    log "No music archive configured"
+    log "Music archive not configured or unreachable"
   fi
 
   /root/bin/disconnect-archive.sh
@@ -336,6 +346,7 @@ function doubleblink () {
   echo 1 > /sys/class/leds/led0/invert
 }
 
+export ARCHIVE_HOST_NAME
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
 export -f retry
