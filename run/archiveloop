@@ -346,6 +346,24 @@ function doubleblink () {
   echo 1 > /sys/class/leds/led0/invert
 }
 
+function set_time () {
+  log "Waiting for time to be set by ntpd"
+  for i in $(seq 1 10)
+  do
+    if ntp-wait --tries=1 --sleep=1
+    then
+      log "Time now set"
+      return
+    fi
+    sleep 2
+  done
+  log "Time still not set, attempting to force it"
+  if ! ntpd -q -x -g
+  then
+    log "Failed to set time"
+  fi
+}
+
 export ARCHIVE_HOST_NAME
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
@@ -353,11 +371,14 @@ export -f retry
 export -f ensure_mountpoint_is_mounted_with_retry
 export -f log
 
+echo "==============================================" >> "$LOG_FILE"
 log "Starting archiveloop..."
 
 if archive_is_reachable
 then
   fastblink
+
+  set_time
 
   # archive_clips will fix errors in the cam file
   mount_and_fix_errors_in_music_file
@@ -382,6 +403,8 @@ do
   wait_for_archive_to_be_reachable
 
   fastblink
+
+  set_time
 
   sleep ${ARCHIVE_DELAY:-20}
 
