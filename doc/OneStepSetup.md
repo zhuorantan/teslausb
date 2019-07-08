@@ -43,9 +43,8 @@ or
 export SSID='Foo Bar 2.4 GHz'
 ```
 
-    Example file:
+Example file:
 
-    ```
     export ARCHIVE_SYSTEM=cifs
     export archiveserver=Nautilus
     export sharename=SailfishCam
@@ -92,7 +91,6 @@ export SSID='Foo Bar 2.4 GHz'
     # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
     # vehicle awake.
     # export tesla_vin=5YJ3E1EA4JF000001
-    ```
 
 1. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
