@@ -21,6 +21,9 @@ then
   fi
 fi
 
+# turning off hdmi saves a little bit of power
+/usr/bin/tvservice -o
+
 export LOG_FILE=/mutable/archiveloop.log
 
 export CAM_MOUNT=/mnt/cam
