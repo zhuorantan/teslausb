@@ -57,9 +57,9 @@ function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" -a -w $setup_logfile ]
   then
-    echo "$( date ) : $1" >> "$setup_logfile"
+    echo "$( date ) : $@" >> "$setup_logfile"
   fi
-  echo $1
+  echo "$@"
 }
 
 if ! [ $(id -u) = 0 ]
@@ -133,13 +133,21 @@ function verify_configuration () {
   /tmp/verify-configuration.sh
 }
 
+function curlwrapper () {
+  setup_progress "curl $@"
+  while ! curl --fail "$@"
+  do
+    setup_progress "'curl $@' failed, retrying" > /dev/null
+    sleep 3
+  done
+}
+
 function get_script () {
   local local_path="$1"
   local name="$2"
   local remote_path="${3:-}"
 
-  curl --fail -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
-  # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  curlwrapper -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
 }
@@ -242,7 +250,7 @@ function set_timezone () {
       ln -sf "/usr/share/zoneinfo/$timezone" /etc/localtime
     elif [ "$timezone" = "auto" ]
     then
-      if curl -o /root/bin/tzupdate.py https://raw.githubusercontent.com/marcone/tzupdate/develop/tzupdate.py
+      if curlwrapper -o /root/bin/tzupdate.py https://raw.githubusercontent.com/marcone/tzupdate/develop/tzupdate.py
       then
         apt-get -y --force-yes install python-requests
         chmod +x /root/bin/tzupdate.py
@@ -434,7 +442,7 @@ fi
 
 configure_hostname
 
-HEAD_VERSION=$(curl -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
+HEAD_VERSION=$(curlwrapper -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
 BRANCHNAME="$BRANCH"
 BRANCH="$HEAD_VERSION"
 
