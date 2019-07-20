@@ -17,18 +17,22 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
 A sample conf file is located in the `boot` folder on the SD card.
 
-    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi password is enclosed in single quotes, and that if it contains one or more single quote characters you replace each single quote character with a backslash followed by a single quote character.
+    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi password is properly quoted and/or escaped according to [bash quoting  rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting).
+If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
+```
+    export WIFIPASS='password'
+```
+even if it contains other characters that might otherwise be special to bash, like \\, * and $.
+If the password does contain a single quote, you will need to use a different syntax. E.g. if the password is `pass'word`, you would use:
+```
+    export WIFIPASS=$'pass\'word'
+```
+and if the password contains both a single quote and a backslash, e.g. `pass'wo\rd`you'd use:
+```
+    export WIFIPASS=$'pass\'wo\\rd'
+```
 
-    For example, if your password were
-    ```
-    a'b
-    ```
-    you would have
-
-    ```
-    export WIFIPASS='a\'b'
-    ```
-If your WiFi SSID has spaces in its name, make sure they're escaped.
+Similarly if your WiFi SSID has spaces in its name, make sure they're escaped or quoted.
 
 For example, if your SSID were
 ```
