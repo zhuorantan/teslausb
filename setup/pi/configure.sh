@@ -159,8 +159,7 @@ function install_archive_scripts () {
     fi
 
     log_progress "Installing archive module scripts"
-    get_script /tmp verify-archive-configuration.sh $archive_module
-    get_script /tmp configure-archive.sh $archive_module
+    get_script /tmp verify-and-configure-archive.sh $archive_module
     get_script $install_path archive-clips.sh $archive_module
     get_script $install_path connect-archive.sh $archive_module
     get_script $install_path disconnect-archive.sh $archive_module
@@ -320,8 +319,7 @@ else
     log_progress "Using archive module: $archive_module"
 
     install_archive_scripts /root/bin $archive_module
-    /tmp/verify-archive-configuration.sh
-    /tmp/configure-archive.sh
+    /tmp/verify-and-configure-archive.sh
 
     install_rc_local /root/bin
 fi
