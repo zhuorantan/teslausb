@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-log "Copying music from  archive..."
+log "Copying music from archive..."
 
 NUM_FILES_COPIED=0
 NUM_FILES_SKIPPED=0

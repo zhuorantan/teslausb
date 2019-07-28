@@ -374,7 +374,7 @@ function doubleblink () {
 }
 
 function set_time () {
-  log "Waiting for time to be set by ntpd"
+  log "Waiting for time to be set by ntpd..."
   for i in $(seq 1 10)
   do
     if ntp-wait --tries=1 --sleep=1
