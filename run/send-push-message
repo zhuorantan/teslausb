@@ -43,6 +43,15 @@ function send_ifttt () {
   "https://maker.ifttt.com/trigger/$ifttt_event_name/with/key/$ifttt_key"
 }
 
+function send_sns () {
+  log "Sending SNS message for moved files."
+
+  source /root/.teslaCamSNSTopicARN
+
+  python3 /root/bin/send_sns.py -t $sns_topic_arn -s "$TITLE" -m "$MESSAGE"
+}
+
 [ -r "/root/.teslaCamPushoverCredentials" ] && send_pushover
 [ -r "/root/.teslaCamGotifySettings" ] && send_gotify
 [ -r "/root/.teslaCamIftttSettings" ] && send_ifttt
+[ -r "/root/.teslaCamSNSTopicARN" ] && send_sns

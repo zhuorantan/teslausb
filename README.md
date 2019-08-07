@@ -9,7 +9,7 @@ This fork contains the following changes compared to the upstream [cimryan/tesla
 1. Supports using the Tesla API to keep the car awake during archiving
 1. Status indicator while running
 1. Easier and more flexible way to specify sizes of camera and music disks
-1. Support for Gotify and IFTTT in addition to Pushover for notifications
+1. Support for Gotify, IFTTT and AWS SNS in addition to Pushover for notifications
 
 It is recommended to use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md) to get started, as the instructions below may be outdated.
 
@@ -113,7 +113,7 @@ For example, if there is 100 gigabyte of free space, then
 would allocate 50 gigabytes for camera and 10 gigabytes for music, leaving 40 gigabytes free.
 
 
-### Optional: Configure push notification via Pushover, Gotify, or IFTTT
+### Optional: Configure push notification via Pushover, Gotify, IFTTT, or AWS SNS
 If you'd like to receive a notification when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
 
 ### Optional: Configure a hostname

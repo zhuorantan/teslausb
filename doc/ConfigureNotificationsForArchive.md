@@ -1,4 +1,4 @@
-OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), and/or [IFTTT](https://ifttt.com) to get a push notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
+OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), [IFTTT](https://ifttt.com), and/or [AWS SNS](https://aws.amazon.com/sns/) to get a push/email notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
 
 # Pushover
 The Pushover service is free for up to 7,500 messages per month, but the [iOS](https://pushover.net/clients/ios)/[Android](https://pushover.net/clients/android) apps do have a one time cost, after a free trial period. *This also assumes your Pi is connected to a network with internet access.*
@@ -55,3 +55,20 @@ IFTTT is a completely free alternative that can be configured to send notificati
     export ifttt_event_name=put_your_event_name_here
     export ifttt_key=put_your_key_here
     ```
+
+#AWS SNS
+You can also choose to send notification through AWS SNS. You can create a free AWS account and the free tier enables you to receive notifications via SNS for free.
+
+1. Create a free account at [AWS](https://aws.amazon.com/).
+1. Create a user in IAM and give it the rights to SNS.
+1. Create a new SNS topic.
+1. Create the notification end point (email or other)
+1. Run these commands, substituting your user key and app key in the appropriate places. Use of `"` is required for aws_sns_topic_arn.
+    ```
+    export sns_enabled=true
+    export aws_region=us-east-1
+    export aws_access_key_id=put_your_accesskeyid_here
+    export aws_secret_key=put_your_secretkey_here
+    export aws_sns_topic_arn=put_your_sns_topicarn_here
+    ```
+

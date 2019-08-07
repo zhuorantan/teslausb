@@ -69,6 +69,13 @@ export HEADLESS_SETUP=true
 # export ifttt_event_name=put_your_event_name_here
 # export ifttt_key=put_your_key_here
 
+# Uncomment if setting up AWS SNS notifications
+# export sns_enabled=true
+# export aws_region=us-east-1
+# export aws_access_key_id=put_your_accesskeyid_here
+# export aws_secret_key=put_your_secretkey_here
+# export aws_sns_topic_arn=put_your_sns_topicarn_here
+
 # TeslaUSB can optionally use the Tesla API to keep your car awake, so it can
 # power the Pi long enough for the archiving process to complete. To enable
 # that, please provide your Tesla account email and password below.
