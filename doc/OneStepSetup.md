@@ -12,43 +12,42 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 
 1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using Etcher or similar.
 
-### For headless (automatic) setup
-
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
 A sample conf file is located in the `boot` folder on the SD card.
 
-    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi password is properly quoted and/or escaped according to [bash quoting  rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting).
-If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
-```
+    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting  rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
+    If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
+    ```
     export WIFIPASS='password'
-```
-even if it contains other characters that might otherwise be special to bash, like \\, * and $.
-If the password does contain a single quote, you will need to use a different syntax. E.g. if the password is `pass'word`, you would use:
-```
+    ```
+    even if it contains other characters that might otherwise be special to bash, like \\, * and $ (but note that the \\ should still be escaped with an additional \\ in order for the password to be correctly handled)
+    
+    If the password does contain a single quote, you will need to use a different syntax. E.g. if the password is `pass'word`, you would use:
+    ```
     export WIFIPASS=$'pass\'word'
-```
-and if the password contains both a single quote and a backslash, e.g. `pass'wo\rd`you'd use:
-```
+    ```
+    and if the password contains both a single quote and a backslash, e.g. `pass'wo\rd`you'd use:
+    ``` 
     export WIFIPASS=$'pass\'wo\\rd'
-```
+    ```
 
-Similarly if your WiFi SSID has spaces in its name, make sure they're escaped or quoted.
+    Similarly if your WiFi SSID has spaces in its name, make sure they're escaped or quoted.
 
-For example, if your SSID were
-```
-Foo Bar 2.4 GHz
-```
-you would use
-```
-export SSID=Foo\ Bar\ 2.4\ GHz
-```
-or
-```
-export SSID='Foo Bar 2.4 GHz'
-```
-
-Example file:
-
+    For example, if your SSID were
+    ```
+    Foo Bar 2.4 GHz
+    ```
+    you would use
+    ```
+    export SSID=Foo\ Bar\ 2.4\ GHz
+    ```
+    or
+    ```
+    export SSID='Foo Bar 2.4 GHz'
+    ```
+    
+    Example file:
+    ```
     export ARCHIVE_SYSTEM=cifs
     export archiveserver=Nautilus
     export sharename=SailfishCam
@@ -101,8 +100,8 @@ Example file:
     # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
     # vehicle awake.
     # export tesla_vin=5YJ3E1EA4JF000001
-
-1. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
+    ```
+2. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
 | Stage (number of flashes)  |  Activity |
 |---|---|
@@ -117,21 +116,9 @@ If plugged into just a power source, or your car, give it a few minutes until th
 
 You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files as markers of headless setup success as well.
 
-### For manual setup
-
-1. After flashing the image, boot it in your Pi and:
-    *  connect via USB networking at `ssh pi@teslausb.local`. (The Pi must be connected to your PC and plugged into the port labeled USB on the Pi. Or...
-    * You can also just automate the Wifi portion of setup by creating the `boot/teslausb_setup_variables.conf` file and populating it with the `SSID` and `WIFIPASS` variables:
-    ```
-    export SSID=your_ssid
-    export WIFIPASS=your_wifi_pass
-    ```
-
-1. Once you have an `ssh` session, follow the steps starting at [Set up the USB storage functionality](https://github.com/marcone/teslausb#set-up-the-usb-storage-functionality) in the main guide.
 
 ### Troubleshooting
 
-#### Headless (full or Wifi) setup
 * `ssh` to `pi@teslausb.local` (assuming Wifi came up, or your Pi is connected to your computer via USB) and look at the `/boot/teslausb-headless-setup.log`.
 * Try `sudo -i` and then run `/etc/rc.local`. The scripts are  fairly resilient to restarting and not re-running previous steps, and will tell you about progress/failure.
 * If Wifi didn't come up:
