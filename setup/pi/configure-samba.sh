@@ -16,6 +16,39 @@ else
   GUEST_OK="no"
 fi
 
+# update smb.conf in case we're updating a previous install
+cat <<- EOF > /etc/samba/smb.conf
+	[global]
+	   deadtime = 2
+	   workgroup = WORKGROUP
+	   dns proxy = no
+	   log file = /var/log/samba.log.%m
+	   max log size = 1000
+	   syslog = 0
+	   panic action = /usr/share/samba/panic-action %d
+	   server role = standalone server
+	   passdb backend = tdbsam
+	   obey pam restrictions = yes
+	   unix password sync = yes
+	   passwd program = /usr/bin/passwd %u
+	   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+	   pam password change = yes
+	   map to guest = bad user
+	   usershare allow guests = yes
+           unix extensions = no
+           wide links = yes
+
+	[TeslaCam]
+	   read only = yes
+	   locking = no
+	   path = /backingfiles/TeslaCam
+	   guest ok = $GUEST_OK
+	   create mask = 0775
+	   veto files = /._*/.DS_Store/
+	   delete veto files = yes
+	   root preexec = /root/bin/make_snapshot.sh
+	EOF
+
 if ! hash smbd &> /dev/null
 then
   log_progress "Installing samba and dependencies..."
@@ -52,39 +85,6 @@ then
     mkdir /mnt/smbexport
     echo "tmpfs /mnt/smbexport tmpfs nodev,nosuid 0 0" >> /etc/fstab
   fi
-
-  # preinstall smb.conf so the service will come up with the
-  # correct configuration
-  cat <<- EOF > /etc/samba/smb.conf
-	[global]
-	   deadtime = 2
-	   workgroup = WORKGROUP
-	   dns proxy = no
-	   log file = /var/log/samba.log.%m
-	   max log size = 1000
-	   syslog = 0
-	   panic action = /usr/share/samba/panic-action %d
-	   server role = standalone server
-	   passdb backend = tdbsam
-	   obey pam restrictions = yes
-	   unix password sync = yes
-	   passwd program = /usr/bin/passwd %u
-	   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
-	   pam password change = yes
-	   map to guest = bad user
-	   usershare allow guests = yes
-
-	[TeslaCam]
-	   read only = yes
-	   locking = no
-	   path = /mnt/smbexport/%I-%d
-	   guest ok = $GUEST_OK
-	   create mask = 0775
-	   veto files = /._*/.DS_Store/
-	   delete veto files = yes
-	   root preexec = /root/bin/smb-on.sh "%I-%d"
-	   root postexec = /root/bin/smb-off.sh "%I-%d"
-	EOF
 
   apt-get -y --force-yes install samba
   service smbd start

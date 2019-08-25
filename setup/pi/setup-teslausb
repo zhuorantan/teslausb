@@ -161,7 +161,9 @@ function get_ancillary_setup_scripts () {
 
 function get_common_scripts () {
   get_script /root/bin remountfs_rw run
+  get_script /root/bin make_snapshot.sh run
   get_script /root/bin mount_snapshot.sh run
+  get_script /root/bin mount_image.sh run
   get_script /root/bin release_snapshot.sh run
 }
 
@@ -505,8 +507,6 @@ fi
 if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
-  get_script /root/bin smb-on.sh run
-  get_script /root/bin smb-off.sh run
   get_script /tmp configure-samba.sh setup/pi
   /tmp/configure-samba.sh
 fi

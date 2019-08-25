@@ -5,6 +5,7 @@
 This fork contains the following changes compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
 1. Supports Tesla firmware 2019.x
 1. Supports exporting the recordings as a CIFS share
+1. Supports saving more than one hour of recordings
 1. Supports automatically syncing music from a CIFS share folder
 1. Supports using the Tesla API to keep the car awake during archiving
 1. Status indicator while running
@@ -97,7 +98,7 @@ Follow the instructions corresponding to the technology you'd like to use to hos
 * **Experimental:** Google Drive, Amazon S3, DropBox, Microsoft OneDrive: [Instructions](doc/SetupRClone.md)
 
 ### Optional: Allocate SD Card Storage
-Indicate how much of the drive you want to allocate to recording dashcam footage and music by running this command:
+Indicate how much of the sd card you want to allocate to the car for recording dashcam footage and music by running this command:
 
 ```
  export camsize=<number or percentage>
@@ -112,6 +113,9 @@ For example, if there is 100 gigabyte of free space, then
 ```
 would allocate 50 gigabytes for camera and 10 gigabytes for music, leaving 40 gigabytes free.
 
+Note: since the car records about 5.5 gigabyte per hour, and throws away non-saved recordings after an hour, it is not very useful to make 'camsize' very large. In fact, it is better to use a relatively small size, so that teslausb has space to preserve recordings that are older than 1 hour, which would otherwise be discarded by the car.
+As an example, if your normal use case is driving to work in the morning, enabling Sentry while parked, and going back home in the evening, with the car reporting up to 10 Sentry events, then 16 GB is a good size to use. This allows the car to keep about 2 hours worth of Sentry mode recordings, in addition to the normal recordings. If you anticipate needing more space for saved recordings, for example if your car generally reports much more Sentry events, you manually save recordings a lot, or if you're going to be away from wifi for multiple days, then increase size as needed.
+In order for teslausb to preserve recordings older than an hour, there needs to be enough free space on the sd card, at least 'camsize' worth, preferably much more.
 
 ### Optional: Configure push notification via Pushover, Gotify, IFTTT, or AWS SNS
 If you'd like to receive a notification when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).

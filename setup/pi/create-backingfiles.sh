@@ -27,7 +27,7 @@ function first_partition_offset () {
 }
 
 # Note that this uses powers-of-two rather than the powers-of-ten that are
-# generally used to marked storage.
+# generally used to market storage.
 function dehumanize () {
   echo $(($(echo $1 | sed 's/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
 }
@@ -38,8 +38,11 @@ function is_percent() {
 
 available_space () {
   freespace=$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)
-  # leave 1 GB of free space for filesystem bookkeeping (in kilobytes so 1M KB)
-  padding=$(dehumanize "1M")
+  # leave 6 GB of free space for filesystem bookkeeping and snapshotting
+  # (in kilobytes so 6M KB)
+  # TODO: investigate whether this value can be smaller in general, or
+  # when SMB access is not enabled.
+  padding=$(dehumanize "6M")
   echo $((freespace-padding))
 }
 

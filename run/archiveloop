@@ -399,6 +399,34 @@ function set_time () {
   fi
 }
 
+function mount_all_snapshots {
+  if ! stat /backingfiles/snapshots/snap-*/snap.bin &> /dev/null
+  then
+    log "no snapshots"
+    return
+  fi
+
+  for img in /backingfiles/snapshots/snap-*/snap.bin
+  do
+    imgdir=$(dirname "$img")
+    if mount | grep "$imgdir/mnt"
+    then
+      echo "$img already mounted"
+      return
+    fi
+    /root/bin/mount_image.sh "$img" "$imgdir/mnt"
+  done
+}
+
+
+function snapshotloop {
+  while true
+  do
+    sleep 3500
+    /root/bin/make_snapshot.sh
+  done
+}
+
 export ARCHIVE_HOST_NAME
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
@@ -408,6 +436,13 @@ export -f log
 
 echo "==============================================" >> "$LOG_FILE"
 log "Starting archiveloop..."
+
+mount_all_snapshots
+log "mounted all snapshots"
+
+/root/bin/make_snapshot.sh
+
+snapshotloop &
 
 if archive_is_reachable
 then
@@ -442,6 +477,9 @@ do
   set_time
 
   sleep ${ARCHIVE_DELAY:-20}
+
+  # take a snapshot before archive_clips starts deleting files
+  /root/bin/make_snapshot.sh
 
   archive_clips
 

@@ -4,14 +4,20 @@ SRC=$1
 SNAP=$2
 MNT=$3
 
+if mount | grep $MNT
+then
+  echo "snapshot already mounted"
+fi
+
 if [ ! -d $MNT ]
 then
   mkdir -p $MNT
 fi
 
-if mount | grep $MNT
+SNAPDIR=$(dirname $SNAP)
+if [ ! -d $SNAPDIR ]
 then
-  echo "snapshot already mounted"
+  mkdir -p $SNAPDIR
 fi
 
 if [ -e $SNAP ]
