@@ -385,9 +385,17 @@ function set_time () {
     sleep 2
   done
   log "Time still not set, attempting to force it"
+  if ! systemctl stop ntp
+  then
+    log "Failed to stop ntp daemon"
+  fi
   if ! ntpd -q -x -g
   then
     log "Failed to set time"
+  fi
+  if ! systemctl start ntp
+  then
+    log "Failed to start ntp daemon"
   fi
 }
 
