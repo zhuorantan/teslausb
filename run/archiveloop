@@ -266,27 +266,37 @@ function disconnect_usb_drives_from_host () {
 }
 
 function archive_teslacam_clips () {
-  log "Starting recording archiving..."
-
-  /root/bin/send-push-message "TeslaUSB:" "Archiving started at $(date)"
-
+  log "Checking saved folder count..."
+  
   ensure_cam_file_is_mounted
 
   fix_errors_in_cam_file
-
-  if [ -f /root/bin/tesla_api.py ]
+  
+  DIR_COUNT=$(find "$CAM_MOUNT"/TeslaCam/SavedClips/* -maxdepth 0 -type d | wc -l)
+  FILE_COUNT=$(find "$CAM_MOUNT"/TeslaCam/SavedClips/* -type f | wc -l)
+  
+  log "There are $DIR_COUNT event folder(s) with $FILE_COUNT file(s) to move."
+  
+  if [ $DIR_COUNT -gt 0 ]
   then
-    while :
-    do
-      sleep 120
-      /root/bin/tesla_api.py wake_up_vehicle >> "$LOG_FILE"
-    done&
-    WAKE_PID=$!
-    log "wake up car process is $WAKE_PID"
+	log "Starting recording archiving..."
+
+	/root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
+
+	if [ -f /root/bin/tesla_api.py ]
+	then
+		while :
+		do
+		sleep 120
+		/root/bin/tesla_api.py wake_up_vehicle >> "$LOG_FILE"
+		done&
+		WAKE_PID=$!
+		log "wake up car process is $WAKE_PID"
+	fi
+
+	/root/bin/archive-clips.sh
+	
   fi
-
-  /root/bin/archive-clips.sh
-
   if [ ! -z "${WAKE_PID+x}" ]
   then
     log "killing PID $WAKE_PID"
