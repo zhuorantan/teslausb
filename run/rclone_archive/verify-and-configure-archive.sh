@@ -23,11 +23,15 @@ function configure_archive () {
   local config_file_path="/root/.teslaCamRcloneConfig"
   /root/bin/write-archive-configs-to.sh "$config_file_path"
 
-  if [ ! -L "/root/.config/rclone" ] && [ -e "/root/.config/rclone" ]
+  # Ensure that /root/.config/rclone is a directory not a symlink
+  if [ ! -L "/root/.config/rclone" ] && [ -d "/root/.config/rclone" ]
   then
     echo "Moving rclone configs into /mutable"
-    mkdir -p /mutable/configs/rclone
-    mv /root/.config/rclone/rclone.conf /mutable/configs/rclone/
+    # Creating only configs dir so we can move the rclone dir into it
+    mkdir -p /mutable/configs
+    # Moving the directory itself to ensure the link creation works correctly
+    mv /root/.config/rclone /mutable/configs/
+    # Creating link, this requires the directory /root/.config/rclone to be nonexistent
     ln -s /mutable/configs/rclone /root/.config/rclone
   fi
 
