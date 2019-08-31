@@ -4,8 +4,9 @@
 
 This fork contains the following changes compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
 1. Supports Tesla firmware 2019.x
-1. Supports exporting the recordings as a CIFS share
 1. Supports saving more than one hour of recordings
+1. Supports exporting the recordings as a CIFS share
+1. Optional hotspot to access recordings while on the go
 1. Supports automatically syncing music from a CIFS share folder
 1. Supports using the Tesla API to keep the car awake during archiving
 1. Status indicator while running

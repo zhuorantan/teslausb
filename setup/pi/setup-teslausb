@@ -511,6 +511,12 @@ then
   /tmp/configure-samba.sh
 fi
 
+if [ ! -z ${AP_SSID:+x} ]
+then
+  get_script /tmp configure-ap.sh setup/pi
+  /tmp/configure-ap.sh
+fi
+
 make_root_fs_readonly
 
 upgrade_packages

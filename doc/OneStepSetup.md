@@ -13,7 +13,7 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using Etcher or similar.
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
-A sample conf file is located in the `boot` folder on the SD card.
+A sample conf file is located in the `boot` folder on the SD card, but check https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample for the latest version of the config file.
 
     The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting  rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
     If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
@@ -62,6 +62,22 @@ A sample conf file is located in the `boot` folder on the SD card.
     # export BRANCH=main-dev
     # By default will use the main repo, but if you've been asked to test the image,
     # these variables should be uncommunted and updated to point to the right repo/branch
+
+    # uncomment to enable a samba server that exports the recordings
+    #export SAMBA_ENABLED=true
+    # uncomment to enable guest access to the samba server
+    #export SAMBA_GUEST=true
+
+    # uncomment to enable teslausb to act as a wifi access point with the given
+    # SSID, so you can access it while on the road.
+    #export AP_SSID='TESLAUSB WIFI'
+    # Change this! The setup script will not accept the default 'password'
+    # Also note that the wifi password must be at least 8 characters.
+    #export AP_PASS='password'
+    # IP address is optional. The AP will give its clients IP addresses in the
+    # x.x.x.100-150 range so make sure you don't put the AP's IP address in
+    # that range.
+    #export AP_IP='192.168.66.1'
 
     # Set to either an actual timezone, or "auto" to attempt automatic timezone detection.
     # If unset, defaults to the default Raspbian timezone, Europe/London (BST).

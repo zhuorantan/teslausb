@@ -67,7 +67,7 @@ then
   mount /var/cache/samba
   mount /var/run/samba
 
-  if [ -d /var/lib/samba ]
+  if [ ! -L /var/lib/samba ]
   then
     if ! findmnt --mountpoint /mutable
     then
