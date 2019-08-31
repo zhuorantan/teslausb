@@ -107,6 +107,8 @@ def _get_api_token():
             'User-Agent': 'github.com/marcone/teslausb',
         }
         _log('Retrieving new API token...')
+        # Useful for debugging credential issues
+        _log("data = {}".format(data))
         response = requests.post(oauth_url, headers=headers, data=data)
         result = response.json()
         if 'access_token' not in result:
@@ -376,9 +378,11 @@ def main():
         ]
     for line in conf_lines:
         setting = line.split('=')
-        # Strip the "export " part off of "export setting_name=value"
-        setting_name = setting[0].replace('export ', '')
-        SETTINGS[setting_name.strip()] = setting[1].strip()
+        # Strip leading/trailing whitespace and the "export " part off of "export setting_name=value"
+        setting_name = setting[0].replace('export ', '').strip()
+        # Strip leading/trailing whitespace, " and ' surrounding bash script variable values
+        setting_value = setting[1].strip(" \"'")
+        SETTINGS[setting_name] = setting_value
 
     # We need to call this before calling any API function, because those need
     # to know the Vehicle ID before they call _execute_request()
