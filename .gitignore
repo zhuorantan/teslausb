@@ -1,2 +1,5 @@
 .DS_Store
 *.conf
+*.iml
+*.ipr
+*.iws
