@@ -36,28 +36,78 @@ tesla_api_json = {
 }
 
 
-def _execute_request(url, method='get', data=None):
+def _execute_request(url, method=None, data=None, require_vehicle_online=True):
+    """
+    Wrapper around requests to the Tesla REST Service which ensures the vehicle is online before proceeding
+    :param url: the url to send the request to
+    :param method: the request method ('GET' or 'POST')
+    :param data: the request data (optional)
+    :return: JSON response
+    """
+    if require_vehicle_online:
+        vehicle_online = False
+        while not vehicle_online:
+            _log("Attempting to wake up Vehicle (ID:{})".format(tesla_api_json['vehicle_id']))
+            result = _rest_request(
+                '{}/{}/wake_up'.format(base_url, tesla_api_json['vehicle_id']),
+                method='POST'
+            )
+
+            # Tesla REST Service sometimes misbehaves... this seems to be caused by an invalid/expired auth token
+            # TODO: Remove auth token and retry?
+            if result['response'] is None:
+                _error("Fatal Error: Tesla REST Service returned an invalid response")
+                sys.exit(1)
+
+            vehicle_online = result['response']['state'] == "online"
+            if vehicle_online:
+                _log("Vehicle (ID:{}) is Online".format(tesla_api_json['vehicle_id']))
+            else:
+                _log("Vehicle (ID:{}) is Asleep; Waiting 5 seconds before retry...".format(tesla_api_json['vehicle_id']))
+                time.sleep(5)
+
+    json_response = _rest_request(url, method, data)
+
+    # Error handling
+    error = json_response.get('error')
+    if error:
+        # Log error and die
+        _error(json.dumps(json_response, indent=2))
+        sys.exit(1)
+
+    return json_response
+
+
+def _rest_request(url, method=None, data=None):
+    """
+    Executes a REST request
+    :param url: the url to send the request to
+    :param method: the request method ('GET' or 'POST')
+    :param data: the request data (optional)
+    :return: JSON response
+    """
+    # set default method value
+    if method is None:
+        method = 'GET'
+    # set default data value
     if data is None:
         data = {}
     headers = {
       'Authorization': 'Bearer {}'.format(_get_api_token()),
       'User-Agent': 'github.com/marcone/teslausb',
     }
-    if method.lower() == 'get':
+
+    _log("Sending {} Request: {}; Data: {}".format(method, url, data))
+    if method.upper() == 'GET':
         response = requests.get(url, headers=headers)
-    elif method.lower() == 'post':
+    elif method.upper() == 'POST':
         response = requests.post(url, headers=headers, data=data)
     else:
-        raise Exception('Unknown method: {}'.format(method))
+        raise ValueError('Unsupported Request Method: {}'.format(method))
     if not response.text:
-        _error("Tesla API returned nothing. Access token probably expired. Quitting...")
+        _error("Fatal Error: Tesla REST Service failed to return a response, access token may have expired")
         sys.exit(1)
     json_response = response.json()
-
-    if json_response.get('error'):
-        # There was an error. Log it and die.
-        _error(json.dumps(json_response, indent=2))
-        sys.exit(1)
 
     # log full JSON response for debugging
     _log(json.dumps(json_response, indent=2))
@@ -255,7 +305,21 @@ def _error(msg, flush=True):
 # API GET Functions
 ######################################
 def list_vehicles():
-    return _execute_request(base_url)
+    return _execute_request(base_url, None, None, False)
+
+
+def get_vehicle_data():
+    return _execute_request(
+        '{}/{}/vehicle_data'.format(base_url, tesla_api_json['vehicle_id'])
+    )
+
+
+def get_vehicle_online_state():
+    return get_vehicle_data()['response']['state']
+
+
+def is_vehicle_online():
+    return get_vehicle_online_state() == "online"
 
 
 def get_charge_state():
@@ -302,7 +366,6 @@ def is_car_locked():
 
 
 def is_sentry_mode_enabled():
-    wake_up_vehicle()
     data = get_vehicle_state()
     return data['response']['sentry_mode']
 
@@ -311,9 +374,7 @@ def is_sentry_mode_enabled():
 # API POST Functions
 ######################################
 def wake_up_vehicle():
-    # It's not really an error, but I want to make sure this always prints,
-    # even if DEBUG is False. Also I need the timestamp.
-    _error('Sending wakeup API command...')
+    _log('Sending wakeup API command...')
     result = _execute_request(
         '{}/{}/wake_up'.format(base_url, tesla_api_json['vehicle_id']),
         method='POST'
@@ -468,12 +529,19 @@ def main():
     result = function(**kwargs)
 
     # Write the output of the API call to stdout, if DEBUG is true.
+    is_json = False
     try:
         # check to see if result is json
-        json.loads(result)
-        _log(json.dumps(result, indent=2))
+        if isinstance(result, str):
+            json.loads(result)
+            is_json = True
     except ValueError as e:
-        _log(result)
+        pass
+
+    if is_json:
+        _log(json.dumps(result, indent=2))
+    else:
+        print(result, flush=True)
 
 
 main()

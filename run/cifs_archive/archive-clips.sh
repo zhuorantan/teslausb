@@ -6,14 +6,6 @@ NUM_FILES_MOVED=0
 NUM_FILES_FAILED=0
 NUM_FILES_DELETED=0
 
-function keep_car_awake() {
-  # If the tesla_api.py script is installed, send the car a wake_up command.
-  if [ -f /root/bin/tesla_api.py ]
-  then
-    /root/bin/tesla_api.py wake_up_vehicle &>> "$LOG_FILE"
-  fi
-}
-
 function connectionmonitor {
   while true
   do
