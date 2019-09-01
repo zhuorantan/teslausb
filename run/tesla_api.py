@@ -36,7 +36,9 @@ tesla_api_json = {
 }
 
 
-def _execute_request(url, method='get', data={}):
+def _execute_request(url, method='get', data=None):
+    if data is None:
+        data = {}
     headers = {
       'Authorization': 'Bearer {}'.format(_get_api_token()),
       'User-Agent': 'github.com/marcone/teslausb',
@@ -50,15 +52,17 @@ def _execute_request(url, method='get', data={}):
     if not response.text:
         _error("Tesla API returned nothing. Access token probably expired. Quitting...")
         sys.exit(1)
-    result = response.json()
+    json_response = response.json()
 
-    # If there wasn't an error, return the result.
-    if not result.get('error'):
-        return result
+    if json_response.get('error'):
+        # There was an error. Log it and die.
+        _error(json.dumps(json_response, indent=2))
+        sys.exit(1)
 
-    # There was an error. Log it and die.
-    _error(json.dumps(result, indent=2))
-    sys.exit(1)
+    # log full JSON response for debugging
+    _log(json.dumps(json_response, indent=2))
+
+    return json_response
 
 
 def _get_api_token():
@@ -181,6 +185,7 @@ def _get_vehicle_id():
     _error('Unable to retrieve vehicle ID: Unknown VIN. Cannot continue.')
     sys.exit(1)
 
+
 def _load_tesla_api_json():
     """
     Load the data stored in /mutable/tesla_api.json, if it exists.
@@ -223,7 +228,8 @@ def _write_tesla_api_json():
     with open('/mutable/tesla_api.json', 'w') as f:
         _log('Writing /mutable/tesla_api.json...')
         json_string = json.dumps(tesla_api_json, indent=2, default=convert_dt)
-        f.write(json_string);
+        f.write(json_string)
+
 
 def _get_log_timestamp():
     # I can't figure out how to get a timezone aware version of now() in
@@ -231,6 +237,7 @@ def _get_log_timestamp():
     # same timestamp format as the other logging done by TeslaUSB's code.
     zone = time.tzname[time.daylight]
     return datetime.now().strftime('%a %d %b %H:%M:%S {} %Y'.format(zone))
+
 
 def _log(msg, flush=True):
     if SETTINGS['DEBUG']:
@@ -241,7 +248,7 @@ def _error(msg, flush=True):
     """
     It's _log(), but for errors, so it always prints.
     """
-    print("{}: {}".format(_get_log_timestamp(), msg), flush=flush)
+    print("{}: {}".format(_get_log_timestamp(), msg), file=sys.stderr, flush=flush)
 
 
 ######################################
@@ -294,6 +301,12 @@ def is_car_locked():
     return data['response']['locked']
 
 
+def is_sentry_mode_enabled():
+    wake_up_vehicle()
+    data = get_vehicle_state()
+    return data['response']['sentry_mode']
+
+
 ######################################
 # API POST Functions
 ######################################
@@ -316,27 +329,79 @@ def set_charge_limit(percent):
     )
 
 
+def set_sentry_mode(enabled: bool):
+    """
+    Activates or deactivates Sentry Mode based on the 'enabled' parameter
+    :param enabled: True to Enable Sentry Mode; False to Disable Sentry Mode
+    :return: True if the command was successful
+    """
+    _log("Setting Sentry Mode Enabled: {}".format(enabled))
+    result = _execute_request(
+        '{}/{}/command/set_sentry_mode'.format(base_url, tesla_api_json['vehicle_id']),
+        method='POST',
+        data={'on': enabled}
+    )
+    return result['response']['result']
+
+
+def enable_sentry_mode():
+    """
+    Enables Sentry Mode
+    :return: Human-friendly String indicating command success/failure
+    """
+    if True == set_sentry_mode(True):
+        return "Success: Sentry Mode Enabled"
+    else:
+        return "Failed to Enable Sentry Mode"
+
+
+def disable_sentry_mode():
+    """
+    Disables Sentry Mode
+    :return: Human-friendly String indicating command success/failure
+    """
+    if True == set_sentry_mode(False):
+        return "Success: Sentry Mode Disabled"
+    else:
+        return "Failed to Disable Sentry Mode"
+
+
+def toggle_sentry_mode():
+    """
+    Activates Sentry Mode if it is currently off, disables it if it is currently on
+    :return: True if the command was successful
+    """
+    if is_sentry_mode_enabled():
+        return disable_sentry_mode()
+    else:
+        return enable_sentry_mode()
+
+
 ######################################
-# MAIN
+# Utility Functions
 ######################################
-def main():
+def _get_api_functions():
     # Build the list of available Tesla API function names by getting the
     # callables from globals() and skipping the non-API functions.
-    non_api_names = ['main', 'pprint']
+    non_api_names = ['main', 'pprint', 'datetime', 'timedelta']
     function_names = []
     for name, func in globals().items():
         if (callable(func)
-            and not name.startswith('_')
-            and not name in non_api_names
-        ):
+                and not name.startswith('_')
+                and name not in non_api_names):
             function_names.append(name)
+    function_names.sort()
     function_names_string = '\n'.join(function_names)
 
+    return function_names_string
+
+
+def _get_arg_parser():
     # Parse the CLI arguments.
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'function',
-        help="The name of the function to run. Available functions are:\n {}".format(function_names_string))
+        help="The name of the function to run. Available functions are:\n {}".format(_get_api_functions()))
     parser.add_argument(
         '--arguments',
         help="Add arguments to the function by passing comma-separated key:value pairs."
@@ -346,7 +411,15 @@ def main():
         action="store_true",
         help="Print debug output."
     )
-    args = parser.parse_args()
+
+    return parser
+
+
+######################################
+# MAIN
+######################################
+def main():
+    args = _get_arg_parser().parse_args()
 
     SETTINGS['DEBUG'] = args.debug
 
@@ -395,7 +468,12 @@ def main():
     result = function(**kwargs)
 
     # Write the output of the API call to stdout, if DEBUG is true.
-    _log(json.dumps(result, indent=2))
+    try:
+        # check to see if result is json
+        json.loads(result)
+        _log(json.dumps(result, indent=2))
+    except ValueError as e:
+        _log(result)
 
 
 main()

@@ -10,7 +10,7 @@ function keep_car_awake() {
   # If the tesla_api.py script is installed, send the car a wake_up command.
   if [ -f /root/bin/tesla_api.py ]
   then
-    /root/bin/tesla_api.py wake_up_vehicle >> "$LOG_FILE"
+    /root/bin/tesla_api.py wake_up_vehicle &>> "$LOG_FILE"
   fi
 }
 

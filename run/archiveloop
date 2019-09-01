@@ -288,7 +288,7 @@ function archive_teslacam_clips () {
 		while :
 		do
 		sleep 120
-		/root/bin/tesla_api.py wake_up_vehicle >> "$LOG_FILE"
+		/root/bin/tesla_api.py wake_up_vehicle &>> "$LOG_FILE"
 		done&
 		WAKE_PID=$!
 		log "wake up car process is $WAKE_PID"
