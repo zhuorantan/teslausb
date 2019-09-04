@@ -56,7 +56,7 @@ IFTTT is a completely free alternative that can be configured to send notificati
     export ifttt_key=put_your_key_here
     ```
 
-#AWS SNS
+# AWS SNS
 You can also choose to send notification through AWS SNS. You can create a free AWS account and the free tier enables you to receive notifications via SNS for free.
 
 1. Create a free account at [AWS](https://aws.amazon.com/).
