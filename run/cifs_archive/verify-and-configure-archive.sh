@@ -7,7 +7,7 @@ function log_progress () {
   if typeset -f setup_progress > /dev/null; then
     setup_progress "verify-and-configure-archive: $@"
   fi
-  echo "verify-archive-configuration: $1"
+  echo "verify-and-configure-archive: $1"
 }
 
 function check_archive_server_reachable () {

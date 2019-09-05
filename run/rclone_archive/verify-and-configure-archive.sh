@@ -1,16 +1,23 @@
 #!/bin/bash -eu
 
+function log_progress () {
+  if typeset -f setup_progress > /dev/null; then
+    setup_progress "verify-and-configure-archive: $@"
+  fi
+  echo "verify-and-configure-archive: $1"
+}
+
 function verify_configuration () {
-    echo "Verifying rlcone configuration..."
+    log_progress "Verifying rlcone configuration..."
     if ! [ -e "/root/.config/rclone/rclone.conf" ]
     then
-        echo "STOP: rclone config was not found. did you configure rclone correctly?"
+        log_progress "STOP: rclone config was not found. did you configure rclone correctly?"
         exit 1
     fi
 
     if ! rclone lsd "$RCLONE_DRIVE": | grep -q "$RCLONE_PATH"
     then
-        echo "STOP: Could not find the $RCLONE_DRIVE:$RCLONE_PATH"
+        log_progress "STOP: Could not find the $RCLONE_DRIVE:$RCLONE_PATH"
         exit 1
     fi
 }
@@ -18,7 +25,7 @@ function verify_configuration () {
 verify_configuration
 
 function configure_archive () {
-  echo "Configuring rclone archive..."
+  log_progress "Configuring rclone archive..."
 
   local config_file_path="/root/.teslaCamRcloneConfig"
   /root/bin/write-archive-configs-to.sh "$config_file_path"
@@ -26,7 +33,7 @@ function configure_archive () {
   # Ensure that /root/.config/rclone is a directory not a symlink
   if [ ! -L "/root/.config/rclone" ] && [ -d "/root/.config/rclone" ]
   then
-    echo "Moving rclone configs into /mutable"
+    log_progress "Moving rclone configs into /mutable"
     if ! findmnt --mountpoint /mutable
     then
       mount /mutable
@@ -39,7 +46,7 @@ function configure_archive () {
     ln -s /mutable/configs/rclone /root/.config/rclone
   fi
 
-  echo "Done"
+  log_progress "Done"
 }
 
 configure_archive
