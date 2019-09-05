@@ -179,6 +179,21 @@ sudo -i
 ```
 Then make whatever changes you need to. The next time the system boots the partitions will once again be read-only.
 
+## Optional: Using The Pi As A WiFi Access Point
+
+To enable teslausb to act as a wifi access point with the given SSID and password, find this section in your teslausb_setup_variables.conf file and uncomment the exports. Remember to change the password to something that protects your Pi.  You will not get access to the Internet but you will be able to ssh into your Pi, or access the recordings via Samba. Be careful when using this option: your AP_PASS setting is all that protects your Pi from someone remotely accessing it.
+   ```
+   # SSID, so you can access it while on the road.
+   #export AP_SSID='TESLAUSB WIFI'
+   # Change this! The setup script will not accept the default 'password'
+   # Also note that the wifi password must be at least 8 characters.
+   #export AP_PASS='password'
+   # IP address is optional. The AP will give its clients IP addresses in the
+   # x.x.x.100-150 range so make sure you don't put the AP's IP address in
+   # that range.
+   #export AP_IP='192.168.66.1'
+   ```
+
 ## Meta
 This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
 
