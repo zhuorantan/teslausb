@@ -399,7 +399,7 @@ function set_time () {
   then
     log "Failed to stop ntp daemon"
   fi
-  if ! ntpd -q -x -g
+  if ! timeout 20 ntpd -q -x -g
   then
     log "Failed to set time"
   fi
