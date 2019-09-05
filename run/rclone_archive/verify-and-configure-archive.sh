@@ -27,6 +27,10 @@ function configure_archive () {
   if [ ! -L "/root/.config/rclone" ] && [ -d "/root/.config/rclone" ]
   then
     echo "Moving rclone configs into /mutable"
+    if ! findmnt --mountpoint /mutable
+    then
+      mount /mutable
+    fi
     # Creating only configs dir so we can move the rclone dir into it
     mkdir -p /mutable/configs
     # Moving the directory itself to ensure the link creation works correctly
