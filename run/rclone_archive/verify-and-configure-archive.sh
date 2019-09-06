@@ -34,6 +34,7 @@ function configure_archive () {
   if [ ! -L "/root/.config/rclone" ] && [ -d "/root/.config/rclone" ]
   then
     log_progress "Moving rclone configs into /mutable"
+    # make sure that /mutable is mounted prior to moving rclone configuration
     if ! findmnt --mountpoint /mutable
     then
       mount /mutable
