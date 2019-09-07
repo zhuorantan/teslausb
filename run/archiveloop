@@ -277,16 +277,19 @@ function archive_teslacam_clips () {
   
     log "There are $DIR_COUNT event folder(s) with $FILE_COUNT file(s) to move."
   
-    if [ $DIR_COUNT -gt 0 ]; then
+    if [ $DIR_COUNT -gt 0 ]
+    then
         log "Starting recording archiving..."
 
         /root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
 
         # Ensure Sentry Mode is enabled before archiving
         declare is_sentry_mode_enabled
-        if [ -x /root/bin/tesla_api.py ]; then
+        if [ -x /root/bin/tesla_api.py ]
+        then
             is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled)
-            if [ "false" = "${is_sentry_mode_enabled}" ]; then
+            if [ "false" = "${is_sentry_mode_enabled}" ]
+            then
                 log "Temporarily enabling Sentry Mode to power the RPi while archive job completes..."
                 /root/bin/tesla_api.py enable_sentry_mode &>> ${LOG_FILE}
             fi
@@ -295,7 +298,8 @@ function archive_teslacam_clips () {
         /root/bin/archive-clips.sh
 
         # If Sentry Mode was previously disabled, restore it to that state
-        if [ "false" = "${is_sentry_mode_enabled}" ]; then
+        if [ "false" = "${is_sentry_mode_enabled}" ]
+        then
             log "Restoring Sentry Mode to its previous state (disabled)..."
             /root/bin/tesla_api.py disable_sentry_mode &>> ${LOG_FILE}
         fi
