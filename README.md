@@ -1,8 +1,15 @@
 # teslausb
 
-## Changes
+## Intro
 
-This fork contains the following changes compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
+You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
+* Scripts running on the Pi can automatically copy the clips to an archive server when you get home.
+* The Pi can hold both dashcam clips and music files.
+* The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
+
+## Improvements
+
+This fork contains the following improvements compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
 1. Supports Tesla firmware 2019.x
 1. Supports saving more than one hour of recordings
 1. Supports exporting the recordings as a CIFS share
@@ -13,15 +20,10 @@ This fork contains the following changes compared to the upstream [cimryan/tesla
 1. Easier and more flexible way to specify sizes of camera and music disks
 1. Support for Gotify, IFTTT and AWS SNS in addition to Pushover for notifications
 
+
+## Installing
+
 It is recommended to use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md) to get started, as the instructions below may be outdated.
-
-
-## Intro
-
-You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
-* Scripts running on the Pi can automatically copy the clips to an archive server when you get home.
-* The Pi can hold both dashcam clips and music files.
-* The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
 
 Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
 
@@ -29,6 +31,7 @@ Alternatively, you can provide your Tesla account credentials and VIN in TeslaUS
 
 ## Contributing
 You're welcome to contribute to this repo by submitting pull requests and creating issues.
+For pull requests, please split complex changes into multiple pull requests when feasible, use one commit per pull request, and try to follow the existing code style.
 
 ## Prerequisites
 
