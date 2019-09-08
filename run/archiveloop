@@ -287,7 +287,7 @@ function archive_teslacam_clips () {
         declare is_sentry_mode_enabled
         if [ -x /root/bin/tesla_api.py ]
         then
-            is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled)
+            is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled | tr '[:upper:]' '[:lower:]')
             if [ "false" = "${is_sentry_mode_enabled}" ]
             then
                 log "Temporarily enabling Sentry Mode to power the RPi while archive job completes..."
