@@ -25,7 +25,11 @@ This fork contains the following improvements compared to the upstream [cimryan/
 
 It is recommended to use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md) to get started, as the instructions below may be outdated.
 
-Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
+If you've never worked with Raspberry Pi before, don't know what a Windows share is, or just want to see what this is all about, check out this YouTube video:
+
+[![teslausb intro and installation](http://img.youtube.com/vi/ETs6r1vKTO8/0.jpg)](http://www.youtube.com/watch?v=ETs6r1vKTO8 "teslausb intro and installation")
+
+Note that archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
 
 Alternatively, you can provide your Tesla account credentials and VIN in TeslaUSB's settings, which will allow it to use the [Tesla API](https://tesla-api.timdorr.com) to keep the car awake while the files transfer. Instructions are available in the [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md)
 
