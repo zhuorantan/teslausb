@@ -28,6 +28,11 @@ function connectionmonitor {
   done
 }
 
+if ! findmnt --mountpoint $DST
+then
+  log "$DST not mounted, skipping"
+fi
+
 connectionmonitor $$ &
 
 while read file_name
