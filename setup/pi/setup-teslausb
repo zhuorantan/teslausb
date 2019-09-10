@@ -273,12 +273,13 @@ function cmd_selfupdate {
   get_script /tmp setup-teslausb setup/pi &> /dev/null
   if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
   then
-    setup_progress "already up to date"
+    setup_progress "$0 already up to date"
   else
     /root/bin/remountfs_rw > /dev/null
     mv /tmp/setup-teslausb /root/bin/setup-teslausb
     setup_progress "$0 updated"
   fi
+  setup_progress "other scripts may need to be updated by running $0"
   exit 0
 }
 
