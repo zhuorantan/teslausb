@@ -188,7 +188,7 @@ Then make whatever changes you need to. The next time the system boots the parti
 
 ## Optional: Using The Pi As A WiFi Access Point
 
-To enable teslausb to act as a wifi access point with the given SSID and password, find this section in your teslausb_setup_variables.conf file and uncomment the exports. Remember to change the password to something that protects your Pi.  You will not get access to the Internet but you will be able to ssh into your Pi, or access the recordings via Samba. Be careful when using this option: your AP_PASS setting is all that protects your Pi from someone remotely accessing it.
+To enable teslausb to act as a wifi access point with the given SSID and password, find this section in your teslausb_setup_variables.conf file and uncomment the exports. Remember to change the password to something that protects your Pi.  You will not get access to the Internet but you will be able to ssh into your Pi, or access the recordings via Samba. Be careful when using this option: your AP_PASS setting is all that protects your Pi from someone remotely accessing it. To further add to the security, you may want to follow the items in the Security section that follows.
    ```
    # SSID, so you can access it while on the road.
    #export AP_SSID='TESLAUSB WIFI'
@@ -200,6 +200,25 @@ To enable teslausb to act as a wifi access point with the given SSID and passwor
    # that range.
    #export AP_IP='192.168.66.1'
    ```
+
+## Security
+
+As a little discussion of security for your Pi, please keep in mind the following items.
+
+1. If WiFi Access Point is configured, the AP password needs to be worth while. Make it something better than Passw0rd, more than 8 characters. The longer the password the better. See [here](https://en.wikipedia.org/wiki/Password_strength) or [here](https://xkcd.com/936/) for password strength.
+
+2. Change the password for the pi account. To do that, make the system RW and use the passwd command to change the password. To do that, follow the instructions below. The last command will reboot your Pi: (Starting at the pi sign-on)
+
+```
+   ssh pi@teslausb.local
+   sudo -i
+   cd bin
+   ./remountfs_rw
+   passwd pi
+   reboot
+```
+
+3. Remember that the root user has a copy of your configuration file. Try the best you can to protect it.  If your Pi is taken or car is stolen, change your Tesla account password QUICKLY! Remember that if they don't have a "key" or your Tesla Account and Password, the car will not drive for them.  Also consider activating a Drive Password on your Tesla. Its only 4 digits, but that's a lot of combinations to guess. 
 
 ## Meta
 This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
