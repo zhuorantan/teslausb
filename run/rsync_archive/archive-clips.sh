@@ -12,5 +12,5 @@ then
   log "Successfully synced files through rsync."
   /root/bin/send-push-message "TeslaUSB:" "Moved $num_files_moved dashcam files"
 else
-  log "No files to archive through rsync."
+  log "No files archived."
 fi

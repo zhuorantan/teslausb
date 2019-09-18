@@ -279,7 +279,7 @@ function archive_teslacam_clips () {
   
     if [ $DIR_COUNT -gt 0 ]
     then
-        log "Starting recording archiving..."
+        log "Starting recording archiving: $DIR_COUNT event folder(s) with $FILE_COUNT file(s)"
 
         /root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
 
