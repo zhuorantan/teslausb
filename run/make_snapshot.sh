@@ -51,6 +51,15 @@ function make_links_for_snapshot {
       ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $saved/$eventtime
     done
   fi
+  # and the same for SentryClips
+  if stat $curmnt/TeslaCam/SentryClips/*/* > /dev/null
+  then
+    for f in $curmnt/TeslaCam/SentryClips/*/*
+    do
+      log "linking $f"
+      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $collection
+    done
+  fi
   log "made all links for $curmnt"
 }
 

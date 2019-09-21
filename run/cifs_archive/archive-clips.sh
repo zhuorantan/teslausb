@@ -74,16 +74,16 @@ function moveclips() {
 
 connectionmonitor $$ &
 
-# legacy file name pattern, firmware 2018.*
-moveclips "$CAM_MOUNT/TeslaCam" 'saved*'
-
 # new file name pattern, firmware 2019.*
 moveclips "$CAM_MOUNT/TeslaCam/SavedClips" '*'
 
+# v10 firmware adds a SentryClips folder
+moveclips "$CAM_MOUNT/TeslaCam/SentryClips" '*'
+
 kill %1
 
-# delete empty directories under SavedClips
-rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* || true
+# delete empty directories under SavedClips and SentryClips
+rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* || true
 
 log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
 
