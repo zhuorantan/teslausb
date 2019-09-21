@@ -1,7 +1,10 @@
 --- stage7/rootfs/boot/config.txt
 +++ stage7/rootfs/boot/config.txt
-@@ -54,3 +54,4 @@
-
+@@ -54,6 +54,7 @@
+ 
  # Enable audio (loads snd_bcm2835)
  dtparam=audio=on
 +dtoverlay=dwc2
+ 
+ [pi4]
+ # Enable DRM VC4 V3D driver on top of the dispmanx display stack
