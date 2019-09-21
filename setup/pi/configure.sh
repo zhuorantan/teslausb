@@ -114,6 +114,7 @@ function check_archive_configs () {
             check_variable "archiveserver"
             ;;
         none)
+            export archiveserver=localhost
             ;;
         *)
             log_progress "STOP: Unrecognized archive system: $ARCHIVE_SYSTEM"
@@ -136,8 +137,11 @@ function get_archive_module () {
         cifs)
             echo "run/cifs_archive"
             ;;
+        none)
+            echo "run/none_archive"
+            ;;
         *)
-            echo "Internal error: Attempting to configure unrecognized archive system: $ARCHIVE_SYSTEM"
+            log_progress "Internal error: Attempting to configure unrecognized archive system: $ARCHIVE_SYSTEM"
             exit 1
             ;;
     esac
@@ -349,34 +353,23 @@ fi
 
 mkdir -p /root/bin
 
-if [ "$ARCHIVE_SYSTEM" = "none" ]
-then
-    # create dummy archiveloop that just enables the mass storage driver
-    cat <<- EOF > /root/bin/archiveloop
-	#!/bin/bash -eu
-	modprobe g_mass_storage
-	EOF
-    chmod +x /root/bin/archiveloop
-    get_script /root/bin remountfs_rw run
-else
-    log_progress "Getting files from $REPO:$BRANCH"
+log_progress "Getting files from $REPO:$BRANCH"
 
-    check_and_configure_pushover
-    check_and_configure_gotify
-    check_and_configure_ifttt
-    check_and_configure_sns
-    install_push_message_scripts /root/bin
+check_and_configure_pushover
+check_and_configure_gotify
+check_and_configure_ifttt
+check_and_configure_sns
+install_push_message_scripts /root/bin
 
-    check_archive_configs
+check_archive_configs
 
-    echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
-    echo "ARCHIVE_DELAY=${archivedelay:-20}" >> /root/teslausb.conf
+echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
+echo "ARCHIVE_DELAY=${archivedelay:-20}" >> /root/teslausb.conf
 
-    archive_module="$( get_archive_module )"
-    log_progress "Using archive module: $archive_module"
+archive_module="$( get_archive_module )"
+log_progress "Using archive module: $archive_module"
 
-    install_archive_scripts /root/bin $archive_module
-    /tmp/verify-and-configure-archive.sh
+install_archive_scripts /root/bin $archive_module
+/tmp/verify-and-configure-archive.sh
 
-    install_rc_local /root/bin
-fi
+install_rc_local /root/bin
