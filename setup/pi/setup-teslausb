@@ -231,7 +231,11 @@ function make_root_fs_readonly () {
 
 function update_package_index () {
   setup_progress "Updating package index files..."
-  apt-get update
+  while ! apt-get update
+  do
+    setup_progress "Failed, retrying"
+    sleep 2
+  done
 }
 
 function upgrade_packages () {
