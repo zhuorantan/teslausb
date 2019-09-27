@@ -424,6 +424,7 @@ function mount_all_snapshots {
 
   for img in /backingfiles/snapshots/snap-*/snap.bin
   do
+    log "mounting snapshot $img"
     imgdir=$(dirname "$img")
     if mount | grep "$imgdir/mnt"
     then
@@ -432,6 +433,7 @@ function mount_all_snapshots {
     fi
     /root/bin/mount_image.sh "$img" "$imgdir/mnt"
   done
+  log "mounted all snapshots"
 }
 
 
@@ -454,7 +456,6 @@ echo "==============================================" >> "$LOG_FILE"
 log "Starting archiveloop..."
 
 mount_all_snapshots
-log "mounted all snapshots"
 
 /root/bin/make_snapshot.sh
 
