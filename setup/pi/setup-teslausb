@@ -290,6 +290,7 @@ function cmd_selfupdate {
 function cmd_diagnose {
   {
     echo -e "====== summary ======"
+    echo -e "running on $(cat /sys/firmware/devicetree/base/model | tr -d '\000')"
     if [ -e /root/teslausb_setup_variables.conf ]
     then
       echo "headless setup config in /root"
@@ -379,7 +380,12 @@ function cmd_diagnose {
     echo -e "====== initial setup boot log ======"
     mkdir /tmp/root$$
     mount --bind / /tmp/root$$
-    cat /tmp/root$$/var/log/boot.log
+    if [ -e /tmp/root$$/var/log/boot.log ]
+    then
+      cat /tmp/root$$/var/log/boot.log
+    else
+      echo "no boot log found"
+    fi
     umount /tmp/root$$
     rmdir /tmp/root$$
 
