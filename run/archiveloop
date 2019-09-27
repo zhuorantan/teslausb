@@ -230,7 +230,7 @@ function wait_for_archive_to_be_unreachable () {
 }
 
 function check_if_usb_gadget_is_mounted () {
-    if [ ! -d /sys/devices/platform/soc/20980000.usb/gadget/lun0 ]
+    if [ ! -d /sys/devices/platform/soc/??980000.usb/gadget/lun0 ]
     then
         log "USB Gadget not mounted. Fixing files and remounting..."
         disconnect_usb_drives_from_host

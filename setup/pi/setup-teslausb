@@ -335,8 +335,8 @@ function cmd_diagnose {
     then
       echo "cam disk image not in fstab"
     fi
-    LUN0=/sys/devices/platform/soc/20980000.usb/gadget/lun0/file
-    LUN1=/sys/devices/platform/soc/20980000.usb/gadget/lun1/file
+    LUN0=/sys/devices/platform/soc/??980000.usb/gadget/lun0/file
+    LUN1=/sys/devices/platform/soc/??980000.usb/gadget/lun1/file
     if [ -e $LUN0 ]
     then
       echo "lun0 connected, from file $(cat $LUN0)"
