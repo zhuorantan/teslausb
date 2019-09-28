@@ -31,6 +31,7 @@ function connectionmonitor {
 if ! findmnt --mountpoint $DST
 then
   log "$DST not mounted, skipping"
+  exit
 fi
 
 connectionmonitor $$ &
