@@ -300,7 +300,8 @@ function cmd_selfupdate {
 function cmd_diagnose {
   {
     echo -e "====== summary ======"
-    echo -e "running on $(cat /sys/firmware/devicetree/base/model | tr -d '\000')"
+    echo -e "hardware: $(cat /sys/firmware/devicetree/base/model | tr -d '\000')"
+    echo -e "OS: $(. /etc/os-release && echo $PRETTY_NAME)"
     if [ -e /root/teslausb_setup_variables.conf ]
     then
       echo "headless setup config in /root"
