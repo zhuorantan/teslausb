@@ -50,6 +50,10 @@ then
   exit 1
 fi
 
+function isPi4 {
+  grep -q "Pi 4" /sys/firmware/devicetree/base/model
+}
+
 function timestamp () {
   local prefix=${1:-}
   while IFS= read line
@@ -373,20 +377,39 @@ function truncate_log () {
 
 function slowblink () {
   echo timer > /sys/class/leds/led0/trigger
-  echo 900 > /sys/class/leds/led0/delay_on
-  echo 100 > /sys/class/leds/led0/delay_off
+  local ON=on
+  local OFF=off
+  if isPi4
+  then
+    ON=off
+    OFF=on
+  fi
+  echo 900 > /sys/class/leds/led0/delay_$ON
+  echo 100 > /sys/class/leds/led0/delay_$OFF
 }
 
 function fastblink () {
   echo timer > /sys/class/leds/led0/trigger
-  echo 150 > /sys/class/leds/led0/delay_on
-  echo 50 > /sys/class/leds/led0/delay_off
+  local ON=on
+  local OFF=off
+  if isPi4
+  then
+    ON=off
+    OFF=on
+  fi
+  echo 150 > /sys/class/leds/led0/delay_$ON
+  echo 50 > /sys/class/leds/led0/delay_$OFF
 }
 
 
 function doubleblink () {
   echo heartbeat > /sys/class/leds/led0/trigger
-  echo 1 > /sys/class/leds/led0/invert
+  if isPi4
+  then
+    echo 0 > /sys/class/leds/led0/invert
+  else
+    echo 1 > /sys/class/leds/led0/invert
+  fi
 }
 
 function set_time () {
