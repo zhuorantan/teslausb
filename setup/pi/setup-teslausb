@@ -40,15 +40,6 @@ then
       ;;
     esac
   fi
-  # Configuring /boot/cmdline.txt and /etc/modules
-  if ! grep -q dwc2 /etc/modules 
-  then
-    echo -e "dwc2\n" >> /etc/modules
-  fi
-  if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
-  then
-    echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
-  fi
 fi
 
 REPO=${REPO:-marcone}
@@ -462,6 +453,12 @@ then
     setup_progress "unknown command: $1"
     exit 1
   fi
+fi
+
+# Update /boot/config.txt if needed
+if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
+then
+  echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
 fi
 
 configure_hostname
