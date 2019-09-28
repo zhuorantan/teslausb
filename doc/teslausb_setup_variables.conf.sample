@@ -17,6 +17,11 @@ export sharename=your_archive_share_name
 export shareuser=username
 export sharepassword=password
 # export cifs_version="3.0"
+
+# Uncomment the follwing line and select drive if you want to use an external drive instead of built-in MicroSD card. 
+# External USB drive is supported only for RPi4. 
+# export usb_drive=/dev/sda
+
 export camsize=100%
 
 # if you set camsize to less than 100%, but don't want music to use

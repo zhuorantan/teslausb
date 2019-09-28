@@ -10,6 +10,23 @@ function check_variable () {
 }
 
 function check_available_space () {
+    if [ -z "$usb_drive" ]
+    then
+      setup_progress "usb_drive is not set. SD card will be used."
+      check_available_space_sd
+    else
+      if [ "grep -q 'Pi 4' /sys/firmware/devicetree/base/model" ]
+      then
+        setup_progress "usb_drive is set to $usb_drive. This will be used for /mutable and backingfiles."
+        check_available_space_usb
+      else
+        setup_progress "STOP: usb_drive is supported only on a Pi 4. Set usb_drive to blank or comment it to continue"
+        exit 1
+      fi
+    fi
+}
+
+function check_available_space_sd () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
   # The following assumes that the root and boot partitions are adjacent at the start
@@ -26,6 +43,35 @@ function check_available_space () {
   then
     setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
     setup_progress "$(parted /dev/mmcblk0 print)"
+    exit 1
+  fi
+
+  setup_progress "There is sufficient space available."
+}
+
+function check_available_space_usb () {
+  setup_progress "Verifying that there is sufficient space available on the USB drive ..."
+
+  # Verify that the disk has been provided and not a partition
+  local drive_type=$(lsblk -pno TYPE $usb_drive| head -n 1)
+  
+  if [ "$drive_type" != "disk" ]
+  then
+    setup_progress "STOP: The provided drive seems to be a partition. Please specify path to the disk."
+    exit 1
+  fi
+
+  # This verifies only the total size of the USB Drive. 
+  # All existing partitions on the drive will be erased if backingfiles are to be created or changed. 
+  # EXISTING DATA ON THE USB_DRIVE WILL BE REMOVED. 
+
+  local drive_size=$(blockdev --getsize64 $usb_drive)
+
+  # Require at least 16GB drive size. 
+  if [ "$drive_size" -lt  $(( (1<<30) * 16)) ]
+  then
+    setup_progress "STOP: The USB drive is too small: $(expr $drive_size / 1024 / 1024 / 1024)GB available. Expected at least 16GB"
+    setup_progress "$(parted $usb_drive print)"
     exit 1
   fi
 

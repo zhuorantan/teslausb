@@ -16,6 +16,50 @@ then
   apt-get -y --force-yes install xfsprogs
 fi
 
+# Will check for USB Drive before running sd card
+if [ ! -z "$usb_drive" ]
+then
+  setup_progress "usb_drive is set to $usb_drive"
+  # Check if backingfiles and mutable partitions exist
+  if [ /dev/disk/by-label/backingfiles -ef /dev/sda2 -a /dev/disk/by-label/mutable -ef /dev/sda1 ]
+  then
+    setup_progress "Looks like backingfiles and mutable partitions already exist. Exiting without making changes"
+    exit 0
+  else
+    setup_progress "WARNING !!! This will delete EVERYTHING in $usb_drive."
+    wipefs -afq $usb_drive
+    parted $usb_drive --script mktable gpt
+    setup_progress "$usb_drive fully erased. Creating partitions..."
+    parted -a optimal -m /dev/sda mkpart primary ext4 '0%' 2GB
+    parted -a optimal -m /dev/sda mkpart primary ext4 2GB '100%'
+    setup_progress "Backing files and mutable partitions created."
+
+    setup_progress "Formatting new partitions..."
+    # Force creation of filesystems even if previous filesystem appears to exist
+    mkfs.ext4 -F -L mutable /dev/sda1
+    mkfs.xfs -f -m reflink=1 -L backingfiles /dev/sda2
+    
+    BACKINGFILES_MOUNTPOINT="$1"
+    MUTABLE_MOUNTPOINT="$2"
+    if grep -q backingfiles /etc/fstab
+    then
+      setup_progress "backingfiles already defined in /etc/fstab. Not modifying /etc/fstab."
+    else
+      echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
+    fi
+    if grep -q 'mutable' /etc/fstab
+    then
+      setup_progress "mutable already defined in /etc/fstab. Not modifying /etc/fstab."
+    else
+      echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+    fi
+    setup_progress "Partitions creation complete."
+    exit 0
+  fi
+else
+  echo "usb_drive not set. Proceeding to SD card setup"
+fi
+
 # If partition 3 is the backingfiles partition, type xfs, and
 # partition 4 the mutable partition, type ext4, then return early.
 if [ /dev/disk/by-label/backingfiles -ef /dev/mmcblk0p3 -a \

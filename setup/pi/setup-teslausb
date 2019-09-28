@@ -40,6 +40,15 @@ then
       ;;
     esac
   fi
+  # Configuring /boot/cmdline.txt and /etc/modules
+  if ! grep -q dwc2 /etc/modules 
+  then
+    echo -e "dwc2\n" >> /etc/modules
+  fi
+  if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
+  then
+    echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
+  fi
 fi
 
 REPO=${REPO:-marcone}
@@ -52,6 +61,7 @@ SAMBA_ENABLED=${SAMBA_ENABLED:-false}
 SAMBA_GUEST=${SAMBA_GUEST:-false}
 export camsize=${camsize:-90%}
 export musicsize=${musicsize:-100%}
+export usb_drive=${usb_drive:-''}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
