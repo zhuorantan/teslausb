@@ -34,8 +34,8 @@ function enable_wifi () {
         fi
         setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
         cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
-        sed -i'.bak' -e "s/TEMPSSID/${SSID}/g" /boot/wpa_supplicant.conf
-        sed -i'.bak' -e "s/TEMPPASS/${WIFIPASS}/g" /boot/wpa_supplicant.conf
+        sed -i'.bak' -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
+        sed -i'.bak' -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
         cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
         touch /boot/WIFI_ENABLED
         setup_progress "Rebooting..."
