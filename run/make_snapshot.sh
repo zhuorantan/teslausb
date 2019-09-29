@@ -25,8 +25,10 @@ fi
 function make_links_for_snapshot {
   local recents=/backingfiles/TeslaCam/RecentClips
   local saved=/backingfiles/TeslaCam/SavedClips
+  local sentry=/backingfiles/TeslaCam/SentryClips
   mkdir -p $recents
   mkdir -p $saved
+  mkdir -p $sentry
   local curmnt="$1"
   local finalmnt="$2"
   log "making links for $curmnt, retargeted to $finalmnt"
@@ -57,7 +59,10 @@ function make_links_for_snapshot {
     for f in $curmnt/TeslaCam/SentryClips/*/*
     do
       log "linking $f"
-      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $collection
+      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $recents
+      local eventtime=$(basename $(dirname $f))
+      mkdir -p $sentry/$eventtime
+      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $sentry/$eventtime
     done
   fi
   log "made all links for $curmnt"
