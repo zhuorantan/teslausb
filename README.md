@@ -230,7 +230,7 @@ As a little discussion of security for your Pi, please keep in mind the followin
    reboot
 ```
 
-3. Remember that the root user has a copy of your configuration file. Try the best you can to protect it.  If your Pi is taken or car is stolen, change your Tesla account password QUICKLY! Remember that if they don't have a "key" or your Tesla Account and Password, the car will not drive for them.  Also consider activating a Drive Password on your Tesla. Its only 4 digits, but that's a lot of combinations to guess. 
+3. Remember that the root user has a copy of your configuration file. Try the best you can to protect it.  If your Pi is taken or car is stolen *and* you enabled the optional "use Tesla API to keep your car awake" feature, change your Tesla account password QUICKLY! Remember that if they don't have a "key" or your Tesla Account and Password, the car will not drive for them.  Also consider activating a Drive Password on your Tesla. Its only 4 digits, but that's a lot of combinations to guess. 
 
 ## Meta
 

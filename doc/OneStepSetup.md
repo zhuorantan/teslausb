@@ -111,6 +111,12 @@ A sample conf file is located in the `boot` folder on the SD card, but check htt
     # power the Pi long enough for the archiving process to complete. To enable
     # that, please provide your Tesla account email and password below.
     # TeslaUSB will only send your credentials to the Tesla API itself.
+    #
+    # NOTE:  if you do this, it's highly recommended that you set up 'PIN to Drive'
+    #   as if the Pi or the car is stolen, the thief has access to your Tesla account 
+    #   and could change the password, add their own devices as a key, steal the car,
+    #   etc.  If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
+    
     # export tesla_email=joeshmo@gmail.com
     # export tesla_password=teslapass
     # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
