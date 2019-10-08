@@ -367,9 +367,14 @@ function cmd_diagnose {
 
     echo -e "====== disk ======"
     parted /dev/mmcblk0 print
+    if [ ! -z "$usb_drive" ]
+    then
+      parted $usb_drive print
+    fi
 
     echo -e "====== network ======"
     ifconfig
+    iwconfig wlan0 | grep Link
 
     echo -e "====== fstab ======"
     if [ -e /etc/fstab ]
