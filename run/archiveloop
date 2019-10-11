@@ -480,9 +480,11 @@ log "Starting archiveloop..."
 
 mount_all_snapshots
 
-/root/bin/make_snapshot.sh
-
-snapshotloop &
+if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
+then
+  /root/bin/make_snapshot.sh
+  snapshotloop &
+fi
 
 if archive_is_reachable
 then
@@ -518,8 +520,11 @@ do
 
   sleep ${ARCHIVE_DELAY:-20}
 
+if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
+then
   # take a snapshot before archive_clips starts deleting files
   /root/bin/make_snapshot.sh
+fi
 
   archive_clips
 

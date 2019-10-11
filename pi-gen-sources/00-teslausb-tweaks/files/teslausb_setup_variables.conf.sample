@@ -43,6 +43,9 @@ export HEADLESS_SETUP=true
 # uncomment to enable guest access to the samba server
 #export SAMBA_GUEST=true
 
+# uncomment to disable snapshots. This also disables samba and RecentClips-extension
+#export SNAPSHOTS_ENABLED=false
+
 # uncomment to enable teslausb to act as a wifi access point with the given
 # SSID, so you can access it while on the road.
 #export AP_SSID='TESLAUSB WIFI'

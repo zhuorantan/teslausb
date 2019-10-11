@@ -50,6 +50,7 @@ UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-false}
 TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
 SAMBA_ENABLED=${SAMBA_ENABLED:-false}
 SAMBA_GUEST=${SAMBA_GUEST:-false}
+SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
 export camsize=${camsize:-90%}
 export musicsize=${musicsize:-100%}
 export usb_drive=${usb_drive:-''}
@@ -528,11 +529,16 @@ else
   setup_progress "skipping configure.sh"
 fi
 
-if [ "$SAMBA_ENABLED" = "true" ]
+if [ "$SAMBA_ENABLED" = "true" ] 
 then
-  export SAMBA_GUEST
-  get_script /tmp configure-samba.sh setup/pi
-  /tmp/configure-samba.sh
+  if [ "$SNAPSHOTS_ENABLED" = "true" ]
+  then
+    export SAMBA_GUEST
+    get_script /tmp configure-samba.sh setup/pi
+    /tmp/configure-samba.sh
+  else
+    setup_progress "snapshots disabled, skipping Samba configuration"
+  fi
 fi
 
 if [ ! -z ${AP_SSID:+x} ]

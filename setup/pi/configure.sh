@@ -363,8 +363,11 @@ install_push_message_scripts /root/bin
 
 check_archive_configs
 
-echo "ARCHIVE_HOST_NAME=$archiveserver" > /root/teslausb.conf
-echo "ARCHIVE_DELAY=${archivedelay:-20}" >> /root/teslausb.conf
+configFile=/root/teslausb.conf
+
+echo "ARCHIVE_HOST_NAME=$archiveserver" > $configFile
+echo "ARCHIVE_DELAY=${archivedelay:-20}" >> $configFile
+echo "SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}" >> $configFile
 
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
