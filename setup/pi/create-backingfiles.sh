@@ -11,7 +11,8 @@ log_progress "starting"
 
 CAM_SIZE="$1"
 MUSIC_SIZE="$2"
-BACKINGFILES_MOUNTPOINT="$3"
+# strip trailing slash that shell autocomplete might have added
+BACKINGFILES_MOUNTPOINT=$(echo "$3" | sed 's@/$@@')
 
 log_progress "cam: $CAM_SIZE, music: $MUSIC_SIZE, mountpoint: $BACKINGFILES_MOUNTPOINT"
 
@@ -78,10 +79,11 @@ function add_drive () {
   fallocate -l "$size"K "$filename"
   echo "type=c" | sfdisk "$filename" > /dev/null
   local partition_offset=$(first_partition_offset "$filename")
-  losetup -o $partition_offset loop0 "$filename"
+  losetup -o $partition_offset -f "$filename"
+  loopdev=$(losetup -j "$filename" | awk '{print $1}' | sed 's/://')
   log_progress "Creating filesystem with label '$label'"
-  mkfs.vfat /dev/loop0 -F 32 -n "$label"
-  losetup -d /dev/loop0
+  mkfs.vfat $loopdev -F 32 -n "$label"
+  losetup -d $loopdev
 
   local mountpoint=/mnt/"$name"
 
@@ -105,12 +107,26 @@ MUSIC_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/music_disk.bin"
 
 # delete existing files, because fallocate doesn't shrink files, and
 # because they interfere with the percentage-of-free-space calculation
+if [ -t 0 ]
+then
+  read -p 'Delete snapshots and recreate recording and music drives? (yes/cancel)' answer
+  case ${answer:0:1} in
+    y|Y )
+    ;;
+    * )
+      log_progress "aborting"
+      exit
+    ;;
+  esac
+fi
 killall archiveloop || true
 modprobe -r g_mass_storage
-umount /mnt/cam || true
-umount /mnt/music || true
+umount -d /mnt/cam || true
+umount -d /mnt/music || true
+umount -d /backingfiles/snapshots/snap*/mnt || true
 rm -f "$CAM_DISK_FILE_NAME"
 rm -f "$MUSIC_DISK_FILE_NAME"
+rm -rf "$BACKINGFILES_MOUNTPOINT/snapshots"
 
 CAM_DISK_SIZE="$(calc_size $CAM_SIZE)"
 MUSIC_DISK_SIZE="$(calc_size $MUSIC_SIZE)"
