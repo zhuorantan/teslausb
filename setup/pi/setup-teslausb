@@ -167,6 +167,7 @@ function get_common_scripts () {
   get_script /root/bin mount_snapshot.sh run
   get_script /root/bin mount_image.sh run
   get_script /root/bin release_snapshot.sh run
+  get_script /root/bin force_sync.sh run
 }
 
 function fix_cmdline_txt_modules_load ()
