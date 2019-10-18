@@ -8,5 +8,6 @@ umount $MNT
 losetup -d $LOOP
 # delete all dead links
 rm -f $(find /backingfiles/TeslaCam/ -xtype l)
-# delete all Sentry folders that are now empty
+# delete all Sentry and saved folders that are now empty
 rmdir --ignore-fail-on-non-empty /backingfiles/TeslaCam/SavedClips/* || true
+rmdir --ignore-fail-on-non-empty /backingfiles/TeslaCam/SentryClips/* || true

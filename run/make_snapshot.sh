@@ -22,11 +22,21 @@ then
   fi
 fi
 
-function make_links_for_snapshot {
+function linksnapshotfiletorecents {
+  local file=$1
+  local curmnt=$2
+  local finalmnt=$3
   local recents=/backingfiles/TeslaCam/RecentClips
+
+  filename=$(basename $file)
+  filedate=$(echo $filename | cut -c -10)
+  mkdir -p $recents/$filedate
+  ln -sf "$(echo $file | sed "s@$curmnt@$finalmnt@")" $recents/$filedate
+}
+
+function make_links_for_snapshot {
   local saved=/backingfiles/TeslaCam/SavedClips
   local sentry=/backingfiles/TeslaCam/SentryClips
-  mkdir -p $recents
   mkdir -p $saved
   mkdir -p $sentry
   local curmnt="$1"
@@ -37,7 +47,7 @@ function make_links_for_snapshot {
     for f in $curmnt/TeslaCam/RecentClips/*
     do
       log "linking $f"
-      ln -sf "$(echo $f | sed "s@$curmnt@$finalmnt@")" $recents
+      linksnapshotfiletorecents $f $curmnt $finalmnt
     done
   fi
   # also link in any files that were moved to SavedClips
@@ -46,7 +56,7 @@ function make_links_for_snapshot {
     for f in $curmnt/TeslaCam/SavedClips/*/*
     do
       log "linking $f"
-      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $recents
+      linksnapshotfiletorecents $f $curmnt $finalmnt
       # also link it into a SavedClips folder
       local eventtime=$(basename $(dirname $f))
       mkdir -p $saved/$eventtime
@@ -59,7 +69,7 @@ function make_links_for_snapshot {
     for f in $curmnt/TeslaCam/SentryClips/*/*
     do
       log "linking $f"
-      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $recents
+      linksnapshotfiletorecents $f $curmnt $finalmnt
       local eventtime=$(basename $(dirname $f))
       mkdir -p $sentry/$eventtime
       ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $sentry/$eventtime
