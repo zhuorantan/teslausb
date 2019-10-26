@@ -68,6 +68,12 @@ Download: [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian
 
 Download and install: [Etcher](http://etcher.io)
 
+MacOS: After downloading and attempting to open Etcher, you may get a security warning. Go to System Preference -> Security and Privacy -> General and click allow.  If Etcher complains that it cannot write the image, start the program using sudo from the terminal using the command:
+
+```
+sudo /Applications/balenaEtcher.app/Contents/MacOS/balenaEtcher
+```
+
 ## Set up the Raspberry Pi
 
 There are four phases to setting up the Pi:
