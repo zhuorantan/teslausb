@@ -107,6 +107,13 @@ export HEADLESS_SETUP=true
 # vehicle awake.
 # export tesla_vin=5YJ3E1EA4JF000001
 
+# Uncomment if you want to increase the size of the root
+# filesystem so there's extra space for installing additional
+# software. This only works if the backing store partition hasn't
+# been created yet, i.e. during early setup, and requires an extra
+# reboot. Sizes can be specified as for example "500M" or "2G"
+# export INCREASE_ROOT_SIZE=500M
+#
 # Uncomment and change if you want setup scripts to be pulled
 # from a different repo than github.com/marcone/teslausb
 # export REPO=marcone

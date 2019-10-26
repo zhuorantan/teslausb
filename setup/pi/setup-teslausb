@@ -51,6 +51,7 @@ TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
 SAMBA_ENABLED=${SAMBA_ENABLED:-false}
 SAMBA_GUEST=${SAMBA_GUEST:-false}
 SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
+INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
 export camsize=${camsize:-90%}
 export musicsize=${musicsize:-100%}
 export usb_drive=${usb_drive:-''}
@@ -68,6 +69,28 @@ if ! [ $(id -u) = 0 ]
 then
   setup_progress "STOP: Run sudo -i."
   exit 1
+fi
+
+function dehumanize () {
+  echo $(($(echo $1 | sed 's/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
+}
+
+INCREASE_ROOT_SIZE=$(($(dehumanize $INCREASE_ROOT_SIZE) / 512))
+
+if [ "$INCREASE_ROOT_SIZE" != "0" -a ! -e /dev/mmcblkp03 ]
+then
+  if [ ! -e /root/TESLAUSB_ROOT_PARTITION_INCREASED ]
+  then
+    touch /root/TESLAUSB_ROOT_PARTITION_INCREASED
+    ROOTSTART=$(partx --show -g -o START /dev/mmcblk0p2)
+    ROOTSIZE=$(partx --show -g -o SECTORS /dev/mmcblk0p2)
+    ROOTSIZE=$(($ROOTSIZE+$INCREASE_ROOT_SIZE))
+    echo "$ROOTSTART,$ROOTSIZE" | sfdisk --force /dev/mmcblk0 -N 2
+    setup_progress "increased root partition size, rebooting for changes to take effect"
+    reboot
+  fi
+  setup_progress "increasing root filesystem size to match partition size"
+  resize2fs /dev/mmcblk0p2
 fi
 
 function headless_setup_populate_variables () {
