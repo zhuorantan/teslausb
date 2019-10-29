@@ -299,6 +299,13 @@ function set_timezone () {
   fi
 }
 
+function cmd_install {
+  /root/bin/remountfs_rw
+  get_script /root/bin $(basename $1) $(dirname $1)
+  setup_progress "$1 installed in /root/bin/"
+  exit
+}
+
 function cmd_selfupdate {
   get_script /tmp setup-teslausb setup/pi &> /dev/null
   if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
@@ -476,8 +483,11 @@ fi
 
 if [ ! -z ${1:+x} ]
 then
-  if typeset -f cmd_$1 > /dev/null; then
-    cmd_$1
+  command=cmd_$1
+  if typeset -f $command > /dev/null
+  then
+    shift
+    $command "$@"
     exit 0
   else
     setup_progress "unknown command: $1"
