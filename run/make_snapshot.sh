@@ -28,17 +28,26 @@ function linksnapshotfiletorecents {
   local finalmnt=$3
   local recents=/backingfiles/TeslaCam/RecentClips
 
-  filename=$(basename $file)
-  filedate=$(echo $filename | cut -c -10)
-  mkdir -p $recents/$filedate
-  ln -sf "$(echo $file | sed "s@$curmnt@$finalmnt@")" $recents/$filedate
+  filename=${file##/*/}
+  filedate=${filename:0:10}
+  if [ ! -d $recents/$filedate ]
+  then
+    mkdir -p $recents/$filedate
+  fi
+  ln -sf ${file/"$curmnt"/$finalmnt} $recents/$filedate
 }
 
 function make_links_for_snapshot {
   local saved=/backingfiles/TeslaCam/SavedClips
   local sentry=/backingfiles/TeslaCam/SentryClips
-  mkdir -p $saved
-  mkdir -p $sentry
+  if [ ! -d $saved ]
+  then
+    mkdir -p $saved
+  fi
+  if [ ! -d $sentry ]
+  then
+    mkdir -p $sentry
+  fi
   local curmnt="$1"
   local finalmnt="$2"
   log "making links for $curmnt, retargeted to $finalmnt"
@@ -46,7 +55,7 @@ function make_links_for_snapshot {
   then
     for f in $curmnt/TeslaCam/RecentClips/*
     do
-      log "linking $f"
+      #log "linking $f"
       linksnapshotfiletorecents $f $curmnt $finalmnt
     done
   fi
@@ -55,12 +64,17 @@ function make_links_for_snapshot {
   then
     for f in $curmnt/TeslaCam/SavedClips/*/*
     do
-      log "linking $f"
+      #log "linking $f"
       linksnapshotfiletorecents $f $curmnt $finalmnt
       # also link it into a SavedClips folder
       local eventtime=$(basename $(dirname $f))
-      mkdir -p $saved/$eventtime
-      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $saved/$eventtime
+      local eventfolder=${f%/*}
+      local eventtime=${eventfolder##/*/}
+      if [ ! -d $saved/$eventtime ]
+      then
+        mkdir -p $saved/$eventtime
+      fi
+      ln -sf ${f/"$curmnt"/$finalmnt} $saved/$eventtime
     done
   fi
   # and the same for SentryClips
@@ -68,11 +82,15 @@ function make_links_for_snapshot {
   then
     for f in $curmnt/TeslaCam/SentryClips/*/*
     do
-      log "linking $f"
+      #log "linking $f"
       linksnapshotfiletorecents $f $curmnt $finalmnt
-      local eventtime=$(basename $(dirname $f))
-      mkdir -p $sentry/$eventtime
-      ln -sf $(echo $f | sed "s@$curmnt@$finalmnt@") $sentry/$eventtime
+      local eventfolder=${f%/*}
+      local eventtime=${eventfolder##/*/}
+      if [ ! -d $sentry/$eventtime ]
+      then
+        mkdir -p $sentry/$eventtime
+      fi
+      ln -sf ${f/"$curmnt"/$finalmnt} $sentry/$eventtime
     done
   fi
   log "made all links for $curmnt"
