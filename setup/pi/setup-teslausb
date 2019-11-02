@@ -392,16 +392,31 @@ function cmd_diagnose {
       echo "mutable not in fstab"
     fi
 
+    numsnapshots=$(mount | grep snapshot | wc -l)
+    echo "$numsnapshots snapshots mounted"
+
     if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
     then
       echo 'setup did not finish'
     fi
 
-    echo -e "====== disk ======"
-    parted /dev/mmcblk0 print
+    echo -e "====== disk / images ======"
+    parted -s /dev/mmcblk0 print || true
     if [ ! -z "$usb_drive" ]
     then
-      parted $usb_drive print
+      parted -s $usb_drive print || true
+    fi
+    if [ -f /backingfiles/cam_disk.bin ]
+    then
+      parted -s /backingfiles/cam_disk.bin print || true
+    else
+      echo "no cam disk image found"
+    fi
+    if [ -f /backingfiles/music_disk.bin ]
+    then
+      parted -s /backingfiles/music_disk.bin print || true
+    else
+      echo "no music disk image found"
     fi
 
     echo -e "====== network ======"
