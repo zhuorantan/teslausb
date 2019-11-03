@@ -131,7 +131,7 @@ function headless_setup_mark_setup_success () {
 function headless_setup_progress_flash () {
   if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
   then
-    /etc/stage_flash $1
+    /etc/stage_flash $1 || setup_progress "error calling stage_flash"
   fi
 }
 
@@ -468,7 +468,7 @@ function cmd_diagnose {
     fi
 
     echo -e "====== dmesg ======"
-    dmesg
+    dmesg -T
     echo -e "====== process list and uptime ======"
     ps -eaf
     echo "$(hostname) has been $(uptime -p). System time is $(date)"
