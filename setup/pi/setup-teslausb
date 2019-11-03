@@ -75,6 +75,18 @@ function dehumanize () {
   echo $(($(echo $1 | sed 's/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
 }
 
+REBOOT=false
+
+# wpa_supplicant should have a country code. Use US as the default
+# to avoid using the disallowed channels in the US.
+WPA=/etc/wpa_supplicant/wpa_supplicant.conf 
+if ! grep -q "country=" $WPA
+then
+  setup_progress "adding country code to wpa_supplicant.conf"
+  echo "country=US" >> $WPA
+  REBOOT=true
+fi
+
 INCREASE_ROOT_SIZE=$(($(dehumanize $INCREASE_ROOT_SIZE) / 512))
 
 if [ "$INCREASE_ROOT_SIZE" != "0" -a ! -e /dev/mmcblkp03 ]
@@ -86,11 +98,25 @@ then
     ROOTSIZE=$(partx --show -g -o SECTORS /dev/mmcblk0p2)
     ROOTSIZE=$(($ROOTSIZE+$INCREASE_ROOT_SIZE))
     echo "$ROOTSTART,$ROOTSIZE" | sfdisk --force /dev/mmcblk0 -N 2
-    setup_progress "increased root partition size, rebooting for changes to take effect"
-    reboot
+    setup_progress "increased root partition size"
+    REBOOT=true
+  else
+    setup_progress "increasing root filesystem size to match partition size"
+    resize2fs /dev/mmcblk0p2
   fi
-  setup_progress "increasing root filesystem size to match partition size"
-  resize2fs /dev/mmcblk0p2
+fi
+
+if [ "$REBOOT" = "true" ]
+then
+  if [ -t 0 ]
+  then
+    setup_progress "please reboot for changes to take effect"
+    exit
+  else
+    setup_progress "rebooting for changes to take effect"
+    reboot
+    exit
+  fi
 fi
 
 function headless_setup_populate_variables () {
