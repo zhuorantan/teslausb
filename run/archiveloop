@@ -258,6 +258,22 @@ function mount_and_fix_errors_in_music_file () {
   fi
 }
 
+function trim_free_space() {
+  local mount_point="$1"
+
+  # Make sure the partition is mounted.
+  if findmnt --mountpoint "$mount_point" > /dev/null
+  then
+    log "Trimming free space in $mount_point..."
+    if ! fstrim "$mount_point" >> "$LOG_FILE" 2>&1
+    then
+      log "Trimming free space in $mount_point failed."
+    fi
+  else
+    log "Could not trim free space in $mount_point. Not Mounted."
+  fi
+}
+
 function mount_and_fix_errors_in_files () {
   mount_and_fix_errors_in_cam_file
   mount_and_fix_errors_in_music_file
@@ -301,6 +317,9 @@ function archive_teslacam_clips () {
 
         /root/bin/archive-clips.sh
 
+        # Trim the camera archive to reduce the number of blocks in the snapshot.
+        trim_free_space "$CAM_MOUNT"
+
         # If Sentry Mode was previously disabled, restore it to that state
         if [ -x /root/bin/tesla_api.py ]
         then
@@ -323,6 +342,9 @@ function copy_music_files () {
   fix_errors_in_music_file
 
   /root/bin/copy-music.sh
+
+  # Trim the empty space from the music archive.
+  trim_free_space "$MUSIC_MOUNT"
 
   unmount_music_file
 }
