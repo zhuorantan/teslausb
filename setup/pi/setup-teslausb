@@ -434,12 +434,14 @@ function cmd_diagnose {
     fi
     if [ -f /backingfiles/cam_disk.bin ]
     then
+      echo "cam disk image has $(($(xfs_bmap /backingfiles/cam_disk.bin | wc -l)-1)) extents"
       parted -s /backingfiles/cam_disk.bin print || true
     else
       echo "no cam disk image found"
     fi
     if [ -f /backingfiles/music_disk.bin ]
     then
+      echo "music disk image has $(($(xfs_bmap /backingfiles/music_disk.bin | wc -l)-1)) extents"
       parted -s /backingfiles/music_disk.bin print || true
     else
       echo "no music disk image found"
