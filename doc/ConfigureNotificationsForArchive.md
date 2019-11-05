@@ -25,6 +25,7 @@ Gotify is a self-hosted notification service. The android client is available on
     export gotify_enabled=true
     export gotify_domain=https://gotify.domain.com
     export gotify_app_token=put_your_token_here
+    export gotify_priority=5
     ```
 
 # IFTTT
