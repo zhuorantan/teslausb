@@ -58,7 +58,7 @@ done <<< "$(cd "$DST"; find * -type f)"
 # Copy from the music archive(SRC) to the local parition(DST)
 while read file_name
 do
-  if [ ! -e "$DST/$file_name" ]
+  if [ ! -e "$DST/$file_name" -o "$SRC/$file_name" -nt "$DST/$file_name" ]
   then
     dir=$(dirname "$file_name")
     if ! mkdir -p "$DST/$dir"
@@ -67,7 +67,7 @@ do
       NUM_FILES_ERROR=$((NUM_FILES_ERROR + 1))
       continue
     fi
-    if ! cp "$SRC/$file_name" "$DST/$dir/__tmp__"
+    if ! cp --preserve=timestamps "$SRC/$file_name" "$DST/$dir/__tmp__"
     then
       log "Couldn't copy $SRC/$file_name"
       NUM_FILES_ERROR=$((NUM_FILES_ERROR + 1))
