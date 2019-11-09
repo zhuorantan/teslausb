@@ -13,7 +13,14 @@ log_progress "start"
 
 function append_cmdline_txt_param() {
   local toAppend="$1"
-  sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
+  # Don't add the option if it is already added.
+  # If the command line gets too long the pi won't boot.
+  # Look for the option at the end ($) or in the middle
+  # of the command line and surrounded by space (\s).
+  if ! grep -P -q "\s${toAppend}(\$|\s)" /boot/cmdline.txt
+  then
+    sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
+  fi
 }
 
 log_progress "Removing unwanted packages..."
