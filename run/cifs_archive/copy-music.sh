@@ -58,7 +58,7 @@ done <<< "$(cd "$DST"; find * -type f)"
 # Copy from the music archive(SRC) to the local parition(DST)
 while read file_name
 do
-  if [ ! -e "$DST/$file_name" -o "$SRC/$file_name" -nt "$DST/$file_name" ]
+  if [ ! -e "$DST/$file_name" ]
   then
     dir=$(dirname "$file_name")
     if ! mkdir -p "$DST/$dir"
