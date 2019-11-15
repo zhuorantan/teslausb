@@ -51,49 +51,42 @@ function make_links_for_snapshot {
   local curmnt="$1"
   local finalmnt="$2"
   log "making links for $curmnt, retargeted to $finalmnt"
-  if stat $curmnt/TeslaCam/RecentClips/* > /dev/null
-  then
-    for f in $curmnt/TeslaCam/RecentClips/*
-    do
-      #log "linking $f"
-      linksnapshotfiletorecents $f $curmnt $finalmnt
-    done
-  fi
+  local restore_nullglob=$(shopt -p nullglob)
+  shopt -s nullglob
+  for f in $curmnt/TeslaCam/RecentClips/*
+  do
+    #log "linking $f"
+    linksnapshotfiletorecents $f $curmnt $finalmnt
+  done
   # also link in any files that were moved to SavedClips
-  if stat $curmnt/TeslaCam/SavedClips/*/* > /dev/null
-  then
-    for f in $curmnt/TeslaCam/SavedClips/*/*
-    do
-      #log "linking $f"
-      linksnapshotfiletorecents $f $curmnt $finalmnt
-      # also link it into a SavedClips folder
-      local eventtime=$(basename $(dirname $f))
-      local eventfolder=${f%/*}
-      local eventtime=${eventfolder##/*/}
-      if [ ! -d $saved/$eventtime ]
-      then
-        mkdir -p $saved/$eventtime
-      fi
-      ln -sf ${f/"$curmnt"/$finalmnt} $saved/$eventtime
-    done
-  fi
+  for f in $curmnt/TeslaCam/SavedClips/*/*
+  do
+    #log "linking $f"
+    linksnapshotfiletorecents $f $curmnt $finalmnt
+    # also link it into a SavedClips folder
+    local eventfolder=${f%/*}
+    local eventtime=${eventfolder##/*/}
+    if [ ! -d $saved/$eventtime ]
+    then
+      mkdir -p $saved/$eventtime
+    fi
+    ln -sf ${f/"$curmnt"/$finalmnt} $saved/$eventtime
+  done
   # and the same for SentryClips
-  if stat $curmnt/TeslaCam/SentryClips/*/* > /dev/null
-  then
-    for f in $curmnt/TeslaCam/SentryClips/*/*
-    do
-      #log "linking $f"
-      linksnapshotfiletorecents $f $curmnt $finalmnt
-      local eventfolder=${f%/*}
-      local eventtime=${eventfolder##/*/}
-      if [ ! -d $sentry/$eventtime ]
-      then
-        mkdir -p $sentry/$eventtime
-      fi
-      ln -sf ${f/"$curmnt"/$finalmnt} $sentry/$eventtime
-    done
-  fi
+  for f in $curmnt/TeslaCam/SentryClips/*/*
+  do
+    #log "linking $f"
+    linksnapshotfiletorecents $f $curmnt $finalmnt
+    local eventfolder=${f%/*}
+    local eventtime=${eventfolder##/*/}
+    if [ ! -d $sentry/$eventtime ]
+    then
+      mkdir -p $sentry/$eventtime
+    fi
+    ln -sf ${f/"$curmnt"/$finalmnt} $sentry/$eventtime
+  done
   log "made all links for $curmnt"
+  $restore_nullglob
 }
 
 function snapshot {
