@@ -2,4 +2,4 @@
 
 ARCHIVE_HOST_NAME="$1"
 
-hping3 -c 1 -S -p 445 "$ARCHIVE_HOST_NAME" > /dev/null 2>&1
+nc -z -w 5 "$ARCHIVE_HOST_NAME" 445 > /dev/null 2>&1
