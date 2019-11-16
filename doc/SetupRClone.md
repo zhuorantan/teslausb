@@ -1,6 +1,6 @@
 # Introduction
 
-This guide will show you how to install and configure [rclone4pi](https://github.com/pageauc/rclone4pi/wiki) (based off [rclone](https://rclone.org/)) to archive your saved TeslaCam footage on one of a number of different remote storage services including Google Drive, S3 and Dropbox.
+This guide will show you how to install and configure [rclone](https://rclone.org/)) to archive your saved TeslaCam footage on one of a number of different remote storage services including Google Drive, S3 and Dropbox.
 
 You must perform these steps **after** getting a shell on the Pi and **before** running the `setup-teslacam` script on the Pi.
 
@@ -17,7 +17,7 @@ These instructions will speed you through the process with good defaults. If you
    ```
 1. Run these commands. Specify the config name `gdrive` when prompted for the config name.
    ```
-   curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
+   curl https://rclone.org/install.sh | sudo bash
    rclone config
    ```
 1. Run these commands:
@@ -32,16 +32,16 @@ These instructions will speed you through the process with good defaults. If you
 1. If you didn't encounter any error messages and you see the `TeslaCam` directory listed, stay in your `sudo -i` session  and return to the [Main Instructions](../README.md).
 
 # Detailed instructions
-## Step 1: Install rclone4pi
+## Step 1: Install rclone
 1. Enter a root session on your Pi (if you haven't already):
    ```
    sudo -i
    ```
-2. Run the following command to install rclone4pi:
+2. Run the following command to install rclone:
     ```
-    curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
+    curl https://rclone.org/install.sh | sudo bash
     ```
-    Alternatively, you can install rclone4pi manually by following these [instructions]    (https://github.com/pageauc/rclone4pi/wiki#manual-install).
+    Alternatively, you can install rclone manually by following these [instructions](https://rclone.org/install/).
 
 # Step 2: Configure the archive
 1. Run this command to configure an archive:
@@ -87,7 +87,7 @@ These instructions will speed you through the process with good defaults. If you
 Confirm that the directory `TeslaCam` is present. If not, start over.
 
 # Step 4: Exports
-Run this command to cause the setup processes which you'll resume in the main instructions to use rclone4pi:
+Run this command to cause the setup processes which you'll resume in the main instructions to use rclone:
 ```
 export ARCHIVE_SYSTEM=rclone
 ```
