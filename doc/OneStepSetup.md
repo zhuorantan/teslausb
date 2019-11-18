@@ -132,7 +132,7 @@ A sample conf file is located in the `boot` folder on the SD card, but check htt
 | 4 | Create partition and files to store camera clips/music) |
 | 5 | Setup completed; remounting filesystems as read-only and rebooting |
 
-The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc.
+The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc.  The default password for user `pi@teslausb.local` is `raspberry`.  It is recommended that you modify the default password after logging in by issuing the command `passwd` and making it your own.
 
 If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go.
 
