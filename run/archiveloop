@@ -240,11 +240,15 @@ function trim_free_space() {
   local mount_point="$1"
 
   # Make sure the partition is mounted.
-  if findmnt --mountpoint "$mount_point" > /dev/null
+  if found=$(findmnt -n --mountpoint "$mount_point")
   then
-    log "Trimming free space in $mount_point..."
-    if ! fstrim "$mount_point" >> "$LOG_FILE" 2>&1
+    loop=$(echo $found | awk '{print $2}')
+    image=$(losetup -l -n --output=BACK-FILE $loop)
+    log "Trimming free space in $mount_point, which has $(xfs_bmap $image | wc -l) extents"
+    if fstrim "$mount_point" >> "$LOG_FILE" 2>&1
     then
+      log "Trim complete, image now has  $(xfs_bmap $image | wc -l) extents"
+    else
       log "Trimming free space in $mount_point failed."
     fi
   else
@@ -296,9 +300,6 @@ function archive_teslacam_clips () {
 
         /root/bin/archive-clips.sh
 
-        # Trim the camera archive to reduce the number of blocks in the snapshot.
-        trim_free_space "$CAM_MOUNT"
-
         # If Sentry Mode was previously disabled, restore it to that state
         if [ -x /root/bin/tesla_api.py ]
         then
@@ -309,6 +310,9 @@ function archive_teslacam_clips () {
 	    fi
 	fi
     fi
+
+    # Trim the camera archive to reduce the number of blocks in the snapshot.
+    trim_free_space "$CAM_MOUNT"
 
     unmount_cam_file
 }
