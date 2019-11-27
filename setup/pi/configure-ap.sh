@@ -15,9 +15,9 @@ then
   exit 1
 fi
 
-if [ -z "${AP_PASS+x}" ] || [ "$AP_PASS" = "password" ]
+if [ -z "${AP_PASS+x}" ] || [ "$AP_PASS" = "password" ] || (( ${#AP_PASS} < 8))
 then
-  log_progress "AP_PASS not set or not changed from default"
+  log_progress "AP_PASS not set, not changed from default, or too short"
   exit 1
 fi
 
