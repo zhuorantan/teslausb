@@ -6,7 +6,7 @@
 # to "teslausb_setup_variables.conf" and place it in the "boot" folder of your
 # SD card.
 # Please check the latest version of this file at:
-# https://github.com/marcone/teslausb/blob/ap/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample
+# https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample
 #
 ######################################################################
 
