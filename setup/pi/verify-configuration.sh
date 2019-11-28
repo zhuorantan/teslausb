@@ -9,13 +9,27 @@ function check_variable () {
   fi
 }
 
+function check_supported_hardware () {
+  if grep -q 'Raspberry Pi Zero W' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  if grep -q 'Raspberry Pi 4' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  setup_progress "STOP: unsupported hardware: '$(cat /sys/firmware/devicetree/base/model)'"
+  setup_progress "(only Pi Zero W and Pi 4 have the necessary hardware to run teslausb)"
+  exit 1
+}
+
 function check_available_space () {
     if [ -z "$usb_drive" ]
     then
       setup_progress "usb_drive is not set. SD card will be used."
       check_available_space_sd
     else
-      if [ "grep -q 'Pi 4' /sys/firmware/devicetree/base/model" ]
+      if grep -q 'Pi 4' /sys/firmware/devicetree/base/model
       then
         setup_progress "usb_drive is set to $usb_drive. This will be used for /mutable and backingfiles."
         check_available_space_usb
@@ -101,6 +115,8 @@ function check_setup_teslausb () {
     exit 1
   fi
 }
+
+check_supported_hardware
 
 check_setup_teslausb
 
