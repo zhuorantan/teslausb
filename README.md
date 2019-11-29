@@ -2,7 +2,7 @@
 
 ## Intro
 
-You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
+You can configure a Raspberry Pi Zero W or Raspberry Pi 4 so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
 * Scripts running on the Pi can automatically copy the clips to an archive server when you get home.
 * The Pi can hold both dashcam clips and music files.
 * The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
@@ -48,23 +48,26 @@ For pull requests, please split complex changes into multiple pull requests when
 ### Hardware
 
 Required:
-* [Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-w/):  [Adafruit](https://www.adafruit.com/product/3400) or [Amazon](https://www.amazon.com/Raspberry-Pi-Zero-Wireless-model/dp/B06XFZC3BX/)
-  > Note: Of the many varieties of Raspberry Pi available **only the Raspberry Pi Zero and Raspberry Pi Zero W can be used as simulated USB drives**. It may be possible to use a Pi Zero with a USB Wifi adapter to achieve the same result as the Pi Zero W but this hasn't been confirmed.
+* [Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-w/) ([Adafruit](https://www.adafruit.com/product/3400) or [Amazon](https://www.amazon.com/s?k=raspberry+pi+zero+w))
+or
+[Raspberry Pi 4](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/) ([Adafruit](https://www.adafruit.com/product/4295) or [Amazon](https://www.amazon.com/s?k=raspberry+pi+4))
+
+
+
+**Note: Of the many varieties of Raspberry Pi available only the Raspberry Pi Zero W and Raspberry Pi 4 will work with TeslaUSB**.
 * A Micro SD card, at least 16 GB in size, and an adapter (if necessary) to connect the card to your computer.
-* A mechanism to connect the Pi to the Tesla. Either:
-  * A USB A/Micro B cable: [Adafruit](https://www.adafruit.com/product/898) or [Amazon](https://www.amazon.com/gp/product/B013G4EAEI/), or
-  * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable: [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/), or
-  * A PCB kit if you want the lowest profile possible and you're able to solder: [Sparkfun](https://www.sparkfun.com/products/14526)
+* A mechanism to connect the Pi to the Tesla: a USB A/Micro B cable for the Pi Zero W, or a USB A/Micro C cable for Pi 4
 
 Optional:
-* A case. The "Official" case: [Adafruit](https://www.adafruit.com/product/3446) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add-on board or the PCB kit.
+* A case for the Pi Zero. The "Official" case: [Adafruit](https://www.adafruit.com/product/3446) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from.
+* A cooler for the Pi 4. The Raspberry Pi 4 uses much more power than the Pi Zero W, and as a result can get quite hot. The ["armor case"](https://www.amazon.com/s?k=Raspberry+Pi+4+Armor+Case) (available with or without fans) appears to do a good job of protecting the Pi while keeping it cool.
 * USB Splitter if you don't want to lose a front USB port. [The Onvian Splitter](https://www.amazon.com/gp/product/B01KX4TKH6) has been reported working by multiple people on reddit.
 
 ### Software
 
 Download: [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
 
-**NOTE:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md).
+**NOTE:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](doc/OneStepSetup.md).
 
 Download and install: [Etcher](http://etcher.io)
 
@@ -82,11 +85,11 @@ There are four phases to setting up the Pi:
 3. Set up the archive for dashcam clips.
 4. Set up the USB storage functionality.
 
-There is a streamlined process for setting up the Pi which can currently be used if you plan to use Windows file shares, MacOS Sharing, or Samba on Linux for your video archive. [Instructions](doc/OneStepSetup.md).
-
-If you'd like to host the archive using another technology or would like to set the Pi up, yourself, continue these instructions.
+**AGAIN:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](doc/OneStepSetup.md).
 
 ### Get the OS onto the MicroSD card
+
+**LAST WARNING:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](doc/OneStepSetup.md).
 
 [These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspbian onto your MicroSD card. Basically:
 1. Connect your Micro SD card to your computer.
