@@ -18,7 +18,8 @@ then
   PARENT="$(ps -o comm= $PPID)"
   if [ "$PARENT" != "setup-teslausb" ]
   then
-    log_progress "WARNING: $0 not called from setup-teslausb: $PARENT"
+    log_progress "STOP: $0 must be called from setup-teslausb: $PARENT"
+    exit 1
   fi
 
   if FLOCKED="$0" flock -en -E 99 "$0" "$0" "$@" || case "$?" in
@@ -34,12 +35,7 @@ then
   fi
 fi
 
-REPO=${REPO:-marcone}
-BRANCH=${BRANCH:-main-dev}
-
 ARCHIVE_SYSTEM=${ARCHIVE_SYSTEM:-none}
-
-log_progress "$0 starting with REPO=$REPO, BRANCH=$BRANCH, ARCHIVE_SYSTEM=$ARCHIVE_SYSTEM"
 
 function check_variable () {
     local var_name="$1"
@@ -277,14 +273,14 @@ function configure_ifttt () {
         echo "export ifttt_event_name=$ifttt_event_name" >> /root/.teslaCamIftttSettings
         echo "export ifttt_key=$ifttt_key" >> /root/.teslaCamIftttSettings
     else
-        log_progress "Gotify not configured."
+        log_progress "IFTTT not configured."
     fi
 }
 
 function configure_sns () {
     if [ ! -z "${sns_enabled+x}" ]
     then
-        echo "Enabling SNS"
+        log_progress "Enabling SNS"
         mkdir /root/.aws
 
         echo "[default]" > /root/.aws/credentials
@@ -299,7 +295,7 @@ function configure_sns () {
 
         install_python_packages
     else
-        echo "SNS not configured."
+        log_progress "SNS not configured."
     fi
 }
 
@@ -341,8 +337,6 @@ then
 fi
 
 mkdir -p /root/bin
-
-log_progress "Getting files from $REPO:$BRANCH"
 
 check_and_configure_pushover
 check_and_configure_gotify
