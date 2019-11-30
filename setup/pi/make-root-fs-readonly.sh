@@ -37,6 +37,9 @@ append_cmdline_txt_param fastboot
 append_cmdline_txt_param noswap
 append_cmdline_txt_param ro
 
+# we're not using swap, so delete the swap file for some extra space
+rm -f /var/swap
+
 # Move fake-hwclock.data to /mutable directory so it can be updated
 if ! findmnt --mountpoint /mutable
 then
