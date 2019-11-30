@@ -50,17 +50,6 @@ function check_variable () {
     fi
 }
 
-function get_script () {
-    local local_path="$1"
-    local name="$2"
-    local remote_path="${3:-}"
-
-    log_progress "Starting download for $local_path/$name"
-    curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
-    chmod +x "$local_path/$name"
-    log_progress "Done"
-}
-
 function install_rc_local () {
     local install_home="$1"
 
