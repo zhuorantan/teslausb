@@ -524,6 +524,14 @@ then
   setup_progress "WARNING: 'INSTALL_DIR' setup variable no longer supported"
 fi
 
+BRANCHNAME="$BRANCH"
+if [ -z ${CURL_PREFIX:+x} ]
+then
+  HEAD_VERSION=$(curlwrapper -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
+  BRANCH="$HEAD_VERSION"
+  export CURL_PREFIX=https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"
+fi
+
 if [ ! -z ${1:+x} ]
 then
   command=cmd_$1
@@ -545,14 +553,6 @@ then
 fi
 
 configure_hostname
-
-BRANCHNAME="$BRANCH"
-if [ -z ${CURL_PREFIX:+x} ]
-then
-  HEAD_VERSION=$(curlwrapper -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
-  BRANCH="$HEAD_VERSION"
-  export CURL_PREFIX=https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"
-fi
 
 get_script /tmp setup-teslausb setup/pi &> /dev/null
 if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
