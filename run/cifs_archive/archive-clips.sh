@@ -9,7 +9,7 @@ NUM_FILES_DELETED=0
 function connectionmonitor {
   while true
   do
-    for i in $(seq 1 5)
+    for i in {1..5}
     do
       if timeout 6 /root/bin/archive-is-reachable.sh $ARCHIVE_HOST_NAME
       then

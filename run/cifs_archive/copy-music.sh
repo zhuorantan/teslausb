@@ -14,7 +14,7 @@ DST="/mnt/music"
 function connectionmonitor {
   while true
   do
-    for i in $(seq 1 10)
+    for i in {1..10}
     do
       if timeout 3 /root/bin/archive-is-reachable.sh $ARCHIVE_HOST_NAME
       then
