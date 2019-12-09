@@ -461,7 +461,8 @@ function mount_all_snapshots {
 function snapshotloop {
   while true
   do
-    sleep 3500
+    sleep 3480
+    /root/bin/waitforidle || true
     /root/bin/make_snapshot.sh
   done
 }
