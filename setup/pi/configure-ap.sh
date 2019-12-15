@@ -46,6 +46,8 @@ then
 	bind-interfaces
 	bogus-priv
 	dhcp-range=${NET}.100,${NET}.150,12h
+	# don't configure a default route, we're not a router
+	dhcp-option=3
 	EOF
 
   # configure hostapd
