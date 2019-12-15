@@ -17,11 +17,39 @@ export sharename=your_archive_share_name
 export shareuser=username
 export sharepassword=password
 # export cifs_version="3.0"
-export camsize=100%
 
-# if you set camsize to less than 100%, but don't want music to use
-# all the remaining space, you can specify how much space you want
-# music to use by setting this variable
+# Uncomment the following line and select drive if you want to use an external drive instead of built-in MicroSD card.
+# External USB drive is supported only for RPi4.
+# export usb_drive=/dev/sda
+
+# Uncomment to disable snapshots. This also disables samba and RecentClips-extension
+#export SNAPSHOTS_ENABLED=false
+
+# Recommendations on image sizes:
+# Notes:
+#   * You can use relative sizes to the available space (e.g., 10%) or explicit sizes (e.g., 16G)
+#   * The /backingfiles partition holds both the camera and music disk images.
+#   * Please note that the setup script will reserve a fixed 6GB of free space regardless of sd card size.
+# When using snapshots:
+#    Using images that fill the entire available space will make snapshots inoperable.
+#    The system removes snapshots when the available space on the /backingfiles partition falls
+#    below the size of the camera image.
+#    * camsize should be a fairly small explicit value to leave room for the snapshots.
+#      The recommended size is between 8GB and 16GB.
+#    * musicsize should also be an explicit size  but should be large enough to hold your music
+#      library (obviously).
+# When not using snapshots:
+#    It is usually easiest to specify an explicit size for your music drive based on your actual
+#    library plus an expected growth factory. You can then set the camera size to a portion of the
+#    remaining space.
+#    * camsize should still be a fairly small explicit value. The size is determined by the number of
+#      sentry mode and saved clips you expect to have before the RPi can offload them.
+#      * A single SentryClips/SavedClips event is about 1.2GB (MCU2.5) to 1.5GB (FSD) of data.
+#      * The hour of RecentClips is about 6.9GB (MCU2.5) to 8.8GB (FSD) of data.
+#        The car will delete clips from the RecentClips that are older than an hour.
+#    * musicsize can be an explicit or relative size but should be large enough to hold your music
+#      library (obviously).
+export camsize=16G
 #export musicsize=4G
 
 # If you want to automatically copy music from a CIFS share every time
@@ -42,9 +70,6 @@ export HEADLESS_SETUP=true
 #export SAMBA_ENABLED=true
 # uncomment to enable guest access to the samba server
 #export SAMBA_GUEST=true
-
-# uncomment to disable snapshots. This also disables samba and RecentClips-extension
-#export SNAPSHOTS_ENABLED=false
 
 # uncomment to enable teslausb to act as a wifi access point with the given
 # SSID, so you can access it while on the road.

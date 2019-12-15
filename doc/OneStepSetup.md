@@ -13,9 +13,10 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using Etcher or similar.
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
-A sample conf file is located in the `boot` folder on the SD card, but check https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample for the latest version of the config file.
+A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available from GitHub via [pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample). 
+The sample file contains documentation and suggestions for values.
 
-    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting  rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
+    Be sure that all values, especially your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
     If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
     ```
     export WIFIPASS='password'
@@ -46,83 +47,6 @@ A sample conf file is located in the `boot` folder on the SD card, but check htt
     export SSID='Foo Bar 2.4 GHz'
     ```
     
-    Example file:
-    ```
-    export ARCHIVE_SYSTEM=cifs
-    export archiveserver=Nautilus
-    export sharename=SailfishCam
-    export shareuser=sailfish
-    export sharepassword='pa$$w0rd'
-    export camsize=16G
-    # SSID of your 2.4 GHz network
-    export SSID='your_ssid'
-    export WIFIPASS='your_wifi_password'
-    export HEADLESS_SETUP=true
-    # export REPO=marcone
-    # export BRANCH=main-dev
-    # By default will use the main repo, but if you've been asked to test the image,
-    # these variables should be uncommunted and updated to point to the right repo/branch
-
-    # uncomment to enable a samba server that exports the recordings
-    #export SAMBA_ENABLED=true
-    # uncomment to enable guest access to the samba server
-    #export SAMBA_GUEST=true
-
-    # uncomment to enable teslausb to act as a wifi access point with the given
-    # SSID, so you can access it while on the road.
-    #export AP_SSID='TESLAUSB WIFI'
-    # Change this! The setup script will not accept the default 'password'
-    # Also note that the wifi password must be at least 8 characters.
-    #export AP_PASS='password'
-    # IP address is optional. The AP will give its clients IP addresses in the
-    # x.x.x.100-150 range so make sure you don't put the AP's IP address in
-    # that range.
-    #export AP_IP='192.168.66.1'
-
-    # Set to either an actual timezone, or "auto" to attempt automatic timezone detection.
-    # If unset, defaults to the default Raspbian timezone, Europe/London (BST).
-    # export timezone=America/Los_Angeles
-
-    # By default there is a 20 second delay between connecting to wifi and
-    # starting the archiving of recorded clips. Uncomment this to change
-    # the duration of that delay
-    # export archivedelay=20
-
-    # export pushover_enabled=false
-    # export pushover_user_key=user_key
-    # export pushover_app_key=app_key
-
-    # export gotify_enabled=false
-    # export gotify_domain=https://gotify.domain.com
-    # export gotify_app_token=put_your_token_here
-    # export gotify_priority=5
-
-    # export ifttt_enabled=false
-    # export ifttt_event_name=put_your_event_name_here
-    # export ifttt_key=put_your_key_here
-
-    # export sns_enabled=true
-    # export aws_region=us-east-1
-    # export aws_access_key_id=put_your_accesskeyid_here
-    # export aws_secret_key=put_your_secretkey_here
-    # export aws_sns_topic_arn=put_your_sns_topicarn_here
-
-    # TeslaUSB can optionally use the Tesla API to keep your car awake, so it can
-    # power the Pi long enough for the archiving process to complete. To enable
-    # that, please provide your Tesla account email and password below.
-    # TeslaUSB will only send your credentials to the Tesla API itself.
-    #
-    # NOTE:  if you do this, it's highly recommended that you set up 'PIN to Drive'
-    #   as if the Pi or the car is stolen, the thief has access to your Tesla account 
-    #   and could change the password, add their own devices as a key, steal the car,
-    #   etc.  If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
-    
-    # export tesla_email=joeshmo@gmail.com
-    # export tesla_password=teslapass
-    # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
-    # vehicle awake.
-    # export tesla_vin=5YJ3E1EA4JF000001
-    ```
 2. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
 | Stage (number of flashes)  |  Activity |
