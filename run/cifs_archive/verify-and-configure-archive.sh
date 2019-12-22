@@ -4,15 +4,13 @@ VERS_OPT=
 SEC_OPT=
 
 function log_progress () {
-  # shellcheck disable=SC2034
   if typeset -f setup_progress > /dev/null; then
-    setup_progress "verify-and-configure-archive: $*"
+    setup_progress "verify-and-configure-archive: $@"
   fi
   echo "verify-and-configure-archive: $1"
 }
 
 function check_archive_server_reachable () {
-  # shellcheck disable=SC2154
   log_progress "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false
   hping3 -c 1 -S -p 445 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
@@ -61,7 +59,7 @@ function check_archive_mountable () {
       local commandline="mount -t cifs '//$1/$2' '$test_mount_location' -o 'credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt'"
       log_progress "Trying mount command-line:"
       log_progress "$commandline"
-      if eval "$commandline"
+      if eval $commandline
       then
         mounted=true
         break 2
@@ -94,10 +92,8 @@ function install_required_packages () {
 install_required_packages
 
 check_archive_server_reachable
-# shellcheck disable=SC2154
 check_archive_mountable "$archiveserver" "$sharename"
-# shellcheck disable=SC2154
-if [ -n "${musicsharename:+x}" ]
+if [ ! -z ${musicsharename:+x} ]
 then
   check_archive_mountable "$archiveserver" "$musicsharename"
 fi
@@ -118,11 +114,11 @@ function configure_archive () {
 
   if ! grep -w -q "$archive_path" /etc/fstab
   then
-    local sharenameforstab="${sharename// /\\040}"
+    local sharenameforstab=$(echo $sharename | sed 's/ /\\040/g')
     echo "//$archiveserver/$sharenameforstab $archive_path cifs credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
   fi
 
-  if [ -n "${musicsharename:+x}" ]
+  if [ ! -z ${musicsharename:+x} ]
   then
     if [ ! -e "$music_archive_path" ]
     then
@@ -130,7 +126,7 @@ function configure_archive () {
     fi
     if ! grep -w -q "$music_archive_path" /etc/fstab
     then
-      local musicsharenameforstab="${musicsharename// /\\040}"
+      local musicsharenameforstab=$(echo $musicsharename | sed 's/ /\\040/g')
       echo "//$archiveserver/$musicsharenameforstab $music_archive_path cifs credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
     fi
   fi

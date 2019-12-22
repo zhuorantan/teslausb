@@ -1,9 +1,8 @@
 #!/bin/bash -eu
 
 function log_progress () {
-  # shellcheck disable=SC2034
   if typeset -f setup_progress > /dev/null; then
-    setup_progress "verify-and-configure-archive: $*"
+    setup_progress "verify-and-configure-archive: $@"
   fi
   echo "verify-and-configure-archive: $1"
 }

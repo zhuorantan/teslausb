@@ -24,7 +24,7 @@ function flash () {
   while [ ${COUNTER} -lt ${flash_count} ]
   do
     led_flash
-    (( COUNTER=COUNTER+1 ))
+    let COUNTER=COUNTER+1
   done
 }
 
