@@ -73,7 +73,7 @@ then
 fi
 
 function dehumanize () {
-  echo $(($(echo "$1" | sed 's/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
+  echo $(($(echo "$1" | sed 's/GB/G/;s/MB/M/;s/KB/K/;s/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
 }
 
 REBOOT=false

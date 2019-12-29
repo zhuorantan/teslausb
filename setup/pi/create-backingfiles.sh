@@ -37,7 +37,7 @@ function first_partition_offset () {
 # Note that this uses powers-of-two rather than the powers-of-ten that are
 # generally used to market storage.
 function dehumanize () {
-  echo $(($(echo "$1" | sed 's/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
+  echo $(($(echo "$1" | sed 's/GB/G/;s/MB/M/;s/KB/K/;s/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
 }
 
 function is_percent() {
