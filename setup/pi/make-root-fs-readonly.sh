@@ -67,8 +67,16 @@ then
 fi
 
 # Move /var/spool to /tmp
-rm -rf /var/spool
-ln -s /tmp /var/spool
+if [ -L /var/spool ]
+then
+  log_progress "fixing /var/spool"
+  rm /var/spool
+  mkdir /var/spool
+  chmod 755 /var/spool
+  # a tmpfs fstab entry for /var/spool will be added below
+else
+  rm -rf /var/spool/*
+fi
 
 # Change spool permissions in var.conf (rondie/Margaret fix)
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
@@ -106,6 +114,11 @@ fi
 if ! grep -w -q "/tmp" /etc/fstab
 then
   echo "tmpfs /tmp    tmpfs nodev,nosuid 0 0" >> /etc/fstab
+fi
+
+if ! grep -w -q "/var/spool" /etc/fstab
+then
+  echo "tmpfs /var/spool tmpfs nodev,nosuid 0 0" >> /etc/fstab
 fi
 
 log_progress "done"
