@@ -254,10 +254,10 @@ function trim_free_space() {
   then
     loop=$(echo "$found" | awk '{print $2}')
     image=$(losetup -l -n --output=BACK-FILE "$loop")
-    log "Trimming free space in $mount_point, which has $(xfs_bmap "$image" | wc -l) extents"
+    log "Trimming free space in $mount_point, which has $(filefrag "$image" | awk '{print $2}') extents"
     if fstrim "$mount_point" >> "$LOG_FILE" 2>&1
     then
-      log "Trim complete, image now has  $(xfs_bmap "$image" | wc -l) extents"
+      log "Trim complete, image now has $(filefrag "$image" | awk '{print $2}') extents"
     else
       log "Trimming free space in $mount_point failed."
     fi
