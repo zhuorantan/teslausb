@@ -1,6 +1,29 @@
 # Introduction
 
-This guide will show you how to install and configure [rclone](https://rclone.org/)) to archive your saved TeslaCam footage on one of a number of different remote storage services including Google Drive, S3 and Dropbox.
+This guide will show you how to install and configure [rclone](https://rclone.org/) to archive your saved TeslaCam footage on one of a number of different remote storage services including Google Drive, S3 and Dropbox.
+
+The easiest way to setup rclone is to:
+- use the [one-step setup process](OneStepSetup.md), but use the `none` archive method instead of `cifs`. Once setup has completed, you will have a Raspberry Pi based USB drive that works with the car, but that doesn't do any archiving. Make sure the Pi is fully functional before proceeding with the next steps.
+- ssh into the Pi and become root and remount the filesystems read-write:
+  ```
+  sudo -i
+  /root/bin/remountfs_rw
+  ```
+- install rclone: `curl https://rclone.org/install.sh | sudo bash`
+- configure rclone for your chosen storage service: `rclone config`, then follow the instructions from [rclone.org](https://rclone.org/)
+- edit "/root/teslausb_setup_variables.conf" and change the archive method to `rclone`
+- add the RCLONE_DRIVE and RCLONE_PATH variables to the config, according to the values you used when you configured the rclone remote:
+  ```
+  export RCLONE_DRIVE="remotename"
+  export RCLONE_PATH="remotepathname"
+  ```
+- run `/root/bin/setup-teslausb`
+
+Below are the old instructions in case you want to do things the hard way.
+
+
+
+# Legacy instructions
 
 You must perform these steps **after** getting a shell on the Pi and **before** running the `setup-teslacam` script on the Pi.
 
@@ -54,7 +77,7 @@ These instructions will speed you through the process with good defaults. If you
 
     If you are using Google Drive it is important to set the correct [scope](https://rclone.org/drive/#scopes). Carefully read the documentation on [scopes on rclone](https://rclone.org/drive/#scopes) as well as [Google Drive](https://developers.google.com/drive/api/v3/about-auth). The `drive.file` scope is recommended.
 
-    **Important:** During the `rclone config` process you will sepcify a name for the configuration. The rest of the document will assume the use of the name `gdrive`; replace this with your chosen configuration name.
+    **Important:** During the `rclone config` process you will specify a name for the configuration. The rest of the document will assume the use of the name `gdrive`; replace this with your chosen configuration name.
 
 1. Run this command:
    ```
