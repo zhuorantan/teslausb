@@ -158,7 +158,7 @@ function install_archive_scripts () {
     get_script "$install_path" write-archive-configs-to.sh "$archive_module"
     get_script "$install_path" archive-is-reachable.sh "$archive_module"
     # shellcheck disable=SC2154
-    if [ -n "${musicsharename:+x}" ]
+    if [ -n "${musicsharename:+x}" ] && grep cifs <<< "$archive_module"
     then
       get_script "$install_path" copy-music.sh "$archive_module"
     fi
