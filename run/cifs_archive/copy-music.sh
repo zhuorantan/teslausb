@@ -89,6 +89,9 @@ done < <( find "$SRC" -type f -printf "%P\0" )
 # Stop the connection monitor.
 kill %1
 
+# remove empty directories
+find $DST -depth -type d -empty -delete || true
+
 log "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR copy errors and $NUM_FILES_DELETE_ERROR delete errors."
 
 if [ $NUM_FILES_COPIED -gt 0 ]
