@@ -59,6 +59,13 @@ then
     mv /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
     ln -s /mutable/etc/fake-hwclock.data /etc/fake-hwclock.data
 fi
+# By default fake-hwclock is run during early boot, before /mutable
+# has been mounted and so will fail. Delay running it until /mutable
+# has been mounted.
+if [ -e /lib/systemd/system/fake-hwclock.service ]
+then
+  sed -i 's/Before=.*/After=mutable.mount/' /lib/systemd/system/fake-hwclock.service
+fi
 
 # Create a configs directory for others to use
 if [ ! -e "/mutable/configs" ]
