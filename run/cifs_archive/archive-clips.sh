@@ -39,15 +39,18 @@ function moveclips() {
 
   while IFS= read -r -d '' file_name
   do
-    if [ -d "$ROOT/$file_name" ]
+    PARENT=$(dirname "$file_name")
+    if [ ! -e "$PARENT" ]
     then
-      log "Creating output directory '$SUB/$file_name'"
-      if ! mkdir -p "$ARCHIVE_MOUNT/$SUB/$file_name"
+      log "Creating output directory '$SUB/$PARENT'"
+      if ! mkdir -p "$ARCHIVE_MOUNT/$SUB/$PARENT"
       then
-        log "Failed to create '$SUB/$file_name', check that archive server is writable and has free space"
+        log "Failed to create '$SUB/$PARENT', check that archive server is writable and has free space"
         return
       fi
-    elif [ -f "$ROOT/$file_name" ]
+    fi
+
+    if [ -f "$ROOT/$file_name" ]
     then
       size=$(stat -c%s "$ROOT/$file_name")
       if [ "$size" -lt 100000 ]
@@ -70,7 +73,7 @@ function moveclips() {
     else
       log "$SUB/$file_name not found"
     fi
-  done < <( find "$ROOT" -printf "%P\0" )
+  done < <( find "$ROOT" -type f -printf "%P\0" )
 }
 
 connectionmonitor $$ &
