@@ -1,5 +1,5 @@
---- stage7/rootfs/boot/config.txt
-+++ stage7/rootfs/boot/config.txt
+--- stage_teslausb/rootfs/boot/config.txt
++++ stage_teslausb/rootfs/boot/config.txt
 @@ -54,6 +54,7 @@
  
  # Enable audio (loads snd_bcm2835)

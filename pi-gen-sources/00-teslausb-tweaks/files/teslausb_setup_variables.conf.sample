@@ -66,7 +66,8 @@ export WIFIPASS='your_pass'
 # If doing a headless (i.e. automatic) setup
 export HEADLESS_SETUP=true
 
-# uncomment to enable a samba server that exports the recordings
+# uncomment to enable a samba/cifs server that makes the recordings
+# available as a network share
 #export SAMBA_ENABLED=true
 # uncomment to enable guest access to the samba server
 #export SAMBA_GUEST=true

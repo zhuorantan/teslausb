@@ -50,8 +50,8 @@ function enable_wifi () {
         fi
         setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
         cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
-        sed -i'.bak' -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
-        sed -i'.bak' -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
+        sed -i -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
+        sed -i -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
         cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 
         # set the host name now if possible, so it's effective immediately after the reboot
@@ -91,7 +91,6 @@ if [ -z "${HEADLESS_SETUP+x}" ]
 then
   HEADLESS_SETUP=false
 fi
-
 
 # check if we previously marked wifi as enabled
 enable_wifi

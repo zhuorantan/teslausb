@@ -1,5 +1,0 @@
---- stage7/rootfs/etc/hostname
-+++ stage7/rootfs/etc/hostname
-@@ -1 +1 @@
--raspberrypi
-+teslausb
