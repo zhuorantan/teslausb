@@ -128,6 +128,9 @@ export HEADLESS_SETUP=true
 #   and could change the password, add their own devices as a key, steal the car,
 #   etc.  If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
 #
+# ALSO NOTE: having sentry mode enabled in your Tesla will keep your car awake.
+#   But, make sure you have not excluded your home in the sentry mode settings.
+#
 # export tesla_email=joeshmo@gmail.com
 # export tesla_password=teslapass
 # Please also provide your vehicle's VIN, so TeslaUSB can keep the correct
