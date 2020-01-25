@@ -96,18 +96,18 @@ export HEADLESS_SETUP=true
 # export TESLAUSB_HOSTNAME=teslausb-Model3
 
 # Uncomment if setting up Pushover push notifications
-# export pushover_enabled=false
+# export pushover_enabled=true
 # export pushover_user_key=user_key
 # export pushover_app_key=app_key
 
 # Uncomment if setting up Gotify push notifications
-# export gotify_enabled=false
+# export gotify_enabled=true
 # export gotify_domain=https://gotify.domain.com
 # export gotify_app_token=put_your_token_here
 # export gotify_priority=5
 
 # Uncomment if setting up IFTTT push notifications
-# export ifttt_enabled=false
+# export ifttt_enabled=true
 # export ifttt_event_name=put_your_event_name_here
 # export ifttt_key=put_your_key_here
 
