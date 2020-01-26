@@ -106,7 +106,7 @@ function archive_is_reachable () {
 
 function connect_usb_drives_to_host() {
   log "Connecting usb to host..."
-  modprobe g_mass_storage
+  /root/bin/enable_gadget_drives.sh
   log "Connected usb to host."
 }
 
@@ -246,23 +246,18 @@ function wait_for_archive_to_be_unreachable () {
 }
 
 function check_if_usb_gadget_is_mounted () {
-    local found="false"
-    for lun in /sys/devices/platform/soc/??980000.usb/gadget/lun0
-    do
-      if [ -d "$lun" ]
-      then
-        found="true"
-        break
-      fi
-    done
+  LUNFILE=/sys/kernel/config/usb_gadget/teslausb/configs/c.1/mass_storage.0/lun.0/file
+  if [ -n "$(cat /sys/kernel/config/usb_gadget/teslausb/UDC)" ] &&
+     [ -e "$LUNFILE" ] &&
+     [ "$(cat $LUNFILE)" = /backingfiles/cam_disk.bin ]
+  then
+    return
+  fi
 
-    if [ "$found" = "false" ]
-    then
-        log "USB Gadget not mounted. Fixing files and remounting..."
-        disconnect_usb_drives_from_host
-        fix_errors_in_images
-        connect_usb_drives_to_host
-    fi
+  log "USB Gadget not mounted. Fixing files and remounting..."
+  disconnect_usb_drives_from_host
+  fix_errors_in_images
+  connect_usb_drives_to_host
 }
 
 function trim_free_space() {
@@ -295,7 +290,7 @@ function fix_errors_in_images () {
 
 function disconnect_usb_drives_from_host () {
   log "Disconnecting usb from host..."
-  modprobe -r g_mass_storage
+  /root/bin/disable_gadget_drives.sh
   log "Disconnected usb from host."
 }
 
@@ -802,6 +797,8 @@ log "Starting archiveloop at $(awk '{print $1}' /proc/uptime) seconds uptime..."
 set_sys_param /proc/sys/vm/dirty_background_bytes DIRTY_BACKGROUND_BYTES 65536
 set_sys_param /proc/sys/vm/dirty_ratio DIRTY_RATIO 80
 set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVERNOR conservative
+
+/root/bin/prepare_gadget.sh
 
 /root/bin/make_snapshot.sh
 snapshotloop &
