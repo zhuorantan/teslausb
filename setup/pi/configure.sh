@@ -141,6 +141,10 @@ function install_archive_scripts () {
     get_script "$install_path" archiveloop run
     get_script "$install_path" waitforidle run
     get_script "$install_path" remountfs_rw run
+    get_script "$install_path" prepare_gadget.sh run
+    get_script "$install_path" release_gadget.sh run
+    get_script "$install_path" enable_gadget_drives.sh run
+    get_script "$install_path" disable_gadget_drives.sh run
     # Install the tesla_api.py script only if the user provided credentials for its use.
     # shellcheck disable=SC2154
     if [ -n "${tesla_email:+x}" ]
