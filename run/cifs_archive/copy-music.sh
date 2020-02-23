@@ -54,7 +54,7 @@ do
       NUM_FILES_DELETE_ERROR=$((NUM_FILES_DELETE_ERROR + 1))
     fi
   fi
-done < <( find "$DST" -type f -printf "%P\0" )
+done < <( find "$DST" -type f \! -name .metadata_never_index -printf "%P\0" )
 
 # Copy from the music archive(SRC) to the local parition(DST)
 while IFS= read -r -d '' file_name

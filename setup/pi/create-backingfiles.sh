@@ -107,10 +107,17 @@ function add_drive () {
   log_progress "updated /etc/fstab for $mountpoint"
 }
 
-function create_teslacam_directory () {
+function create_default_entries () {
   mount /mnt/cam
   mkdir /mnt/cam/TeslaCam
+  touch /mnt/cam/.metadata_never_index
   umount /mnt/cam
+  if [ -e /mnt/music ]
+  then
+    mount /mnt/music
+    touch /mnt/music/.metadata_never_index
+    umount /mnt/music
+  fi
 }
 
 CAM_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/cam_disk.bin"
@@ -164,5 +171,5 @@ else
   echo "options g_mass_storage file=$CAM_DISK_FILE_NAME removable=1 ro=0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 fi
 
-create_teslacam_directory
+create_default_entries
 log_progress "done"
