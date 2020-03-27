@@ -369,6 +369,18 @@ echo "ARCHIVE_HOST_NAME=$archiveserver" > $configFile
 echo "ARCHIVE_DELAY=${archivedelay:-20}" >> $configFile
 echo "SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}" >> $configFile
 
+# shellcheck disable=SC2154
+if [ ! -z "${trigger_file_saved+x}" ]
+then
+    echo "ARCHIVE_TRIGGER_SAVED=${trigger_file_saved}" >> $configFile
+fi
+
+# shellcheck disable=SC2154
+if [ ! -z "${trigger_file_sentry+x}" ]
+then
+    echo "ARCHIVE_TRIGGER_SENTRY=${trigger_file_sentry}" >> $configFile
+fi
+
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
 
