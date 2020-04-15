@@ -471,12 +471,13 @@ function mount_all_snapshots {
   do
     log "mounting snapshot $img"
     imgdir=$(dirname "$img")
-    if mount | grep "$imgdir/mnt"
+    mntdir=/tmp/snapshots/$(basename "$imgdir")
+    if mount | grep "$mntdir"
     then
       echo "$img already mounted"
       return
     fi
-    /root/bin/mount_image.sh "$img" "$imgdir/mnt"
+    /root/bin/mount_image.sh "$img" "$mntdir"
   done
   log "mounted all snapshots"
 }

@@ -117,7 +117,7 @@ function snapshot {
     # shellcheck disable=SC2012
     oldest=$(ls -ldC1 /backingfiles/snapshots/snap-* | head -1)
     log "low space, deleting $oldest"
-    /root/bin/release_snapshot.sh "$oldest/mnt"
+    /root/bin/release_snapshot.sh "$oldest"
     rm -rf "$oldest"
   done
 
@@ -133,26 +133,27 @@ function snapshot {
   local newsnapdir
   oldname=/backingfiles/snapshots/snap-$(printf "%06d" "$oldnum")/snap.bin
   newsnapdir=/backingfiles/snapshots/snap-$(printf "%06d" $newnum)
+  newsnapmnt=/tmp/snapshots/snap-$(printf "%06d" $newnum)
 
-  local newname=$newsnapdir/snap.bin
   local tmpsnapdir=/backingfiles/snapshots/newsnap
   local tmpsnapname=$tmpsnapdir/snap.bin
-  local tmpsnapmnt=$tmpsnapdir/mnt
-  log "taking snapshot of cam disk: $newname"
+  log "taking snapshot of cam disk in $newsnapdir"
   rm -rf "$tmpsnapdir"
-  /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$tmpsnapname" "$tmpsnapmnt"
+  /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$tmpsnapname" "$newsnapmnt"
   log "took snapshot"
 
   # check whether this snapshot is actually different from the previous one
-  find "$tmpsnapmnt/TeslaCam" -type f -printf '%s %P\n' > "$tmpsnapname.toc"
-  log "comparing $oldname.toc and $tmpsnapname.toc"
-  if [[ ! -e "$oldname.toc" ]] || diff "$oldname.toc" "$tmpsnapname.toc" | grep -e '^>'
+  find "$newsnapmnt/TeslaCam" -type f -printf '%s %P\n' > "/tmp/snap.bin.toc"
+  log "comparing new snapshot with $oldname"
+  if [[ ! -e "$oldname.toc" ]] || diff "$oldname.toc" "/tmp/snap.bin.toc" | grep -e '^>'
   then
-    make_links_for_snapshot "$tmpsnapmnt" "$newsnapdir/mnt"
+    ln -s "$newsnapmnt" "$tmpsnapdir/mnt"
+    make_links_for_snapshot "$newsnapmnt" "$newsnapdir/mnt"
     mv "$tmpsnapdir" "$newsnapdir"
+    mv /tmp/snap.bin.toc "$newsnapdir"
   else
     log "new snapshot is identical to previous one, discarding"
-    /root/bin/release_snapshot.sh "$tmpsnapmnt"
+    /root/bin/release_snapshot.sh "$newsnapmnt"
     rm -rf "$tmpsnapdir"
   fi
 }

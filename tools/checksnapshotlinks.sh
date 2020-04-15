@@ -14,7 +14,7 @@ function recentpathfor {
   echo "RecentClips/$filedate/$filename"
 }
 
-find /backingfiles/snapshots/ -type f -name \*.mp4 | sort -r | {
+find -L /backingfiles/snapshots/ -type f -name \*.mp4 | sort -r | {
   while read -r path
   do
     name=${path##/*TeslaCam/}

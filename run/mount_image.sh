@@ -25,3 +25,11 @@ PARTLOOP=$(losetup -j "$SNAP" | awk '{print $1}' | sed 's/:/p1/')
 echo mount "$PARTLOOP" "$MNT"
 mount -o ro "$PARTLOOP" "$MNT"
 
+# if the image was created using the old mounting scheme,
+# switch it over to the new one
+mntlink=$(dirname "$SNAP")/mnt
+if [ ! -L "$mntlink" ] && [ -d "$mntlink" ]
+then
+  rmdir "$mntlink"
+  ln -sf "$MNT" "$mntlink"
+fi
