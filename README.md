@@ -10,7 +10,7 @@ You can configure a Raspberry Pi Zero W or Raspberry Pi 4 so that your Tesla thi
 ## Improvements
 
 This fork contains the following improvements compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
-1. Supports Tesla firmware 2019.x
+1. Supports Tesla firmware 2019.x and 2020.x
 1. Supports saving more than one hour of recordings
 1. Supports exporting the recordings as a CIFS share
 1. Optional hotspot to access recordings while on the go
