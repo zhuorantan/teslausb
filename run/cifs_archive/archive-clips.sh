@@ -53,7 +53,7 @@ function moveclips() {
     if [ -f "$ROOT/$file_name" ]
     then
       size=$(stat -c%s "$ROOT/$file_name")
-      if [ "$size" -lt 100000 ]
+      if [ "$size" -lt 100000 ] && [[ $file_name == *.mp4 ]]
       then
         log "'$SUB/$file_name' is only $size bytes"
         rm "$ROOT/$file_name"
