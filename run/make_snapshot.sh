@@ -98,13 +98,11 @@ function snapshot {
   # space requirement, to delete old snapshots just before running out
   # of space and thus make better use of space
   local imgsize
-  # shellcheck disable=SC2046
-  imgsize=$(eval $(stat --format="echo \$((%b*%B))" /backingfiles/cam_disk.bin))
+  imgsize=$(eval "$(stat --format="echo \$((%b*%B))" /backingfiles/cam_disk.bin)")
   while true
   do
     local freespace
-    # shellcheck disable=SC2046
-    freespace=$(eval $(stat --file-system --format="echo \$((%f*%S))" /backingfiles/cam_disk.bin))
+    freespace=$(eval "$(stat --file-system --format="echo \$((%f*%S))" /backingfiles/cam_disk.bin)")
     if [ "$freespace" -gt "$imgsize" ]
     then
       break
@@ -114,8 +112,7 @@ function snapshot {
       log "warning: low space for snapshots"
       break
     fi
-    # shellcheck disable=SC2012
-    oldest=$(ls -ldC1 /backingfiles/snapshots/snap-* | head -1)
+    oldest=$(find /backingfiles/snapshots -maxdepth 1 -name 'snap-*' | sort | head -1)
     log "low space, deleting $oldest"
     /root/bin/release_snapshot.sh "$oldest"
     rm -rf "$oldest"
@@ -125,8 +122,7 @@ function snapshot {
   local newnum=0
   if stat /backingfiles/snapshots/snap-*/snap.bin > /dev/null 2>&1
   then
-    # shellcheck disable=SC2012
-    oldnum=$(ls -lC1 /backingfiles/snapshots/snap-*/snap.bin | tail -1 | tr -c -d '[:digit:]' | sed 's/^0*//' )
+    oldnum=$(find /backingfiles/snapshots/snap-* -maxdepth 1 -name snap.bin | sort | tail -1 | tr -c -d '[:digit:]' | sed 's/^0*//' )
     newnum=$((oldnum + 1))
   fi
   local oldname

@@ -346,8 +346,7 @@ function install_push_message_scripts() {
     get_script "$install_path" send_sns.py run
 }
 
-# shellcheck disable=SC2046
-if ! [ $(id -u) = 0 ]
+if [[ $EUID -ne 0 ]]
 then
     log_progress "STOP: Run sudo -i."
     exit 1

@@ -435,8 +435,7 @@ function doubleblink () {
 
 function set_time () {
   log "Waiting for time to be set by ntpd..."
-  # shellcheck disable=SC2034
-  for i in {1..10}
+  for _ in {1..10}
   do
     if ntp-wait --tries=1 --sleep=1
     then
