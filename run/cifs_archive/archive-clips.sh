@@ -98,10 +98,13 @@ then
     touch "$ARCHIVE_MOUNT/SentryClips/${ARCHIVE_TRIGGER_SENTRY}"
 fi
 
+# 2020.8.1 firmware adds a folder for track mode V2
+moveclips "$CAM_MOUNT/TeslaTrackMode"
+
 kill %1
 
-# delete empty directories under SavedClips and SentryClips
-rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* || true
+# delete empty directories under SavedClips, SentryClips and TeslaTrackMode
+rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* "$CAM_MOUNT/TeslaTrackMode"/* || true
 
 log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
 

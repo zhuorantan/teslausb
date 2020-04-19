@@ -110,6 +110,7 @@ function add_drive () {
 function create_default_entries () {
   mount /mnt/cam
   mkdir /mnt/cam/TeslaCam
+  mkdir /mnt/cam/TeslaTrackMode
   touch /mnt/cam/.metadata_never_index
   umount /mnt/cam
   if [ -e /mnt/music ]

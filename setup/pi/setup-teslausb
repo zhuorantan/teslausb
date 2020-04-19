@@ -264,6 +264,17 @@ function create_usb_drive_backing_files () {
   then
     setup_progress "Creating backing disk files."
     /tmp/create-backingfiles.sh "$camsize" "$musicsize" "$BACKINGFILES_MOUNTPOINT"
+  else
+    # mount cam image and make sure the right directories exist
+    if modprobe -r g_mass_storage && mount /mnt/cam
+    then
+      mkdir -p /mnt/cam/TeslaCam
+      mkdir -p /mnt/cam/TeslaTrackMode
+      umount /mnt/cam
+    else
+      log "STOP: Couldn't check image"
+      exit 1
+    fi
   fi
 }
 
