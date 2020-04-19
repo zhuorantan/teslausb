@@ -1,8 +1,7 @@
 #!/bin/bash
 
 function log_progress () {
-  # shellcheck disable=SC2034
-  if typeset -f setup_progress > /dev/null; then
+  if declare -F setup_progress > /dev/null; then
     setup_progress "configure-samba: $1"
   fi
   echo "configure-samba: $1"

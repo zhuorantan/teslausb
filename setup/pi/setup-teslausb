@@ -65,8 +65,7 @@ function setup_progress () {
   echo "$@"
 }
 
-# shellcheck disable=SC2046
-if ! [ $(id -u) = 0 ]
+if [[ $EUID -ne 0 ]]
 then
   setup_progress "STOP: Run sudo -i."
   exit 1
@@ -208,7 +207,7 @@ function get_script () {
   fi
 
   # shellcheck disable=SC2086
-  curlwrapper -o "$local_path/$name" $CURL_PREFIX/"$remote_path"/"$name"
+  curlwrapper -o "$local_path/$name" $CURL_PREFIX"/$remote_path/$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
 }
@@ -340,8 +339,7 @@ function set_timezone () {
 
 function cmd_install {
   /root/bin/remountfs_rw
-  # shellcheck disable=SC2046
-  get_script /root/bin $(basename "$1") $(dirname "$1")
+  get_script /root/bin "$(basename "$1")" "$(dirname "$1")"
   setup_progress "$1 installed in /root/bin/"
   exit
 }

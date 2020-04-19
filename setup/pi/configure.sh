@@ -7,8 +7,8 @@ then
 fi
 
 function log_progress () {
-  # shellcheck disable=SC2034
-  if typeset -f setup_progress > /dev/null; then
+  if declare -F setup_progress > /dev/null
+  then
     setup_progress "configure: $1"
   fi
   echo "configure: $1"
