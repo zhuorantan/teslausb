@@ -3,7 +3,8 @@
 # based on https://blog.thewalr.us/2017/09/26/raspberry-pi-zero-w-simultaneous-ap-and-managed-mode-wifi/
 
 function log_progress () {
-  if declare -F setup_progress > /dev/null; then
+  if declare -F setup_progress > /dev/null
+  then
     setup_progress "configure-ap: $1"
   fi
   echo "configure-ap: $1"

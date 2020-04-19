@@ -1,7 +1,8 @@
 #!/bin/bash -eu
 
 function log_progress () {
-  if declare -F setup_progress > /dev/null; then
+  if declare -F setup_progress > /dev/null
+  then
     setup_progress "verify-and-configure-archive: $*"
   fi
   echo "verify-and-configure-archive: $1"

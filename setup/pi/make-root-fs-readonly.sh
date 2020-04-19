@@ -3,7 +3,8 @@
 # Adapted from https://github.com/adafruit/Raspberry-Pi-Installer-Scripts/blob/master/read-only-fs.sh
 
 function log_progress () {
-  if declare -F setup_progress > /dev/null; then
+  if declare -F setup_progress > /dev/null
+  then
     setup_progress "make-root-fs-readonly: $1"
   fi
   echo "make-root-fs-readonly: $1"
