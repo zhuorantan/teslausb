@@ -7,6 +7,7 @@ shellcheck --exclude=SC1091 \
            ./setup/pi/setup-teslausb \
            ./pi-gen-sources/00-teslausb-tweaks/files/rc.local \
            ./run/archiveloop \
+           ./run/auto.teslausb \
            ./run/remountfs_rw \
            ./run/send-push-message \
            ./run/waitforidle \

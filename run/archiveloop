@@ -459,29 +459,6 @@ function set_time () {
   fi
 }
 
-function mount_all_snapshots {
-  if ! stat /backingfiles/snapshots/snap-*/snap.bin &> /dev/null
-  then
-    log "no snapshots"
-    return
-  fi
-
-  for img in /backingfiles/snapshots/snap-*/snap.bin
-  do
-    log "mounting snapshot $img"
-    imgdir=$(dirname "$img")
-    mntdir=/tmp/snapshots/$(basename "$imgdir")
-    if mount | grep "$mntdir"
-    then
-      echo "$img already mounted"
-      return
-    fi
-    /root/bin/mount_image.sh "$img" "$mntdir"
-  done
-  log "mounted all snapshots"
-}
-
-
 function snapshotloop {
   while true
   do
@@ -500,8 +477,6 @@ export -f log
 
 echo "==============================================" >> "$LOG_FILE"
 log "Starting archiveloop..."
-
-mount_all_snapshots
 
 if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
 then

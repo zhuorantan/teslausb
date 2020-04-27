@@ -223,7 +223,6 @@ function get_common_scripts () {
   get_script /root/bin remountfs_rw run
   get_script /root/bin make_snapshot.sh run
   get_script /root/bin mount_snapshot.sh run
-  get_script /root/bin mount_image.sh run
   get_script /root/bin release_snapshot.sh run
   get_script /root/bin force_sync.sh run
 }
@@ -646,6 +645,14 @@ if [ -n "${AP_SSID:+x}" ]
 then
   get_script /tmp configure-ap.sh setup/pi
   /tmp/configure-ap.sh
+fi
+
+if [ "$SNAPSHOTS_ENABLED" = "true" ]
+then
+  get_script /tmp configure-automount.sh setup/pi
+  /tmp/configure-automount.sh
+else
+  setup_progress "skipping automount setup because snapshots are disabled"
 fi
 
 make_root_fs_readonly

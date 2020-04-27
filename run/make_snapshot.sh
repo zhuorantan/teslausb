@@ -128,29 +128,37 @@ function snapshot {
   local oldname
   local newsnapdir
   oldname=/backingfiles/snapshots/snap-$(printf "%06d" "$oldnum")/snap.bin
+
+  # check that the previous snapshot is complete
+  if [ ! -e "${oldname}.toc" ]
+  then
+    log "previous snapshot was incomplete, deleting"
+    rm -rf "$(dirname "$oldname")"
+    newnum=$((oldnum))
+    oldnum=$((oldnum - 1))
+    oldname=/backingfiles/snapshots/snap-$(printf "%06d" "$oldnum")/snap.bin
+  fi
+
   newsnapdir=/backingfiles/snapshots/snap-$(printf "%06d" $newnum)
   newsnapmnt=/tmp/snapshots/snap-$(printf "%06d" $newnum)
 
-  local tmpsnapdir=/backingfiles/snapshots/newsnap
-  local tmpsnapname=$tmpsnapdir/snap.bin
+  local newsnapname=$newsnapdir/snap.bin
   log "taking snapshot of cam disk in $newsnapdir"
-  rm -rf "$tmpsnapdir"
-  /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$tmpsnapname" "$newsnapmnt"
+  /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$newsnapname" "$newsnapmnt"
   log "took snapshot"
 
   # check whether this snapshot is actually different from the previous one
-  find "$newsnapmnt/TeslaCam" -type f -printf '%s %P\n' > "/tmp/snap.bin.toc"
+  find "$newsnapmnt/TeslaCam" -type f -printf '%s %P\n' > "${newsnapname}.toc_"
   log "comparing new snapshot with $oldname"
-  if [[ ! -e "$oldname.toc" ]] || diff "$oldname.toc" "/tmp/snap.bin.toc" | grep -e '^>'
+  if [[ ! -e "${oldname}.toc" ]] || diff "${oldname}.toc" "${newsnapname}.toc_" | grep -e '^>'
   then
-    ln -s "$newsnapmnt" "$tmpsnapdir/mnt"
+    ln -s "$newsnapmnt" "$newsnapdir/mnt"
     make_links_for_snapshot "$newsnapmnt" "$newsnapdir/mnt"
-    mv "$tmpsnapdir" "$newsnapdir"
-    mv /tmp/snap.bin.toc "$newsnapdir"
+    mv "${newsnapname}.toc_" "${newsnapname}.toc"
   else
     log "new snapshot is identical to previous one, discarding"
-    /root/bin/release_snapshot.sh "$newsnapmnt"
-    rm -rf "$tmpsnapdir"
+    /root/bin/release_snapshot.sh "$newsnapdir"
+    rm -rf "$newsnapdir"
   fi
 }
 

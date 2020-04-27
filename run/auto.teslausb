@@ -1,0 +1,26 @@
+#!/bin/dash
+
+diskimage="/backingfiles/snapshots/$1/snap.bin"
+mountpoint="/backingfiles/snapshots/$1/mnt"
+optfile="${diskimage}.opts"
+
+if [ ! -r "$diskimage" ]
+then
+  /root/bin/release_snapshot.sh "$1"
+  exit 1
+fi
+
+if [ ! -L "$mountpoint" ] && [ -d "$mountpoint" ]
+then
+  rmdir "$mountpoint"
+  ln -s "/tmp/snapshots/$1" "$mountpoint"
+fi
+
+if [ ! -f "$optfile" ]
+then
+  rm -rf "$optfile"
+  # assume snapshot needs same options as main disk image
+  grep cam_disk /etc/fstab | awk -v img="$diskimage" '{printf("-fstype=%s,ro,%s :%s\n", $3, $4, img)}' > "$optfile"
+fi
+
+cat "$optfile"
