@@ -58,7 +58,7 @@ export usb_drive=${usb_drive:-''}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
-  if [ $HEADLESS_SETUP = "true" ] && [ -w $setup_logfile ]
+  if [ -w $setup_logfile ]
   then
     echo "$( date ) : $*" >> "$setup_logfile"
   fi
@@ -545,7 +545,6 @@ function cmd_diagnose {
 }
 
 export -f setup_progress
-export HEADLESS_SETUP
 
 headless_setup_populate_variables
 
