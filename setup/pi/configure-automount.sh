@@ -31,6 +31,11 @@ function log_progress () {
 }
 
 apt-get -y --force-yes install autofs
+# the Raspbian Stretch autofs package does not include the /etc/auto.master.d folder
+if [ ! -d /etc/auto.master.d ]
+then
+  mkdir /etc/auto.master.d
+fi
 get_script /root/bin auto.teslausb run
 echo "/tmp/snapshots  /root/bin/auto.teslausb" > /etc/auto.master.d/teslausb.autofs
 rm -f /root/bin/mount_image.sh
