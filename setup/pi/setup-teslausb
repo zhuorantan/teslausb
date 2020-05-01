@@ -368,6 +368,36 @@ function cmd_selfupdate {
   exit 0
 }
 
+function cmd_upgrade {
+  if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
+  then
+    echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
+    exit 1
+  fi
+  /root/bin/remountfs_rw > /dev/null
+  get_script /tmp setup-teslausb setup/pi &> /dev/null
+  HEADLESS_SETUP=false
+  if /tmp/setup-teslausb < /dev/null
+  then
+    mv /tmp/setup-teslausb /root/bin/setup-teslausb
+    for i in {5..1}
+    do
+      echo -e -n "Upgrade complete, rebooting in $i seconds to apply changes, press ctrl-c to abort\r"
+      sleep 1
+    done
+    echo
+    if reboot -f --no-wall
+    then
+      while true
+      do
+        sleep 5
+      done
+    else
+      echo "reboot failed"
+    fi
+  fi
+}
+
 function cmd_diagnose {
   local hardware
   local os
