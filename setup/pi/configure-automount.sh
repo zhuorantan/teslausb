@@ -44,6 +44,7 @@ for snapdir in /backingfiles/snapshots/snap-*/
 do
   if [ ! -L "${snapdir}/mnt" ] && [ -d "${snapdir}/mnt" ]
   then
+    umount "${snapdir}/mnt" || true
     rmdir "${snapdir}/mnt"
     ln -s "/tmp/snapshots/$(basename "$snapdir")" "${snapdir}/mnt"
   fi
