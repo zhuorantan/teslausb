@@ -4,7 +4,6 @@ install -m 755 files/rc.local		"${ROOTFS_DIR}/etc/"
 install -m 666 files/teslausb_setup_variables.conf.sample    "${ROOTFS_DIR}/boot/"
 install -m 666 files/wpa_supplicant.conf.sample    "${ROOTFS_DIR}/boot/"
 install -d "${ROOTFS_DIR}/root/bin"
-install -m 755 files/enable_wifi.sh "${ROOTFS_DIR}/root/bin"
 
 # Below here is the rest of the stage2 (builds the Stretch lite image)
 # run script commented out just to give guidance on things that can be done.
