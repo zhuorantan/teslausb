@@ -87,19 +87,13 @@ then
   source "/root/teslausb_setup_variables.conf"
 fi
 
-# Check for headless setup
-if [ -z "${HEADLESS_SETUP+x}" ]
-then
-  HEADLESS_SETUP=false
-fi
-
 # check if we previously marked wifi as enabled
 enable_wifi
 # Good to start setup at this point
 
 # This begins the Headless Setup loop
 # If the FINISHED file does not exist then we start setup. Otherwise passes on to normal loop
-if [ ! -e "/boot/TESLAUSB_SETUP_FINISHED" ] && [ $HEADLESS_SETUP = "true" ]
+if [ ! -e "/boot/TESLAUSB_SETUP_FINISHED" ]
 then
   if [ -e /root/bin/remountfs_rw ]
   then
@@ -158,9 +152,7 @@ then
   log "All done"
 else
   echo "Setup doesn't seem to have completed, there is no /root/bin/archiveloop."
-  echo "Try re-running /root/bin/setup-teslausb (re-downloading if needed),"
-  echo "or export HEADLESS_SETUP=true and run /etc/rc.local if you want to run automatic setup."
-  echo "(you may also need to rm /boot/TESLAUSB_SETUP_FINISHED to force setup to re-run)"
+  echo "Try re-running /root/bin/setup-teslausb or /etc/rc.local"
 fi
 
 exit 0

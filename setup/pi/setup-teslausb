@@ -21,27 +21,6 @@ then
   fi
 fi
 
-HEADLESS_SETUP=${HEADLESS_SETUP:-false}
-if [ "$HEADLESS_SETUP" = "false" ] && [ -t 0 ]
-then
-  # running in terminal in non-headless mode
-  if [ -f /boot/teslausb_setup_variables.conf ] || [ -f /root/teslausb_setup_variables.conf ]
-  then
-    # headless setup variables are available
-    read -r -p "Read setup info from teslausb_setup_variables.conf (yes/no/cancel)? " answer
-    case ${answer:0:1} in
-      y|Y )
-          HEADLESS_SETUP=true
-      ;;
-      n|N )
-      ;;
-      * )
-          exit
-      ;;
-    esac
-  fi
-fi
-
 REPO=${REPO:-marcone}
 BRANCH=${BRANCH:-main-dev}
 USE_LED_FOR_SETUP_PROGRESS=true
@@ -121,31 +100,20 @@ fi
 
 function headless_setup_populate_variables () {
   # Pull in the conf file variables to make avail to this script and subscripts
-  # If setup-teslausb is run from rc.local, the conf file will have been moved
-  # to /root by rc.local
-  if [ $HEADLESS_SETUP = "true" ]
+  # Assumes the conf file has been moved to /root by rc.local
+  if [ -e /root/teslausb_setup_variables.conf ]
   then
-    if [ -e /boot/teslausb_setup_variables.conf ]
-    then
-      setup_progress "reading config from /boot/teslausb_setup_variables.conf"
-      source /boot/teslausb_setup_variables.conf
-    elif [ -e /root/teslausb_setup_variables.conf ]
-    then
-      setup_progress "reading config from /root/teslausb_setup_variables.conf"
-      source /root/teslausb_setup_variables.conf
-    else
-      setup_progress "couldn't find config file"
-    fi
+    source /root/teslausb_setup_variables.conf
+  else
+    setup_progress "STOP: couldn't find config file"
+    exit 1
   fi
 }
 
 function headless_setup_mark_setup_success () {
-  if [ $HEADLESS_SETUP = "true" ]
-  then
-    rm -f /boot/TESLAUSB_SETUP_FAILED
-    rm -f /boot/TESLAUSB_SETUP_STARTED
-    touch /boot/TESLAUSB_SETUP_FINISHED
-  fi
+  rm -f /boot/TESLAUSB_SETUP_FAILED
+  rm -f /boot/TESLAUSB_SETUP_STARTED
+  touch /boot/TESLAUSB_SETUP_FINISHED
 }
 
 function isPi4 {
@@ -173,7 +141,7 @@ function flash () {
 }
 
 function headless_setup_progress_flash () {
-  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ] && [ ! -t 0 ]
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ ! -t 0 ]
   then
     flash "$1"
   fi
@@ -374,28 +342,32 @@ function cmd_upgrade {
     echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
     exit 1
   fi
-  /root/bin/remountfs_rw > /dev/null
   get_script /tmp setup-teslausb setup/pi &> /dev/null
-  HEADLESS_SETUP=false
-  if /tmp/setup-teslausb < /dev/null
-  then
-    mv /tmp/setup-teslausb /root/bin/setup-teslausb
-    for i in {5..1}
-    do
-      echo -e -n "Upgrade complete, rebooting in $i seconds to apply changes, press ctrl-c to abort\r"
-      sleep 1
-    done
-    echo
-    if reboot -f --no-wall
-    then
-      while true
-      do
-        sleep 5
-      done
-    else
-      echo "reboot failed"
-    fi
-  fi
+  exec bash -c "/tmp/setup-teslausb upgrade_prepare && /tmp/setup-teslausb && /tmp/setup-teslausb upgrade_finish" < /dev/null
+}
+
+function cmd_upgrade_prepare {
+  setup_progress "preparing for full upgrade"
+  killall archiveloop || true
+  service smbd stop || true
+  service autofs stop || true
+  umount /backingfiles/snapshots/snap*/mnt || true
+  umount /mnt/cam /mnt/music || true
+  umount /mnt/archive /mnt/musicarchive || true
+  modprobe -r g_mass_storage
+  /root/bin/remountfs_rw > /dev/null
+}
+
+function cmd_upgrade_finish {
+  mv /tmp/setup-teslausb /root/bin/setup-teslausb
+  setup_progress "upgrade finished"
+  for i in {5..1}
+  do
+    echo -e -n "rebooting in $i seconds to apply changes, press ctrl-c to abort\r"
+    sleep 1
+  done
+  echo -e '\nRebooting'
+  systemctl start reboot.target
 }
 
 function cmd_diagnose {
@@ -412,12 +384,13 @@ function cmd_diagnose {
     then
       echo "headless setup config in /root"
       source /root/teslausb_setup_variables.conf
-    elif [ -e /boot/teslausb_setup_variables.conf ]
+    fi
+    if [ -e /boot/teslausb_setup_variables.conf ]
     then
-      echo "headless setup config in /boot"
+      echo "ERROR: headless setup config in /boot instead of /root"
       source /boot/teslausb_setup_variables.conf
     else
-      echo "headless setup config not found"
+      echo "ERROR: headless setup config not found"
     fi
     if [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
     then
@@ -425,7 +398,7 @@ function cmd_diagnose {
       then
         echo "CIFS archiving selected"
       else
-        echo "CIFS archiving selected, but archive not defined in fstab"
+        echo "ERROR: CIFS archiving selected, but archive not defined in fstab"
       fi
     else
       echo "archive method: ${ARCHIVE_SYSTEM:-none}"
@@ -433,7 +406,7 @@ function cmd_diagnose {
 
     if ! blkid -L backingfiles > /dev/null
     then
-      echo "backingfiles partition does not exist"
+      echo "ERROR: backingfiles partition does not exist"
     fi
     if [ ! -d /backingfiles ]
     then
@@ -441,16 +414,16 @@ function cmd_diagnose {
     fi
     if ! grep -q '/backingfiles' /etc/fstab
     then
-      echo "backingfiles not in fstab"
+      echo "ERROR: backingfiles not in fstab"
     fi
 
     if [ ! -f /backingfiles/cam_disk.bin ]
     then
-      echo "cam disk image does not exist"
+      echo "ERROR: cam disk image does not exist"
     fi
     if ! grep -q '/backingfiles/cam_disk.bin' /etc/fstab
     then
-      echo "cam disk image not in fstab"
+      echo "ERROR: cam disk image not in fstab"
     fi
     for LUN0 in /sys/devices/platform/soc/??980000.usb/gadget/lun0/file
     do
@@ -468,15 +441,15 @@ function cmd_diagnose {
     done
     if ! blkid -L mutable > /dev/null
     then
-      echo "mutable partition does not exist"
+      echo "ERROR: mutable partition does not exist"
     fi
     if [ ! -d /mutable ]
     then
-      echo "mutable directory does not exist"
+      echo "ERROR: mutable directory does not exist"
     fi
     if ! grep -q '/mutable' /etc/fstab
     then
-      echo "mutable not in fstab"
+      echo "ERROR: mutable not in fstab"
     fi
 
     numsnapshots=$( mount | grep -c snapshot )
@@ -484,7 +457,7 @@ function cmd_diagnose {
 
     if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
     then
-      echo 'setup did not finish'
+      echo 'ERROR: setup did not finish'
     fi
 
     echo -e "====== disk / images ======"
@@ -608,8 +581,10 @@ fi
 
 configure_hostname
 
-get_script /tmp setup-teslausb setup/pi &> /dev/null
-if cmp -s /tmp/setup-teslausb /root/bin/setup-teslausb
+tmpdir=/tmp/$$
+mkdir -p "$tmpdir"
+get_script "$tmpdir" setup-teslausb setup/pi &> /dev/null
+if cmp -s "$tmpdir/setup-teslausb" "$0"
 then
   setup_progress "$0 is up to date"
 else
