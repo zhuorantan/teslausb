@@ -12,7 +12,8 @@ function connectionmonitor {
     # shellcheck disable=SC2034
     for i in {1..5}
     do
-      if timeout 6 /root/bin/archive-is-reachable.sh "$ARCHIVE_HOST_NAME"
+      # shellcheck disable=SC2154
+      if timeout 6 /root/bin/archive-is-reachable.sh "$archiveserver"
       then
         # sleep and then continue outer loop
         sleep 5
@@ -82,20 +83,22 @@ connectionmonitor $$ &
 moveclips "$CAM_MOUNT/TeslaCam/SavedClips"
 
 # Create trigger file for SavedClips
-if [ ! -z "${ARCHIVE_TRIGGER_SAVED+x}" ]
+# shellcheck disable=SC2154
+if [ ! -z "${trigger_file_saved+x}" ]
 then 
-    log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${ARCHIVE_TRIGGER_SAVED}"
-    touch "$ARCHIVE_MOUNT/SavedClips/${ARCHIVE_TRIGGER_SAVED}"
+    log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
+    touch "$ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
 fi
 
 # v10 firmware adds a SentryClips folder
 moveclips "$CAM_MOUNT/TeslaCam/SentryClips"
 
 # Create trigger file for SentryClips
-if [ ! -z "${ARCHIVE_TRIGGER_SENTRY+x}" ]
+# shellcheck disable=SC2154
+if [ ! -z "${trigger_file_sentry+x}" ]
 then
-    log "Creating SentryClips Trigger File: $ARCHIVE_MOUNT/SentryClips/${ARCHIVE_TRIGGER_SENTRY}"
-    touch "$ARCHIVE_MOUNT/SentryClips/${ARCHIVE_TRIGGER_SENTRY}"
+    log "Creating SentryClips Trigger File: $ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
+    touch "$ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
 fi
 
 # 2020.8.1 firmware adds a folder for track mode V2

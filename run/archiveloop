@@ -36,17 +36,18 @@ function log () {
   echo "$1" >> "$LOG_FILE"
 }
 
-if [ ! -f /root/teslausb.conf ]
+if [ -e /root/teslausb_setup_variables.conf ]
 then
-  log "couldn't find /root/teslausb.conf"
+  source /root/teslausb_setup_variables.conf
+else
+  log "couldn't find /root/teslausb_setup_variables.conf"
   exit 1
 fi
 
-source /root/teslausb.conf
-
-if [ -z "${ARCHIVE_HOST_NAME+x}" ]
+# shellcheck disable=SC2154
+if [ -z "${archiveserver+x}" ]
 then
-  log "ARCHIVE_HOST_NAME not set"
+  log "archiveserver not set"
   exit 1
 fi
 
@@ -75,7 +76,7 @@ function fix_errors_in_image () {
 function archive_is_reachable () {
   local reachable=true
 
-  /root/bin/archive-is-reachable.sh "$ARCHIVE_HOST_NAME" || reachable=false
+  /root/bin/archive-is-reachable.sh "$archiveserver" || reachable=false
 
   if [ "$reachable" = false ]
   then
@@ -309,15 +310,15 @@ function archive_teslacam_clips () {
         fi
 
 	# Create trigger file for SavedClips
-	if [ ! -z "${ARCHIVE_TRIGGER_SAVED+x}" ]
+	if [ ! -z "${trigger_file_saved+x}" ]
 	then 
-	    export ARCHIVE_TRIGGER_SAVED
+	    export trigger_file_saved
 	fi
 
 	# Create trigger file for SentryClips
-	if [ ! -z "${ARCHIVE_TRIGGER_SENTRY+x}" ]
+	if [ ! -z "${trigger_file_sentry+x}" ]
 	then 
-	    export ARCHIVE_TRIGGER_SENTRY
+	    export trigger_file_sentry
 	fi
 	    
         /root/bin/archive-clips.sh
@@ -468,7 +469,6 @@ function snapshotloop {
   done
 }
 
-export ARCHIVE_HOST_NAME
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
 export -f retry
@@ -515,7 +515,7 @@ do
 
   set_time
 
-  sleep "${ARCHIVE_DELAY:-20}"
+  sleep "${archivedelay:-20}"
 
   if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
   then

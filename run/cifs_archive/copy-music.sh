@@ -17,7 +17,8 @@ function connectionmonitor {
     # shellcheck disable=SC2034
     for i in {1..10}
     do
-      if timeout 3 /root/bin/archive-is-reachable.sh "$ARCHIVE_HOST_NAME"
+      # shellcheck disable=SC2154
+      if timeout 3 /root/bin/archive-is-reachable.sh "$archiveserver"
       then
         # sleep and then continue outer loop
         sleep 5
