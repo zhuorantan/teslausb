@@ -2,6 +2,9 @@
 
 shopt -s globstar nullglob
 
+# print shellcheck version so we know what Github uses
+shellcheck -V
+
 # SC1091 - Don't complain about not being able to find files that don't exist.
 shellcheck --exclude=SC1091 \
            ./setup/pi/setup-teslausb \
