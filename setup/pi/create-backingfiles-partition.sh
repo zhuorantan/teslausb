@@ -36,7 +36,7 @@ then
     mkfs.ext4 -F -L mutable /dev/sda1
     mkfs.xfs -f -m reflink=1 -L backingfiles /dev/sda2
   fi
-    
+
   BACKINGFILES_MOUNTPOINT="$1"
   MUTABLE_MOUNTPOINT="$2"
   if grep -q backingfiles /etc/fstab

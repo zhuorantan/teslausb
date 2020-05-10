@@ -276,62 +276,62 @@ function disconnect_usb_drives_from_host () {
 }
 
 function archive_teslacam_clips () {
-    log "Checking saved folder count..."
+  log "Checking saved folder count..."
 
-    ensure_cam_file_is_mounted
-  
-    DIR_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 2 -path './SavedClips/*' -type d -o -path './SentryClips/*' -type d | wc -l)
-    FILE_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 3 -path './SavedClips/*' -type f -o -path './SentryClips/*' -type f | wc -l)
-  
-    log "There are $DIR_COUNT event folder(s) with $FILE_COUNT file(s) to move."
-  
-    if [ "$DIR_COUNT" -gt 0 ]
+  ensure_cam_file_is_mounted
+
+  DIR_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 2 -path './SavedClips/*' -type d -o -path './SentryClips/*' -type d | wc -l)
+  FILE_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 3 -path './SavedClips/*' -type f -o -path './SentryClips/*' -type f | wc -l)
+
+  log "There are $DIR_COUNT event folder(s) with $FILE_COUNT file(s) to move."
+
+  if [ "$DIR_COUNT" -gt 0 ]
+  then
+    log "Starting recording archiving: $DIR_COUNT event folder(s) with $FILE_COUNT file(s)"
+
+    /root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
+
+    # Ensure Sentry Mode is enabled before archiving
+    declare is_sentry_mode_enabled
+    if [ -x /root/bin/tesla_api.py ]
     then
-        log "Starting recording archiving: $DIR_COUNT event folder(s) with $FILE_COUNT file(s)"
-
-        /root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
-
-        # Ensure Sentry Mode is enabled before archiving
-        declare is_sentry_mode_enabled
-        if [ -x /root/bin/tesla_api.py ]
+        is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled | tr '[:upper:]' '[:lower:]')
+        if [ "false" = "${is_sentry_mode_enabled}" ]
         then
-            is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled | tr '[:upper:]' '[:lower:]')
-            if [ "false" = "${is_sentry_mode_enabled}" ]
-            then
-                log "Temporarily enabling Sentry Mode to power the RPi while archive job completes..."
-                /root/bin/tesla_api.py enable_sentry_mode &>> ${LOG_FILE}
-            fi
+            log "Temporarily enabling Sentry Mode to power the RPi while archive job completes..."
+            /root/bin/tesla_api.py enable_sentry_mode &>> ${LOG_FILE}
         fi
-
-	# Create trigger file for SavedClips
-	if [ -n "${trigger_file_saved+x}" ]
-	then 
-	    export trigger_file_saved
-	fi
-
-	# Create trigger file for SentryClips
-	if [ -n "${trigger_file_sentry+x}" ]
-	then 
-	    export trigger_file_sentry
-	fi
-	    
-        /root/bin/archive-clips.sh
-
-        # If Sentry Mode was previously disabled, restore it to that state
-        if [ -x /root/bin/tesla_api.py ]
-        then
-	    if [ "false" = "${is_sentry_mode_enabled}" ]
-	    then
-	        log "Restoring Sentry Mode to its previous state (disabled)..."
-   	         /root/bin/tesla_api.py disable_sentry_mode &>> ${LOG_FILE}
-	    fi
-	fi
     fi
 
-    # Trim the camera archive to reduce the number of blocks in the snapshot.
-    trim_free_space "$CAM_MOUNT"
+    # Create trigger file for SavedClips
+    if [ -n "${trigger_file_saved+x}" ]
+    then
+        export trigger_file_saved
+    fi
 
-    unmount_cam_file
+    # Create trigger file for SentryClips
+    if [ -n "${trigger_file_sentry+x}" ]
+    then
+        export trigger_file_sentry
+    fi
+
+    /root/bin/archive-clips.sh
+
+    # If Sentry Mode was previously disabled, restore it to that state
+    if [ -x /root/bin/tesla_api.py ]
+    then
+      if [ "false" = "${is_sentry_mode_enabled}" ]
+      then
+        log "Restoring Sentry Mode to its previous state (disabled)..."
+        /root/bin/tesla_api.py disable_sentry_mode &>> ${LOG_FILE}
+      fi
+    fi
+  fi
+
+  # Trim the camera archive to reduce the number of blocks in the snapshot.
+  trim_free_space "$CAM_MOUNT"
+
+  unmount_cam_file
 }
 
 function copy_music_files () {
@@ -387,7 +387,7 @@ function truncate_log () {
     log "Truncating log..."
     local log_file2="${LOG_FILE}.2"
     tail -n 10000 "$LOG_FILE" > "${LOG_FILE}.2"
-	mv "$log_file2" "$LOG_FILE"
+    mv "$log_file2" "$LOG_FILE"
   fi
 }
 

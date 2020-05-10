@@ -29,7 +29,7 @@ cp --reflink=always "$SRC" "$SNAP"
 # create loopback and scan the partition table, this will create an additional loop
 # device in addition to the main loop device, e.g. /dev/loop0 and /dev/loop0p1
 losetup -P -f "$SNAP"
-LOOP=$(losetup -j "$SNAP" | awk '{print $1}') 
+LOOP=$(losetup -j "$SNAP" | awk '{print $1}')
 LOOP=${LOOP/:/}
 PARTLOOP=${LOOP}p1
 fsck "$PARTLOOP" -- -a || true

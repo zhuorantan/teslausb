@@ -40,7 +40,7 @@ fi
 
 connectionmonitor $$ &
 
-# Delete files from the local partition(DST) files that do not exist in the 
+# Delete files from the local partition(DST) files that do not exist in the
 # music archive(SRC). This frees space for the new files that may be added.
 while IFS= read -r -d '' file_name
 do

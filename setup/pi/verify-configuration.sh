@@ -73,21 +73,21 @@ function check_available_space_usb () {
   # Verify that the disk has been provided and not a partition
   local drive_type
   drive_type=$(lsblk -pno TYPE "$USB_DRIVE" | head -n 1)
-  
+
   if [ "$drive_type" != "disk" ]
   then
     setup_progress "STOP: The provided drive seems to be a partition. Please specify path to the disk."
     exit 1
   fi
 
-  # This verifies only the total size of the USB Drive. 
-  # All existing partitions on the drive will be erased if backingfiles are to be created or changed. 
-  # EXISTING DATA ON THE USB_DRIVE WILL BE REMOVED. 
+  # This verifies only the total size of the USB Drive.
+  # All existing partitions on the drive will be erased if backingfiles are to be created or changed.
+  # EXISTING DATA ON THE USB_DRIVE WILL BE REMOVED.
 
   local drive_size
   drive_size=$(blockdev --getsize64 "$USB_DRIVE")
 
-  # Require at least 16GB drive size. 
+  # Require at least 16GB drive size.
   if [ "$drive_size" -lt  $(( (1<<30) * 16)) ]
   then
     setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 16GB"

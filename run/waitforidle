@@ -35,7 +35,7 @@ do
       then
         log "write in progress"
         STATE=WRITING
-	BURSTSIZE=$DELTA
+        BURSTSIZE=$DELTA
       else
         #log "waiting for first write"
         true
@@ -51,7 +51,7 @@ do
         COUNT=0
       else
         #log "still writing"
-	BURSTSIZE=$((BURSTSIZE+DELTA))
+        BURSTSIZE=$((BURSTSIZE+DELTA))
       fi
       ;;
 
@@ -61,7 +61,7 @@ do
       then
         # apparently we're still/again writing
         log "going back to writing state"
-	BURSTSIZE=$DELTA
+        BURSTSIZE=$DELTA
         STATE=WRITING
         COUNT=0
       else

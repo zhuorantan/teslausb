@@ -102,7 +102,7 @@ REBOOT=false
 
 # wpa_supplicant should have a country code. Use US as the default
 # to avoid using the disallowed channels in the US.
-WPA=/etc/wpa_supplicant/wpa_supplicant.conf 
+WPA=/etc/wpa_supplicant/wpa_supplicant.conf
 if ! grep -q "country=" $WPA
 then
   setup_progress "adding country code to wpa_supplicant.conf"
@@ -650,7 +650,7 @@ else
   setup_progress "skipping configure.sh"
 fi
 
-if [ "$SAMBA_ENABLED" = "true" ] 
+if [ "$SAMBA_ENABLED" = "true" ]
 then
   if [ "$SNAPSHOTS_ENABLED" = "true" ]
   then

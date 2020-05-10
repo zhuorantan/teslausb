@@ -84,9 +84,9 @@ moveclips "$CAM_MOUNT/TeslaCam/SavedClips"
 # Create trigger file for SavedClips
 # shellcheck disable=SC2154
 if [ -n "${trigger_file_saved+x}" ]
-then 
-    log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
-    touch "$ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
+then
+  log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
+  touch "$ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
 fi
 
 # v10 firmware adds a SentryClips folder
@@ -96,8 +96,8 @@ moveclips "$CAM_MOUNT/TeslaCam/SentryClips"
 # shellcheck disable=SC2154
 if [ -n "${trigger_file_sentry+x}" ]
 then
-    log "Creating SentryClips Trigger File: $ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
-    touch "$ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
+  log "Creating SentryClips Trigger File: $ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
+  touch "$ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
 fi
 
 # 2020.8.1 firmware adds a folder for track mode V2

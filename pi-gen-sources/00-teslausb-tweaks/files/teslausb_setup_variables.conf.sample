@@ -119,7 +119,7 @@ export HEADLESS_SETUP=true
 # export aws_sns_topic_arn=put_your_sns_topicarn_here
 
 # tesla_dashcam / Trigger file support.
-# Uncomment any trigger_file_xxxxx below if you'd like to create trigger file(s) in the 
+# Uncomment any trigger_file_xxxxx below if you'd like to create trigger file(s) in the
 # archive directory for the listed clip type after all clips have been transferred for that type.
 # eg; export trigger_file_saved=ARCHIVE_UPLOADED would create a file in $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED on your CIFS / Samba server.
 # This is useful if using https://github.com/ehendrix23/tesla_dashcam to further process clips.
@@ -136,7 +136,7 @@ export HEADLESS_SETUP=true
 # TeslaUSB will only send your credentials to the Tesla API itself.
 #
 # NOTE:  if you do this, it's highly recommended that you set up 'PIN to Drive'
-#   as if the Pi or the car is stolen, the thief has access to your Tesla account 
+#   as if the Pi or the car is stolen, the thief has access to your Tesla account
 #   and could change the password, add their own devices as a key, steal the car,
 #   etc.  If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
 #
