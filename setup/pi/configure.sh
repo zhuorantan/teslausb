@@ -133,35 +133,62 @@ function get_archive_module () {
     esac
 }
 
+function install_and_configure_tesla_api () {
+  # Install the tesla_api.py script only if the user provided credentials for its use.
+
+  if [ -e /root/bin/tesla_api.py ]
+  then
+    # if tesla_api.py already exists, update it
+    log_progress "Updating tesla_api.py"
+    get_script /root/bin tesla_api.py run
+    # check if the json file needs to be updated
+    readonly json=/mutable/tesla_api.json
+    if [ -e $json ] && ! grep -q '"id"' $json
+    then
+      log_progress "Updating tesla_api.py config file"
+      sed -i 's/"vehicle_id"/"id"/' $json
+      sed -i 's/"$/",\n  "vehicle_id": 0/' $json
+      # Call script to fill in the empty vehicle_id field
+      if ! /root/bin/tesla_api.py list_vehicles
+      then
+        log_progress "tesla_ap.py config update failed"
+      fi
+    fi
+  elif [[ ( -n "${TESLA_EMAIL:+x}" && -n "${TESLA_PASSWORD:+x}" ) || ( -n "${TESLA_ACCESS_TOKEN:+x}" && -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
+  then
+    log_progress "Installing tesla_api.py"
+    get_script /root/bin tesla_api.py run
+    # Perform the initial authentication
+    if ! /root/bin/tesla_api.py list_vehicles
+    then
+      log_progress "tesla_ap.py setup failed"
+    fi
+  else
+    log_progress "Skipping tesla_api.py install because no credentials were provided"
+  fi
+}
+
 function install_archive_scripts () {
-    local install_path="$1"
-    local archive_module="$2"
+  local install_path="$1"
+  local archive_module="$2"
 
-    log_progress "Installing base archive scripts into $install_path"
-    get_script "$install_path" archiveloop run
-    get_script "$install_path" waitforidle run
-    get_script "$install_path" remountfs_rw run
-    # Install the tesla_api.py script only if the user provided credentials for its use.
-    # shellcheck disable=SC2154
-    if [ -n "${tesla_email:+x}" ]
-    then
-      get_script "$install_path" tesla_api.py run
-    else
-      log_progress "Skipping tesla_api.py install"
-    fi
-
-    log_progress "Installing archive module scripts"
-    get_script /tmp verify-and-configure-archive.sh "$archive_module"
-    get_script "$install_path" archive-clips.sh "$archive_module"
-    get_script "$install_path" connect-archive.sh "$archive_module"
-    get_script "$install_path" disconnect-archive.sh "$archive_module"
-    get_script "$install_path" write-archive-configs-to.sh "$archive_module"
-    get_script "$install_path" archive-is-reachable.sh "$archive_module"
-    # shellcheck disable=SC2154
-    if [ -n "${musicsharename:+x}" ] && grep cifs <<< "$archive_module"
-    then
-      get_script "$install_path" copy-music.sh "$archive_module"
-    fi
+  log_progress "Installing base archive scripts into $install_path"
+  get_script "$install_path" archiveloop run
+  get_script "$install_path" waitforidle run
+  get_script "$install_path" remountfs_rw run
+  install_and_configure_tesla_api
+  log_progress "Installing archive module scripts"
+  get_script /tmp verify-and-configure-archive.sh "$archive_module"
+  get_script "$install_path" archive-clips.sh "$archive_module"
+  get_script "$install_path" connect-archive.sh "$archive_module"
+  get_script "$install_path" disconnect-archive.sh "$archive_module"
+  get_script "$install_path" write-archive-configs-to.sh "$archive_module"
+  get_script "$install_path" archive-is-reachable.sh "$archive_module"
+  # shellcheck disable=SC2154
+  if [ -n "${musicsharename:+x}" ] && grep cifs <<< "$archive_module"
+  then
+    get_script "$install_path" copy-music.sh "$archive_module"
+  fi
 }
 
 

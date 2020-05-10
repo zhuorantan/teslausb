@@ -26,6 +26,9 @@ function read_setup_variables {
   newnamefor[sharename]=SHARE_NAME
   newnamefor[shareuser]=SHARE_USER
   newnamefor[sharepassword]=SHARE_PASSWORD
+  newnamefor[tesla_email]=TESLA_EMAIL
+  newnamefor[tesla_password]=TESLA_PASSWORD
+  newnamefor[tesla_vin]=TESLA_VIN
   newnamefor[timezone]=TIME_ZONE
   newnamefor[usb_drive]=USB_DRIVE
 
