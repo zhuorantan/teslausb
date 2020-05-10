@@ -22,15 +22,15 @@ Now, on the Pi:
 
     If you can't ping the archive server by IP address from the Pi, go do whatever you need to on your network to fix that.
 
-    If you can't reach the archive server by name but you can by IP address then use its IP address, below, for the `archiveserver` variable.
+    If you can't reach the archive server by name but you can by IP address then use its IP address, below, for the `ARCHIVE_SERVER` variable.
 
 1. Run these commands, subsituting your values:
     ```
     export ARCHIVE_SYSTEM="cifs"
-    export archiveserver="Nautilus"
-    export sharename="SailfishCam"
-    export shareuser="sailfish"
-    export sharepassword="pa$$w0rd"
+    export ARCHIVE_SERVER="Nautilus"
+    export SHARE_NAME="SailfishCam"
+    export SHARE_USER="sailfish"
+    export SHARE_PASSWORD="pa$$w0rd"
     ```
 
 Now stay in your `sudo -i` session and return to the section "Set up the USB storage functionality" in the [main instructions](/README.md).

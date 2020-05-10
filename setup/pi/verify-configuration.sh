@@ -24,18 +24,17 @@ function check_supported_hardware () {
 }
 
 function check_available_space () {
-    # shellcheck disable=SC2154
-    if [ -z "$usb_drive" ]
+    if [ -z "$USB_DRIVE" ]
     then
-      setup_progress "usb_drive is not set. SD card will be used."
+      setup_progress "USB_DRIVE is not set. SD card will be used."
       check_available_space_sd
     else
       if grep -q 'Pi 4' /sys/firmware/devicetree/base/model
       then
-        setup_progress "usb_drive is set to $usb_drive. This will be used for /mutable and backingfiles."
+        setup_progress "USB_DRIVE is set to $USB_DRIVE. This will be used for /mutable and backingfiles."
         check_available_space_usb
       else
-        setup_progress "STOP: usb_drive is supported only on a Pi 4. Set usb_drive to blank or comment it to continue"
+        setup_progress "STOP: USB_DRIVE is supported only on a Pi 4. Set USB_DRIVE to blank or comment it to continue"
         exit 1
       fi
     fi
@@ -73,7 +72,7 @@ function check_available_space_usb () {
 
   # Verify that the disk has been provided and not a partition
   local drive_type
-  drive_type=$(lsblk -pno TYPE "$usb_drive" | head -n 1)
+  drive_type=$(lsblk -pno TYPE "$USB_DRIVE" | head -n 1)
   
   if [ "$drive_type" != "disk" ]
   then
@@ -86,13 +85,13 @@ function check_available_space_usb () {
   # EXISTING DATA ON THE USB_DRIVE WILL BE REMOVED. 
 
   local drive_size
-  drive_size=$(blockdev --getsize64 "$usb_drive")
+  drive_size=$(blockdev --getsize64 "$USB_DRIVE")
 
   # Require at least 16GB drive size. 
   if [ "$drive_size" -lt  $(( (1<<30) * 16)) ]
   then
     setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 16GB"
-    setup_progress "$(parted "$usb_drive" print)"
+    setup_progress "$(parted "$USB_DRIVE" print)"
     exit 1
   fi
 
@@ -127,6 +126,6 @@ check_supported_hardware
 
 check_setup_teslausb
 
-check_variable "camsize"
+check_variable "CAM_SIZE"
 
 check_available_space

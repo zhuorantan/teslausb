@@ -1,9 +1,65 @@
 #!/bin/bash -eu
 
+# this function is also called by archiveloop by sourcing this script
+function read_setup_variables {
+  if [ -z "${setup_file+x}" ]
+  then
+    local -r setup_file=/root/teslausb_setup_variables.conf
+  fi
+  if [ -e $setup_file ]
+  then
+    # "shellcheck" doesn't realize setup_file is effectively a constant
+    # shellcheck disable=SC1090
+    source $setup_file
+  else
+    echo "couldn't find $setup_file"
+    return 1
+  fi
+
+  # TODO: change this "declare" to "local" when github updates
+  # to a newer shellcheck.
+  declare -A newnamefor
+
+  newnamefor[archiveserver]=ARCHIVE_SERVER
+  newnamefor[camsize]=CAM_SIZE
+  newnamefor[musicsize]=MUSIC_SIZE
+  newnamefor[sharename]=SHARE_NAME
+  newnamefor[shareuser]=SHARE_USER
+  newnamefor[sharepassword]=SHARE_PASSWORD
+  newnamefor[timezone]=TIME_ZONE
+  newnamefor[usb_drive]=USB_DRIVE
+
+  local oldname
+  for oldname in "${!newnamefor[@]}"
+  do
+    local newname=${newnamefor[$oldname]}
+    if [[ -z ${!newname+x} ]] && [[ -n ${!oldname+x} ]]
+    then
+      local value=${!oldname}
+      export $newname="$value"
+    fi
+  done
+
+  # set defaults for things not set in the config
+  REPO=${REPO:-marcone}
+  BRANCH=${BRANCH:-main-dev}
+  CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
+  UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-false}
+  TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
+  SAMBA_ENABLED=${SAMBA_ENABLED:-false}
+  SAMBA_GUEST=${SAMBA_GUEST:-false}
+  SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
+  INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
+  export CAM_SIZE=${CAM_SIZE:-90%}
+  export MUSIC_SIZE=${MUSIC_SIZE:-100%}
+  export USB_DRIVE=${USB_DRIVE:-''}
+}
+
 if [ "${BASH_SOURCE[0]}" != "$0" ]
 then
-  echo "${BASH_SOURCE[0]} must be executed, not sourced"
-  return 1 # shouldn't use exit when sourced
+  echo "${BASH_SOURCE[0]} was sourced, setting setup variables"
+  read_setup_variables
+  return 0 # shouldn't use exit when sourced
 fi
 
 if [ "${FLOCKED:-}" != "$0" ]
@@ -21,20 +77,6 @@ then
   fi
 fi
 
-REPO=${REPO:-marcone}
-BRANCH=${BRANCH:-main-dev}
-USE_LED_FOR_SETUP_PROGRESS=true
-CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
-UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-false}
-TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
-SAMBA_ENABLED=${SAMBA_ENABLED:-false}
-SAMBA_GUEST=${SAMBA_GUEST:-false}
-SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
-INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
-export camsize=${camsize:-90%}
-export musicsize=${musicsize:-100%}
-export usb_drive=${usb_drive:-''}
-
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
   if [ -w $setup_logfile ]
@@ -49,6 +91,8 @@ then
   setup_progress "STOP: Run sudo -i."
   exit 1
 fi
+
+read_setup_variables
 
 function dehumanize () {
   echo $(($(echo "$1" | sed 's/GB/G/;s/MB/M/;s/KB/K/;s/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
@@ -98,18 +142,6 @@ then
   fi
 fi
 
-function headless_setup_populate_variables () {
-  # Pull in the conf file variables to make avail to this script and subscripts
-  # Assumes the conf file has been moved to /root by rc.local
-  if [ -e /root/teslausb_setup_variables.conf ]
-  then
-    source /root/teslausb_setup_variables.conf
-  else
-    setup_progress "STOP: couldn't find config file"
-    exit 1
-  fi
-}
-
 function headless_setup_mark_setup_success () {
   rm -f /boot/TESLAUSB_SETUP_FAILED
   rm -f /boot/TESLAUSB_SETUP_STARTED
@@ -141,7 +173,7 @@ function flash () {
 }
 
 function headless_setup_progress_flash () {
-  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ ! -t 0 ]
+  if [ ! -t 0 ]
   then
     flash "$1"
   fi
@@ -230,7 +262,7 @@ function create_usb_drive_backing_files () {
   if [ ! -e $BACKINGFILES_MOUNTPOINT/cam_disk.bin ]
   then
     setup_progress "Creating backing disk files."
-    /tmp/create-backingfiles.sh "$camsize" "$musicsize" "$BACKINGFILES_MOUNTPOINT"
+    /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT"
   else
     # mount cam image and make sure the right directories exist
     if modprobe -r g_mass_storage && mount /mnt/cam
@@ -290,13 +322,12 @@ function upgrade_packages () {
 }
 
 function set_timezone () {
-  # shellcheck disable=SC2154
-  if [ -n "${timezone:+x}" ]
+  if [ -n "${TIME_ZONE:+x}" ]
   then
-    if [ -f "/usr/share/zoneinfo/$timezone" ]
+    if [ -f "/usr/share/zoneinfo/$TIME_ZONE" ]
     then
-      ln -sf "/usr/share/zoneinfo/$timezone" /etc/localtime
-    elif [ "$timezone" = "auto" ]
+      ln -sf "/usr/share/zoneinfo/$TIME_ZONE" /etc/localtime
+    elif [ "$TIME_ZONE" = "auto" ]
     then
       if curlwrapper -o /root/bin/tzupdate.py https://raw.githubusercontent.com/marcone/tzupdate/develop/tzupdate.py
       then
@@ -310,7 +341,7 @@ function set_timezone () {
         fi
       fi
     else
-      setup_progress "invalid timezone: $timezone"
+      setup_progress "invalid timezone: $TIME_ZONE"
     fi
   fi
 }
@@ -380,18 +411,6 @@ function cmd_diagnose {
     echo -e "====== summary ======"
     echo -e "hardware: ${hardware}"
     echo -e "OS: ${os}"
-    if [ -e /root/teslausb_setup_variables.conf ]
-    then
-      echo "headless setup config in /root"
-      source /root/teslausb_setup_variables.conf
-    fi
-    if [ -e /boot/teslausb_setup_variables.conf ]
-    then
-      echo "ERROR: headless setup config in /boot instead of /root"
-      source /boot/teslausb_setup_variables.conf
-    else
-      echo "ERROR: headless setup config not found"
-    fi
     if [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
     then
       if grep -q '/mnt/archive' /etc/fstab
@@ -462,9 +481,9 @@ function cmd_diagnose {
 
     echo -e "====== disk / images ======"
     parted -s /dev/mmcblk0 print || true
-    if [ -n "${usb_drive:+x}" ]
+    if [ -n "${USB_DRIVE:+x}" ]
     then
-      parted -s "$usb_drive" print || true
+      parted -s "$USB_DRIVE" print || true
     fi
     if [ -f /backingfiles/cam_disk.bin ]
     then
@@ -548,8 +567,6 @@ function cmd_diagnose {
 }
 
 export -f setup_progress
-
-headless_setup_populate_variables
 
 INSTALL_DIR=${INSTALL_DIR:-/root/bin}
 if [ "$INSTALL_DIR" != "/root/bin" ]

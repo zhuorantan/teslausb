@@ -125,21 +125,21 @@ Follow the instructions corresponding to the technology you'd like to use to hos
 Indicate how much of the sd card you want to allocate to the car for recording dashcam footage and music by running this command:
 
 ```
- export camsize=<number or percentage>
+ export CAM_SIZE=<number or percentage>
 ```
 
-For example, using `export camsize=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export camsize=50%` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive, unless otherwise specified. If you don't set `camsize`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export camsize=16G` would allocate 16 gigabytes for dashcam footage.
-If you want limit music storage so it doesn't use up all the remaining storage after camera storage has been allocated, use `export musicsize=<number or percentage>` to specify the size.
+For example, using `export CAM_SIZE=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export CAM_SIZE=50%` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive, unless otherwise specified. If you don't set `CAM_SIZE`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export CAM_SIZE=16G` would allocate 16 gigabytes for dashcam footage.
+If you want limit music storage so it doesn't use up all the remaining storage after camera storage has been allocated, use `export MUSIC_SIZE=<number or percentage>` to specify the size.
 For example, if there is 100 gigabyte of free space, then
 ```
- export camsize=50%
- export musicsize=10%
+ export CAM_SIZE=50%
+ export MUSIC_SIZE=10%
 ```
 would allocate 50 gigabytes for camera and 10 gigabytes for music, leaving 40 gigabytes free.
 
-Note: since the car records about 5.5 gigabyte per hour, and throws away non-saved recordings after an hour, it is not very useful to make 'camsize' very large. In fact, it is better to use a relatively small size, so that teslausb has space to preserve recordings that are older than 1 hour, which would otherwise be discarded by the car.
+Note: since the car records about 5.5 gigabyte per hour, and throws away non-saved recordings after an hour, it is not very useful to make 'CAM_SIZE' very large. In fact, it is better to use a relatively small size, so that teslausb has space to preserve recordings that are older than 1 hour, which would otherwise be discarded by the car.
 As an example, if your normal use case is driving to work in the morning, enabling Sentry while parked, and going back home in the evening, with the car reporting up to 10 Sentry events, then 16 GB is a good size to use. This allows the car to keep about 2 hours worth of Sentry mode recordings, in addition to the normal recordings. If you anticipate needing more space for saved recordings, for example if your car generally reports much more Sentry events, you manually save recordings a lot, or if you're going to be away from wifi for multiple days, then increase size as needed.
-In order for teslausb to preserve recordings older than an hour, there needs to be enough free space on the sd card, at least 'camsize' worth, preferably much more.
+In order for teslausb to preserve recordings older than an hour, there needs to be enough free space on the sd card, at least 'CAM_SIZE' worth, preferably much more.
 
 ### Optional: Configure push notification via Pushover, Gotify, IFTTT, or AWS SNS
 
@@ -179,7 +179,7 @@ Your Pi is now ready to be plugged into your Tesla. If you want to add music to 
 
 ## Optional: Add music to the Pi
 
-> Note: If you set `camsize` to `100%` then skip this step.
+> Note: If you set `CAM_SIZE` to `100%` then skip this step.
 
 Connect the Pi to a computer. If you're using a cable be sure to use the port labeled "USB" on the circuitboard.
 1. Wait for the Pi to show up on the computer as a USB drive.

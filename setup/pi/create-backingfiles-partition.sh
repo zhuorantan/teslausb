@@ -15,19 +15,18 @@ then
 fi
 
 # Will check for USB Drive before running sd card
-# shellcheck disable=SC2154
-if [ -n "$usb_drive" ]
+if [ -n "$USB_DRIVE" ]
 then
-  log_progress "usb_drive is set to $usb_drive"
+  log_progress "USB_DRIVE is set to $USB_DRIVE"
   # Check if backingfiles and mutable partitions exist
   if [ /dev/disk/by-label/backingfiles -ef /dev/sda2 ] && [ /dev/disk/by-label/mutable -ef /dev/sda1 ]
   then
     log_progress "Looks like backingfiles and mutable partitions already exist. Skipping partition creation."
   else
-    log_progress "WARNING !!! This will delete EVERYTHING in $usb_drive."
-    wipefs -afq "$usb_drive"
-    parted "$usb_drive" --script mktable gpt
-    log_progress "$usb_drive fully erased. Creating partitions..."
+    log_progress "WARNING !!! This will delete EVERYTHING in $USB_DRIVE."
+    wipefs -afq "$USB_DRIVE"
+    parted "$USB_DRIVE" --script mktable gpt
+    log_progress "$USB_DRIVE fully erased. Creating partitions..."
     parted -a optimal -m /dev/sda mkpart primary ext4 '0%' 2GB
     parted -a optimal -m /dev/sda mkpart primary ext4 2GB '100%'
     log_progress "Backing files and mutable partitions created."
@@ -55,7 +54,7 @@ then
   log_progress "Done."
   exit 0
 else
-  echo "usb_drive not set. Proceeding to SD card setup"
+  echo "USB_DRIVE not set. Proceeding to SD card setup"
 fi
 
 # If partition 3 is the backingfiles partition, type xfs, and

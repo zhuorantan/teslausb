@@ -17,7 +17,7 @@ This guide will walk you through how to use Pi4 and a separate USB drive to to h
 
 ## teslausb_setup_variables.conf configuration
 To use an external USB drive, you will need to add 
-``` export usb_drive=/dev/sdX ``` to teslausb_setup_variables.conf file. 
+``` export USB_DRIVE=/dev/sdX ``` to teslausb_setup_variables.conf file.
 Ensure that you are providing the disk location and not a partition.
 
 The rest of the setup is the same as the installation steps found in the main page. Both /backingfiles and /mutable will be on the external drive and the SD card will be read-only. 

@@ -36,18 +36,12 @@ function log () {
   echo "$1" >> "$LOG_FILE"
 }
 
-if [ -e /root/teslausb_setup_variables.conf ]
-then
-  source /root/teslausb_setup_variables.conf
-else
-  log "couldn't find /root/teslausb_setup_variables.conf"
-  exit 1
-fi
+# when sourced, setup-teslausb sets the config variables in the environment
+source /root/bin/setup-teslausb
 
-# shellcheck disable=SC2154
-if [ -z "${archiveserver+x}" ]
+if [ -z "${ARCHIVE_SERVER+x}" ]
 then
-  log "archiveserver not set"
+  log "ARCHIVE_SERVER not set"
   exit 1
 fi
 
@@ -76,7 +70,7 @@ function fix_errors_in_image () {
 function archive_is_reachable () {
   local reachable=true
 
-  /root/bin/archive-is-reachable.sh "$archiveserver" || reachable=false
+  /root/bin/archive-is-reachable.sh "$ARCHIVE_SERVER" || reachable=false
 
   if [ "$reachable" = false ]
   then
@@ -310,13 +304,13 @@ function archive_teslacam_clips () {
         fi
 
 	# Create trigger file for SavedClips
-	if [ ! -z "${trigger_file_saved+x}" ]
+	if [ -n "${trigger_file_saved+x}" ]
 	then 
 	    export trigger_file_saved
 	fi
 
 	# Create trigger file for SentryClips
-	if [ ! -z "${trigger_file_sentry+x}" ]
+	if [ -n "${trigger_file_sentry+x}" ]
 	then 
 	    export trigger_file_sentry
 	fi

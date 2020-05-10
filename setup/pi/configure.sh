@@ -86,21 +86,21 @@ function check_archive_configs () {
             check_variable "RSYNC_USER"
             check_variable "RSYNC_SERVER"
             check_variable "RSYNC_PATH"
-            export archiveserver="$RSYNC_SERVER"
+            export ARCHIVE_SERVER="$RSYNC_SERVER"
             ;;
         rclone)
             check_variable "RCLONE_DRIVE"
             check_variable "RCLONE_PATH"
-            export archiveserver="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns
+            export ARCHIVE_SERVER="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns
             ;;
         cifs)
-            check_variable "sharename"
-            check_variable "shareuser"
-            check_variable "sharepassword"
-            check_variable "archiveserver"
+            check_variable "SHARE_NAME"
+            check_variable "SHARE_USER"
+            check_variable "SHARE_PASSWORD"
+            check_variable "ARCHIVE_SERVER"
             ;;
         none)
-            export archiveserver=localhost
+            export ARCHIVE_SERVER=localhost
             ;;
         *)
             log_progress "STOP: Unrecognized archive system: $ARCHIVE_SYSTEM"

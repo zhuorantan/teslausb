@@ -12,8 +12,7 @@ function connectionmonitor {
     # shellcheck disable=SC2034
     for i in {1..5}
     do
-      # shellcheck disable=SC2154
-      if timeout 6 /root/bin/archive-is-reachable.sh "$archiveserver"
+      if timeout 6 /root/bin/archive-is-reachable.sh "$ARCHIVE_SERVER"
       then
         # sleep and then continue outer loop
         sleep 5
@@ -84,7 +83,7 @@ moveclips "$CAM_MOUNT/TeslaCam/SavedClips"
 
 # Create trigger file for SavedClips
 # shellcheck disable=SC2154
-if [ ! -z "${trigger_file_saved+x}" ]
+if [ -n "${trigger_file_saved+x}" ]
 then 
     log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
     touch "$ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
@@ -95,7 +94,7 @@ moveclips "$CAM_MOUNT/TeslaCam/SentryClips"
 
 # Create trigger file for SentryClips
 # shellcheck disable=SC2154
-if [ ! -z "${trigger_file_sentry+x}" ]
+if [ -n "${trigger_file_sentry+x}" ]
 then
     log "Creating SentryClips Trigger File: $ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
     touch "$ARCHIVE_MOUNT/SentryClips/${trigger_file_sentry}"
