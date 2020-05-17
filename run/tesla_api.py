@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import argparse
+import base64
 import json
 import os
+import random
 import requests
 import time
 import sys
@@ -398,6 +400,34 @@ def is_car_locked():
 def is_sentry_mode_enabled():
     data = get_vehicle_state()
     return data['response']['sentry_mode']
+
+
+'''
+This accesses the streaming endpoint, but doesn't
+stick around to wait for continuous results.
+'''
+def streaming_ping():
+    # the car needs to be awake for the streaming endpoint to work
+    wake_up_vehicle()
+
+    headers = {
+      'User-Agent': 'github.com/marcone/teslausb',
+      'Authorization': 'Bearer {}'.format(_get_api_token()),
+      'Connection': 'Upgrade',
+      'Upgrade': 'websocket',
+      'Sec-WebSocket-Key': base64.b64encode(bytes([random.randrange(0, 256) for _ in range(0, 13)])).decode('utf-8'),
+      'Sec-WebSocket-Version': '13',
+    }
+
+    url = 'https://streaming.vn.teslamotors.com/connect/{}'.format(tesla_api_json['vehicle_id'])
+
+    _log("Sending streaming request")
+    response = requests.get(url, headers=headers, stream=True)
+    if not response:
+        _error("Fatal Error: Tesla REST Service failed to return a response, access token may have expired")
+        sys.exit(1)
+
+    return response
 
 
 ######################################
