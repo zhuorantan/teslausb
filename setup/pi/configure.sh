@@ -159,6 +159,7 @@ function install_and_configure_tesla_api () {
     log_progress "Installing tesla_api.py"
     get_script /root/bin tesla_api.py run
     # Perform the initial authentication
+    mount /mutable || log_progress "Failed to mount /mutable"
     if ! /root/bin/tesla_api.py list_vehicles
     then
       log_progress "tesla_ap.py setup failed"
