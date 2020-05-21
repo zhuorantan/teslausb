@@ -470,7 +470,7 @@ export -f ensure_mountpoint_is_mounted_with_retry
 export -f log
 
 echo "==============================================" >> "$LOG_FILE"
-log "Starting archiveloop..."
+log "Starting archiveloop at $(awk '{print $1}' /proc/uptime) seconds uptime..."
 
 if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
 then
