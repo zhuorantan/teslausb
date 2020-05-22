@@ -118,7 +118,7 @@ function configure_archive () {
   if ! grep -w -q "$archive_path" /etc/fstab
   then
     local sharenameforstab="${SHARE_NAME// /\\040}"
-    echo "//$ARCHIVE_SERVER/$sharenameforstab $archive_path cifs credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
+    echo "//$ARCHIVE_SERVER/$sharenameforstab $archive_path cifs noauto,credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
   fi
 
   if [ -n "${musicsharename:+x}" ]
@@ -130,10 +130,16 @@ function configure_archive () {
     if ! grep -w -q "$music_archive_path" /etc/fstab
     then
       local musicsharenameforstab="${musicsharename// /\\040}"
-      echo "//$ARCHIVE_SERVER/$musicsharenameforstab $music_archive_path cifs credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
+      echo "//$ARCHIVE_SERVER/$musicsharenameforstab $music_archive_path cifs noauto,credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$VERS_OPT,$SEC_OPT 0" >> /etc/fstab
     fi
   fi
 
+  # update fstab if it doesn't already use "noauto" for the archive(s)
+  if grep " credentials=" /etc/fstab
+  then
+    log "adding 'noauto' to archive entries in fstab"
+    sed -i 's/ credentials=/ noauto,credentials=/' /etc/fstab
+  fi
   log_progress "Configured the archive."
 }
 
