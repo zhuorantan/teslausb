@@ -24,6 +24,10 @@ function append_cmdline_txt_param() {
   fi
 }
 
+log_progress "Disabling unnecessary service..."
+systemctl disable apt-daily.timer
+systemctl disable apt-daily-upgrade.timer
+
 log_progress "Removing unwanted packages..."
 apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
 apt-get -y --force-yes autoremove --purge
