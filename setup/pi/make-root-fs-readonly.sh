@@ -29,7 +29,7 @@ systemctl disable apt-daily.timer
 systemctl disable apt-daily-upgrade.timer
 
 log_progress "Removing unwanted packages..."
-apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
+apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile bluez alsa-utils
 apt-get -y --force-yes autoremove --purge
 # Replace log management with busybox (use logread if needed)
 log_progress "Installing ntp and busybox-syslogd..."
