@@ -58,6 +58,13 @@ function read_setup_variables {
   export USB_DRIVE=${USB_DRIVE:-''}
 }
 
+if [ "$0" == "-bash" ]
+then
+  # called from .bashrc as part of root login, set completion
+  complete -W "diagnose upgrade selfupdate install" setup-teslausb
+  return 0
+fi
+
 if [ "${BASH_SOURCE[0]}" != "$0" ]
 then
   echo "${BASH_SOURCE[0]} was sourced, setting setup variables"
@@ -677,6 +684,12 @@ then
   /tmp/configure-automount.sh
 else
   setup_progress "skipping automount setup because snapshots are disabled"
+fi
+
+# source setup-teslausb from .bashrc to set up completion
+if ! grep -q setup-teslausb /root/.bashrc
+then
+  echo "source /root/bin/setup-teslausb" >> /root/.bashrc
 fi
 
 make_root_fs_readonly
