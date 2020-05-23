@@ -137,7 +137,7 @@ function configure_archive () {
   # update fstab if it doesn't already use "noauto" for the archive(s)
   if grep " credentials=" /etc/fstab
   then
-    log "adding 'noauto' to archive entries in fstab"
+    log_progress "adding 'noauto' to archive entries in fstab"
     sed -i 's/ credentials=/ noauto,credentials=/' /etc/fstab
   fi
   log_progress "Configured the archive."
