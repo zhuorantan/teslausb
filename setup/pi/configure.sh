@@ -47,37 +47,6 @@ function check_variable () {
     fi
 }
 
-function install_rc_local () {
-    local install_home="$1"
-
-    if grep -q archiveloop /etc/rc.local
-    then
-        log_progress "Skipping rc.local installation"
-        return
-    fi
-
-    log_progress "Configuring /etc/rc.local to run the archive scripts at startup..."
-    echo "#!/bin/bash -eu" > ~/rc.local
-    echo "install_home=\"${install_home}\"" >> ~/rc.local
-    cat << 'EOF' >> ~/rc.local
-LOGFILE=/tmp/rc.local.log
-
-function log () {
-  echo "$( date )" >> "$LOGFILE"
-  echo "$1" >> "$LOGFILE"
-}
-
-log "Launching archival script..."
-"$install_home"/archiveloop &
-log "All done"
-exit 0
-EOF
-
-    cat ~/rc.local > /etc/rc.local
-    rm ~/rc.local
-    log_progress "Installed rc.local."
-}
-
 function check_archive_configs () {
     log_progress "Checking archive configs: "
 
@@ -398,4 +367,20 @@ log_progress "Using archive module: $archive_module"
 install_archive_scripts /root/bin "$archive_module"
 /tmp/verify-and-configure-archive.sh
 
-install_rc_local /root/bin
+systemctl disable teslausb.service || true
+
+cat << EOF > /lib/systemd/system/teslausb.service
+[Unit]
+Description=TeslaUSB archiveloop service
+DefaultDependencies=no
+After=mutable.mount backingfiles.mount
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /root/bin/archiveloop
+
+[Install]
+WantedBy=backingfiles.mount
+EOF
+
+systemctl enable teslausb.service
