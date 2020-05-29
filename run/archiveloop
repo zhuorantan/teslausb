@@ -429,29 +429,22 @@ function doubleblink () {
 }
 
 function set_time () {
-  log "Waiting for time to be set by ntpd..."
-  for _ in {1..10}
+  log "Trying to set time..."
+  local -r uptime_start=$(awk '{print $1}' /proc/uptime)
+  local -r clocktime_start=$(date +%s.%N)
+  for _ in {1..5}
   do
-    if ntp-wait --tries=1 --sleep=1
+    if sntp -S time.google.com
     then
-      log "Time now set"
+      local -r uptime_end=$(awk '{print $1}' /proc/uptime)
+      local -r clocktime_end=$(date +%s.%N)
+      log "$(awk "BEGIN {printf \"Time adjusted by %f seconds after %f seconds\", $clocktime_end-$clocktime_start, $uptime_end-$uptime_start}")"
       return
     fi
+    log "sntp failed, retrying..."
     sleep 2
   done
-  log "Time still not set, attempting to force it"
-  if ! systemctl stop ntp
-  then
-    log "Failed to stop ntp daemon"
-  fi
-  if ! timeout 20 ntpd -q -x -g
-  then
-    log "Failed to set time"
-  fi
-  if ! systemctl start ntp
-  then
-    log "Failed to start ntp daemon"
-  fi
+  log "Failed to set time"
 }
 
 function snapshotloop {
