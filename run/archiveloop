@@ -41,8 +41,21 @@ source /root/bin/setup-teslausb
 
 if [ -z "${ARCHIVE_SERVER+x}" ]
 then
-  log "ARCHIVE_SERVER not set"
-  exit 1
+  case "$ARCHIVE_SYSTEM" in
+    rsync)
+      export ARCHIVE_SERVER="$RSYNC_SERVER"
+      ;;
+    rclone)
+      export ARCHIVE_SERVER="8.8.8.8"
+      ;;
+    none)
+      export ARCHIVE_SERVER=localhost
+      ;;
+    *)
+      log "ARCHIVE_SERVER not set"
+      exit 1
+      ;;
+  esac
 fi
 
 function isPi4 {
