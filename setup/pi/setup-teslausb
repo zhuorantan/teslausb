@@ -326,10 +326,17 @@ function upgrade_packages () {
   if [ "$UPGRADE_PACKAGES" = true ]
   then
     setup_progress "Upgrading installed packages..."
+    # clean the cache to free up space, since especially
+    # a kernel update requires quite a bit of temporary
+    # extra space
+    apt-get clean
     apt-get --assume-yes upgrade
   else
     setup_progress "Skipping package upgrade."
   fi
+  # no real need to keep the cache around after setup
+  apt-get clean
+  fstrim /
 }
 
 function set_timezone () {
