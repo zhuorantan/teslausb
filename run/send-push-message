@@ -55,7 +55,19 @@ function send_sns () {
   python3 /root/bin/send_sns.py -t "$sns_topic_arn" -s "$TITLE" -m "$MESSAGE"
 }
 
+function send_webhook () {
+  log "Sending Webhook message for moved files."
+  
+  source /root/.teslaCamWebhookSettings
+
+  # shellcheck disable=SC2154
+  curl -X POST \
+    -d "{\"value1\":\"${TITLE}\",\"value2\":\"${MESSAGE}\"}" \
+    "$WEBHOOK_URL"
+}
+
 [ -r "/root/.teslaCamPushoverCredentials" ] && send_pushover
 [ -r "/root/.teslaCamGotifySettings" ] && send_gotify
 [ -r "/root/.teslaCamIftttSettings" ] && send_ifttt
 [ -r "/root/.teslaCamSNSTopicARN" ] && send_sns
+[ -r "/root/.teslaCamWebhookSettings" ] && send_webhook

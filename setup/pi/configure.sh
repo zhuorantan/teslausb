@@ -225,6 +225,24 @@ function check_ifttt_configuration () {
     fi
 }
 
+function check_webhook_configuration () {
+    # shellcheck disable=SC2154
+    if [ -n "${WEBHOOK_ENABLED+x}" ]
+    then
+        if [ -z "${WEBHOOK_URL+x}"  ]
+        then
+            log_progress "STOP: You're trying to setup a Webhook but didn't provide your webhook url."
+            log_progress "Define the variable like this:"
+            log_progress "export WEBHOOK_URL=http://domain/path/"
+            exit 1
+        elif [ "${WEBHOOK_URL}" = "http://domain/path/" ]
+        then
+            log_progress "STOP: You're trying to setup a Webhook, but didn't replace the default url."
+            exit 1
+        fi
+    fi
+}
+
 function check_sns_configuration () {
     # shellcheck disable=SC2154
     if [ -n "${sns_enabled+x}" ]
@@ -289,6 +307,19 @@ function configure_ifttt () {
     fi
 }
 
+function configure_webhook () {
+    if [ -n "${WEBHOOK_ENABLED+x}" ]
+    then
+        log_progress "Enabling Webhook"
+        {
+            echo "export WEBHOOK_ENABLED=true"
+            echo "export WEBHOOK_URL=$WEBHOOK_URL"
+        } > /root/.teslaCamWebhookSettings
+    else
+        log_progress "Webhook not configured."
+    fi
+}
+
 function configure_sns () {
     # shellcheck disable=SC2154
     if [ -n "${sns_enabled+x}" ]
@@ -330,6 +361,11 @@ function check_and_configure_ifttt () {
     configure_ifttt
 }
 
+function check_and_configure_webhook () {
+    check_webhook_configuration
+
+    configure_webhook
+}
 
 function check_and_configure_sns () {
     check_sns_configuration
@@ -354,6 +390,7 @@ mkdir -p /root/bin
 check_and_configure_pushover
 check_and_configure_gotify
 check_and_configure_ifttt
+check_and_configure_webhook
 check_and_configure_sns
 install_push_message_scripts /root/bin
 

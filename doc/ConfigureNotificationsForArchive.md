@@ -73,3 +73,13 @@ You can also choose to send notification through AWS SNS. You can create a free 
     export aws_sns_topic_arn=put_your_sns_topicarn_here
     ```
 
+# Webhook
+Generic Webhook call can be used with Node-Red, [Home-Assistant](https://home-assistant.io), and other self hosted automation systems.
+
+1. Setup webhook url with your provider
+2. Run these commands, substituting your url.
+    ```
+    export WEBHOOK_ENABLED=true
+    export WEBHOOK_URL=http://domain/path
+    ```
+

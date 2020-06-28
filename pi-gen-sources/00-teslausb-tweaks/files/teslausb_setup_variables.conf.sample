@@ -118,6 +118,10 @@ export HEADLESS_SETUP=true
 # export aws_secret_key=put_your_secretkey_here
 # export aws_sns_topic_arn=put_your_sns_topicarn_here
 
+# Uncomment if setting up Webhook notifications
+# export WEBHOOK_ENABLED=true
+# export WEBHOOK_URL=http://domain/path
+
 # tesla_dashcam / Trigger file support.
 # Uncomment any trigger_file_xxxxx below if you'd like to create trigger file(s) in the
 # archive directory for the listed clip type after all clips have been transferred for that type.
