@@ -4,7 +4,7 @@ log "Moving clips to archive..."
 
 NUM_FILES_MOVED=0
 NUM_FILES_FAILED=0
-NUM_FILES_DELETED=0
+NUM_FILES_SKIPPED=0
 
 function connectionmonitor {
   while true
@@ -37,10 +37,10 @@ function moveclips() {
     return
   fi
 
-  while IFS= read -r -d '' file_name
+  while IFS= read -r -d '' file_path
   do
-    PARENT=$(dirname "$file_name")
-    if [ ! -e "$PARENT" ]
+    PARENT=$(dirname "$file_path")
+    if [ ! -e "$ARCHIVE_MOUNT/$SUB/$PARENT" ]
     then
       log "Creating output directory '$SUB/$PARENT'"
       if ! mkdir -p "$ARCHIVE_MOUNT/$SUB/$PARENT"
@@ -50,28 +50,33 @@ function moveclips() {
       fi
     fi
 
-    if [ -f "$ROOT/$file_name" ]
+    outdir="$ARCHIVE_MOUNT/$SUB/$(dirname "$file_path")"
+    filename=$(basename "$file_path")
+    if [ -f "$ROOT/$file_path" ]
     then
-      size=$(stat -c%s "$ROOT/$file_name")
-      if [ "$size" -lt 100000 ] && [[ $file_name == *.mp4 ]]
+      if [ ! -e "$outdir/$filename" ]
       then
-        log "'$SUB/$file_name' is only $size bytes"
-        rm "$ROOT/$file_name"
-        NUM_FILES_DELETED=$((NUM_FILES_DELETED + 1))
-      else
-        log "Moving '$SUB/$file_name'"
-        outdir=$(dirname "$file_name")
-        if mv -f "$ROOT/$file_name" "$ARCHIVE_MOUNT/$SUB/$outdir"
+        size=$(stat -c%s "$ROOT/$file_path")
+        if [ "$size" -lt 100000 ] && [[ $file_path == *.mp4 ]]
         then
-          log "Moved '$SUB/$file_name'"
-          NUM_FILES_MOVED=$((NUM_FILES_MOVED + 1))
+          log "'$SUB/$file_path' is only $size bytes, skipping"
+          NUM_FILES_SKIPPED=$((NUM_FILES_SKIPPED + 1))
         else
-          log "Failed to move '$SUB/$file_name'"
-          NUM_FILES_FAILED=$((NUM_FILES_FAILED + 1))
+          log "Moving '$SUB/$file_path'"
+          if cp -f "$ROOT/$file_path" "$outdir/_clip" && mv "$outdir/_clip" "$outdir/$filename" 
+          then
+            log "Moved '$SUB/$file_path'"
+            NUM_FILES_MOVED=$((NUM_FILES_MOVED + 1))
+          else
+            log "Failed to move '$SUB/$file_path'"
+            NUM_FILES_FAILED=$((NUM_FILES_FAILED + 1))
+          fi
         fi
+      else
+        log "Skipped '$SUB/$file_path': already archived"
       fi
     else
-      log "$SUB/$file_name not found"
+      log "$SUB/$file_path not found"
     fi
   done < <( find "$ROOT" -type f -printf "%P\0" )
 }
@@ -108,11 +113,11 @@ kill %1
 # delete empty directories under SavedClips, SentryClips and TeslaTrackMode
 rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* "$CAM_MOUNT/TeslaTrackMode"/* || true
 
-log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
+log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, skipped $NUM_FILES_SKIPPED."
 
 if [ $NUM_FILES_MOVED -gt 0 ]
 then
-  /root/bin/send-push-message "TeslaUSB:" "Moved $NUM_FILES_MOVED dashcam file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
+  /root/bin/send-push-message "TeslaUSB:" "Moved $NUM_FILES_MOVED dashcam file(s), failed to copy $NUM_FILES_FAILED, skipped $NUM_FILES_SKIPPED."
 fi
 
 log "Finished moving clips to archive."
