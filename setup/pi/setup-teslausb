@@ -122,7 +122,7 @@ fi
 
 INCREASE_ROOT_SIZE=$(($(dehumanize "$INCREASE_ROOT_SIZE") / 512))
 
-if [ "$INCREASE_ROOT_SIZE" != "0" ] && [ ! -e /dev/mmcblkp03 ]
+if [ "$INCREASE_ROOT_SIZE" != "0" ] && [ ! -e /dev/mmcblk0p3 ]
 then
   if [ ! -e /root/TESLAUSB_ROOT_PARTITION_INCREASED ]
   then
