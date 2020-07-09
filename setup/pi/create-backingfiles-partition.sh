@@ -59,17 +59,17 @@ fi
 
 # If partition 3 is the backingfiles partition, type xfs, and
 # partition 4 the mutable partition, type ext4, then return early.
-if [ /dev/disk/by-label/backingfiles -ef /dev/mmcblk0p3 ] && \
-    [ /dev/disk/by-label/mutable -ef /dev/mmcblk0p4 ] && \
-    blkid /dev/mmcblk0p4 | grep -q 'TYPE="ext4"'
+if [ /dev/disk/by-label/backingfiles -ef "${BOOT_DEVICE_PART}3" ] && \
+    [ /dev/disk/by-label/mutable -ef "${BOOT_DEVICE_PART}4" ] && \
+    blkid "${BOOT_DEVICE_PART}4" | grep -q 'TYPE="ext4"'
 then
-  if blkid /dev/mmcblk0p3 | grep -q 'TYPE="xfs"'
+  if blkid "${BOOT_DEVICE_PART}3" | grep -q 'TYPE="xfs"'
   then
     # assume these were either created previously by the setup scripts,
     # or manually by the user, and that they're big enough
     log_progress "using existing backingfiles and mutable partitions"
     return &> /dev/null || exit 0
-  elif blkid /dev/mmcblk0p3 | grep -q 'TYPE="ext4"'
+  elif blkid "${BOOT_DEVICE_PART}3" | grep -q 'TYPE="ext4"'
   then
     # special case: convert existing backingfiles from ext4 to xfs
     log_progress "reformatting existing backingfiles as xfs"
@@ -91,7 +91,7 @@ then
         exit 1
       fi
     fi
-    mkfs.xfs -f -m reflink=1 -L backingfiles /dev/mmcblk0p3
+    mkfs.xfs -f -m reflink=1 -L backingfiles "${BOOT_DEVICE_PART}3"
 
     # update /etc/fstab
     sed -i 's/LABEL=backingfiles .*/LABEL=backingfiles \/backingfiles xfs auto,rw,noatime 0 2/' /etc/fstab
@@ -102,7 +102,7 @@ then
 fi
 
 # partition 3 and 4 either don't exist, or are the wrong type
-if [ -e /dev/mmcblk0p3 ] || [ -e /dev/mmcblk0p4 ]
+if [ -e "${BOOT_DEVICE_PART}3" ] || [ -e "${BOOT_DEVICE_PART}4" ]
 then
   log_progress "STOP: partitions already exist, but are not as expected"
   log_progress "please delete them and re-run setup"
@@ -114,35 +114,35 @@ MUTABLE_MOUNTPOINT="$2"
 
 log_progress "Checking existing partitions..."
 
-DISK_SECTORS=$(blockdev --getsz /dev/mmcblk0)
+DISK_SECTORS=$(blockdev --getsz "${BOOT_DEVICE}")
 LAST_DISK_SECTOR=$((DISK_SECTORS - 1))
 # mutable partition is 100MB at the end of the disk, calculate its start sector
 FIRST_MUTABLE_SECTOR=$((LAST_DISK_SECTOR-204800+1))
 # backingfiles partition sits between the root and mutable partition, calculate its start sector and size
-LAST_ROOT_SECTOR=$(sfdisk -l /dev/mmcblk0 | grep mmcblk0p2 | awk '{print $3}')
+LAST_ROOT_SECTOR=$(sfdisk -l "${BOOT_DEVICE}" | grep "${BOOT_DEVICE_PART}2" | awk '{print $3}')
 FIRST_BACKINGFILES_SECTOR=$((LAST_ROOT_SECTOR + 1))
 BACKINGFILES_NUM_SECTORS=$((FIRST_MUTABLE_SECTOR - FIRST_BACKINGFILES_SECTOR))
 
-ORIGINAL_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
+ORIGINAL_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DEVICE}" | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
 log_progress "Modifying partition table for backing files partition..."
-echo "$FIRST_BACKINGFILES_SECTOR,$BACKINGFILES_NUM_SECTORS" | sfdisk --force /dev/mmcblk0 -N 3
+echo "$FIRST_BACKINGFILES_SECTOR,$BACKINGFILES_NUM_SECTORS" | sfdisk --force "${BOOT_DEVICE}" -N 3
 
 log_progress "Modifying partition table for mutable (writable) partition for script usage..."
-echo "$FIRST_MUTABLE_SECTOR," | sfdisk --force /dev/mmcblk0 -N 4
+echo "$FIRST_MUTABLE_SECTOR," | sfdisk --force "${BOOT_DEVICE}" -N 4
 
 # manually adding the partitions to the kernel's view of things is sometimes needed
-if [ ! -e /dev/mmcblk0p3 ] || [ ! -e /dev/mmcblk0p4 ]
+if [ ! -e "${BOOT_DEVICE_PART}3" ] || [ ! -e "${BOOT_DEVICE_PART}4" ]
 then
-  partx --add --nr 3:4 /dev/mmcblk0
+  partx --add --nr 3:4 "${BOOT_DEVICE}"
 fi
-if [ ! -e /dev/mmcblk0p3 ] || [ ! -e /dev/mmcblk0p4 ]
+if [ ! -e "${BOOT_DEVICE_PART}3" ] || [ ! -e "${BOOT_DEVICE_PART}4" ]
 then
   log_progress "failed to add partitions"
   exit 1
 fi
 
-NEW_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
+NEW_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DEVICE}" | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
 log_progress "Writing updated partitions to fstab and /boot/cmdline.txt"
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
@@ -150,8 +150,8 @@ sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 
 log_progress "Formatting new partitions..."
 # Force creation of filesystems even if previous filesystem appears to exist
-mkfs.xfs -f -m reflink=1 -L backingfiles /dev/mmcblk0p3
-mkfs.ext4 -F -L mutable /dev/mmcblk0p4
+mkfs.xfs -f -m reflink=1 -L backingfiles "${BOOT_DEVICE_PART}3"
+mkfs.ext4 -F -L mutable "${BOOT_DEVICE_PART}4"
 
 echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
 echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
