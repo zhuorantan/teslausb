@@ -340,7 +340,7 @@ function upgrade_packages () {
   fi
   # no real need to keep the cache around after setup
   apt-get clean
-  fstrim /
+  fstrim / || true
 }
 
 function set_timezone () {
