@@ -1,5 +1,7 @@
 # Getting a shell on the Pi without a monitor using a Mac or Linux
 
+**Note:** These instructions are obsolete. Follow [these instructions](OneStepSetup.md) instead.
+
 These instructions will configure a Raspberry Pi so that you can proceed with the next step of setting it up as a smart USB drive for your Tesla. Specifically, these intructions will configure your Pi to join your wireless network and also enable you to ssh to the Pi, either over your wireless network or through a USB connection.
 
 **Important:** Do these steps before you boot the Pi for the first time.

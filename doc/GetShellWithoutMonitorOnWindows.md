@@ -1,4 +1,7 @@
 # Seting up the Pi without a monitor using Windows
+
+**Note:** These instructions are obsolete. Follow [these instructions](OneStepSetup.md) instead.
+
 1. Download and install: [Notepad++](https://notepad-plus-plus.org/) Alternatively, any other text editor which is capable of editing files with Unix-style line endings.
 1. Optional: Watch [this video](https://www.youtube.com/watch?v=xj3MPmJhAPU) to get an idea of the process. The steps from the video are partially automated, below.
 1. Remove the MicroSD card from your computer and reinsert it. Do not at any point during the setup of the USB drive allow Windows to format any partition on any drive.
