@@ -292,6 +292,22 @@ function disconnect_usb_drives_from_host () {
   log "Disconnected usb from host."
 }
 
+function convert_seconds_to_nice_time () {
+  local -r h=$(($1/3600))
+  local -r m=$((($1%3600)/60))
+  local -r s=$(($1%60))
+
+  if [ $h -gt 0 ]
+  then
+    printf "%dh%dm%ds" $h $m $s
+  elif [ $m -gt 0 ]
+  then
+    printf "%dm%ds" $m $s
+  else
+    printf "%ds" $s
+  fi
+}
+
 # Directory structure car uses:
 # TeslaCam/
 #   RecentClips/
@@ -309,7 +325,6 @@ function disconnect_usb_drives_from_host () {
 # TeslaTrackMode/
 #   lapvideo.mp4
 #   laptelemetry.csv
-
 function archive_teslacam_clips () {
   log "Checking saved folder count..."
 
@@ -344,6 +359,7 @@ function archive_teslacam_clips () {
   if [[ "$total_count" -gt 0 ]]
   then
     log "Starting recording archiving"
+    local -r start_ts=$(date --utc --date "now" +%s)
 
     /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Archiving $event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s) starting at $(date)"
 
@@ -414,6 +430,9 @@ function archive_teslacam_clips () {
     else
       message+="${trackmode_archived} trackmode files"
     fi
+    local -r end_ts=$(date --utc --date "now" +%s)
+    local -r delta=$((end_ts - start_ts))
+    message+=" in $(convert_seconds_to_nice_time $delta)"
     /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}"
 
     # delete empty directories under SavedClips, SentryClips and TeslaTrackMode
@@ -428,6 +447,7 @@ function archive_teslacam_clips () {
         /root/bin/tesla_api.py disable_sentry_mode &>> ${LOG_FILE}
       fi
     fi
+
   fi
 
   if [[ "$ignore_count1" -gt 0 ]]
