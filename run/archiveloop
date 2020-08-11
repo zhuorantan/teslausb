@@ -62,6 +62,10 @@ function isPi4 {
   grep -q "Pi 4" /sys/firmware/devicetree/base/model
 }
 
+function isKernel5 {
+  grep -q '^5\.' <<< "$(uname -r)"
+}
+
 function timestamp () {
   local prefix=${1:-}
   while IFS= read -r line
@@ -414,7 +418,7 @@ function slowblink () {
   echo timer > /sys/class/leds/led0/trigger
   local ON=on
   local OFF=off
-  if isPi4
+  if isPi4 || isKernel5
   then
     ON=off
     OFF=on
@@ -427,7 +431,7 @@ function fastblink () {
   echo timer > /sys/class/leds/led0/trigger
   local ON=on
   local OFF=off
-  if isPi4
+  if isPi4 || isKernel5
   then
     ON=off
     OFF=on
@@ -439,7 +443,7 @@ function fastblink () {
 
 function doubleblink () {
   echo heartbeat > /sys/class/leds/led0/trigger
-  if isPi4
+  if isPi4 || isKernel5
   then
     echo 0 > /sys/class/leds/led0/invert
   else
