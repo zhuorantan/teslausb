@@ -65,7 +65,7 @@ Optional:
 
 ### Software
 
-Download: [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
+Download: [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/)
 
 **NOTE:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](doc/OneStepSetup.md).
 
@@ -91,7 +91,7 @@ There are four phases to setting up the Pi:
 
 **LAST WARNING:** it is highly recommended that you use the [prebuilt teslausb image](https://github.com/marcone/teslausb/releases) instead and follow the [one step headless setup process](doc/OneStepSetup.md).
 
-[These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspbian onto your MicroSD card. Basically:
+[These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspberry PI OS onto your MicroSD card. Basically:
 1. Connect your Micro SD card to your computer.
 2. Use Etcher to write the zip file you downloaded to the Micro SD card.
    > Note: you don't need to uncompress the zip file you downloaded.
