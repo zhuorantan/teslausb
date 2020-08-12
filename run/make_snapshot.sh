@@ -130,7 +130,7 @@ function snapshot {
   oldname=/backingfiles/snapshots/snap-$(printf "%06d" "$oldnum")/snap.bin
 
   # check that the previous snapshot is complete
-  if [ ! -e "${oldname}.toc" ]
+  if [ ! -e "${oldname}.toc" ] && [ "$oldnum" != "-1" ]
   then
     log "previous snapshot was incomplete, deleting"
     rm -rf "$(dirname "$oldname")"
@@ -148,7 +148,7 @@ function snapshot {
   log "took snapshot"
 
   # check whether this snapshot is actually different from the previous one
-  find "$newsnapmnt/TeslaCam" -type f -printf '%s %P\n' > "${newsnapname}.toc_"
+  find "$newsnapmnt" -type f -printf '%s %P\n' > "${newsnapname}.toc_"
   log "comparing new snapshot with $oldname"
   if [[ ! -e "${oldname}.toc" ]] || diff "${oldname}.toc" "${newsnapname}.toc_" | grep -e '^>'
   then
