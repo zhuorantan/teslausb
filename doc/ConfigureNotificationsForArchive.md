@@ -1,4 +1,4 @@
-OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), [IFTTT](https://ifttt.com), and/or [AWS SNS](https://aws.amazon.com/sns/) to get a push/email notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
+OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), [IFTTT](https://ifttt.com), [Telegram](https://telegram.org) and/or [AWS SNS](https://aws.amazon.com/sns/) to get a push/email notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
 
 # Pushover
 The Pushover service is free for up to 7,500 messages per month, but the [iOS](https://pushover.net/clients/ios)/[Android](https://pushover.net/clients/android) apps do have a one time cost, after a free trial period. *This also assumes your Pi is connected to a network with internet access.*
@@ -83,3 +83,15 @@ Generic Webhook call can be used with Node-Red, [Home-Assistant](https://home-as
     export WEBHOOK_URL=http://domain/path
     ```
 
+# Telegram
+You can choose to send notifications via [Telegram](https://telegram.org/). This is a free alternative, but you need Telegram app on your device. It is available for iOS as well as Android and other platforms. See the complete list [here](https://telegram.org/apps)
+
+1. Follow the instructions [here](https://www.siteguarding.com/en/how-to-get-telegram-bot-api-token) to get your bot token. 
+2. If the API key does not have the "bot" prefix. Make sure you add it. See example below. 
+3. Run these commands, substituting your url.
+    ```
+    export TELEGRAM_ENABLED=true
+    export TELEGRAM_CHAT_ID=123456789
+    export TELEGRAM_BOT_TOKEN=bot123456789:abcdefghijklmnopqrstuvqxyz987654321
+    export TELEGRAM_SILENT_NOTIFY=false
+    ```
