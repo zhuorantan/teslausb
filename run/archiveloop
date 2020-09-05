@@ -39,6 +39,12 @@ function log () {
 # when sourced, setup-teslausb sets the config variables in the environment
 source /root/bin/setup-teslausb
 
+# Uses hostname for notification.
+if [ -z "${TESLAUSB_HOSTNAME+x}" ]
+then
+  export TESLAUSB_HOSTNAME=$HOSTNAME
+fi
+
 if [ -z "${ARCHIVE_SERVER+x}" ]
 then
   case "$ARCHIVE_SYSTEM" in
@@ -306,7 +312,7 @@ function archive_teslacam_clips () {
   then
     log "Starting recording archiving: $DIR_COUNT event folder(s) with $FILE_COUNT file(s)"
 
-    /root/bin/send-push-message "TeslaUSB:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
 
     # Ensure Sentry Mode is enabled before archiving
     declare is_sentry_mode_enabled

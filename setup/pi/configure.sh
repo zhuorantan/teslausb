@@ -329,12 +329,6 @@ function configure_telegram () {
     if [ -n "${TELEGRAM_ENABLED+x}" ]
     then
         log_progress "Enabling Telegram"
-        {
-            echo "export TELEGRAM_ENABLED=true"
-            echo "export TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID"
-            echo "export TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN"
-            echo "export TELEGRAM_SILENT_NOTIFY=$TELEGRAM_SILENT_NOTIFY"
-        } > /root/.teslaCamTelegramSettings
     else
         log_progress "Telegram not configured."
     fi

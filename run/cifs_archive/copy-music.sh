@@ -105,5 +105,5 @@ log "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped
 
 if [ $NUM_FILES_COPIED -gt 0 ]
 then
-  /root/bin/send-push-message "TeslaUSB:" "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR copy errors and $NUM_FILES_DELETE_ERROR delete errors."
+  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR copy errors and $NUM_FILES_DELETE_ERROR delete errors."
 fi

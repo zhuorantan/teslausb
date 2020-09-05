@@ -84,11 +84,14 @@ Generic Webhook call can be used with Node-Red, [Home-Assistant](https://home-as
     ```
 
 # Telegram
-You can choose to send notifications via [Telegram](https://telegram.org/). This is a free alternative, but you need Telegram app on your device. It is available for iOS as well as Android and other platforms. See the complete list [here](https://telegram.org/apps)
+You can choose to send notifications via [Telegram](https://telegram.org/). This is a completely free alternative, but you need Telegram app (also free) on your device. It is available for iOS as well as Android and other platforms. See the complete list [here](https://telegram.org/apps)
 
-1. Follow the instructions [here](https://www.siteguarding.com/en/how-to-get-telegram-bot-api-token) to get your bot token. 
-2. If the API key does not have the "bot" prefix. Make sure you add it. See example below. 
-3. Run these commands, substituting your url.
+1. If you don't already have it, download the Telegram Client for your device [here](https://telegram.org/apps) and go through the sign up process. 
+2. Once sign-up is complete, you can add [this](https://thereisabotforthat.com/bots/userinfobot) bot to your telegram client. 
+3. Send any message (e.g. "Hi") to the bot and it will respond with your id. This identifies the recipient and is the value you will use for TELEGRAM_CHAT_ID
+4. You will need to create a new bot that acts as a sender. Follow the instructions [here](https://www.siteguarding.com/en/how-to-get-telegram-bot-api-token) to get your bot token. 
+5. If the API key does not have the "bot" prefix. Make sure you include it when entering TELEGRAM_BOT_TOKEN. 
+6. Remove the comments and update the following values in the ```teslausb_setup_variables.conf``` file.
     ```
     export TELEGRAM_ENABLED=true
     export TELEGRAM_CHAT_ID=123456789

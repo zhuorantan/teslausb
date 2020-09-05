@@ -26,6 +26,6 @@ FILES_REMAINING=$(cd "$CAM_MOUNT" && find . -maxdepth 4 -path './TeslaCam/SavedC
 NUM_FILES_MOVED=$((FILE_COUNT-FILES_REMAINING))
 
 log "Moved $NUM_FILES_MOVED file(s)."
-/root/bin/send-push-message "TeslaUSB:" "Moved $NUM_FILES_MOVED dashcam file(s)."
+/root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Moved $NUM_FILES_MOVED dashcam file(s)."
 
 log "Finished moving clips to rclone archive"

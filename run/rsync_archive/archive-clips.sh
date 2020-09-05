@@ -11,7 +11,7 @@ if (( num_files_moved > 0 ))
 then
   find "$CAM_MOUNT/Teslacam/SavedClips/" "$CAM_MOUNT/Teslacam/SentryClips/" -depth -type d -empty -exec rmdir "{}" \;
   log "Successfully synced files through rsync."
-  /root/bin/send-push-message "TeslaUSB:" "Moved $num_files_moved dashcam files"
+  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Moved $num_files_moved dashcam files"
 else
   log "No files archived."
 fi
