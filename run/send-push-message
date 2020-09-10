@@ -40,9 +40,8 @@ function send_ifttt () {
   source /root/.teslaCamIftttSettings
 
   # shellcheck disable=SC2154
-  curl -X POST \
-    -F "value1=$TITLE" \
-    -F "value2=$MESSAGE" \
+  curl -X POST -H "Content-Type: application/json" -d \
+    '{"value1":"'"$TITLE"'","value2":"'"$MESSAGE"'"}' \
     "https://maker.ifttt.com/trigger/$ifttt_event_name/with/key/$ifttt_key"
 }
 
