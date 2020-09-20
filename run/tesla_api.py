@@ -226,21 +226,25 @@ def _get_id():
     """
     Put the vehicle's ID into tesla_api_json['id'].
     """
-    # If it was already set by _load_tesla_api_json(), we're done.
+    # If it was already set by _load_tesla_api_json(), and a new
+    # VIN or name wasn't specified on the command line, we're done.
     if tesla_api_json['id'] and tesla_api_json['vehicle_id']:
+      if SETTINGS['tesla_name'] == '' and SETTINGS['tesla_vin'] == '':
         return
 
-    # Call list_vehicles() and use the provided VIN to get the vehicle ID.
+    # Call list_vehicles() and use the provided name or VIN to get the vehicle ID.
     result = list_vehicles()
     for vehicle_dict in result['response']:
-        if vehicle_dict['vin'] == SETTINGS['tesla_vin'] or SETTINGS['tesla_vin'] == '':
+        if ( vehicle_dict['vin'] == SETTINGS['tesla_vin']
+          or vehicle_dict['display_name'] == SETTINGS['tesla_name']
+          or ( SETTINGS['tesla_vin'] == '' and SETTINGS['tesla_name'] == '')):
             tesla_api_json['id'] = vehicle_dict['id_s']
             tesla_api_json['vehicle_id'] = vehicle_dict['vehicle_id']
             _log('Retrieved Vehicle ID from Tesla API.')
             _write_tesla_api_json()
             return
 
-    _error('Unable to retrieve vehicle ID: Unknown VIN. Cannot continue.')
+    _error('Unable to retrieve vehicle ID: Unknown name or VIN. Cannot continue.')
     sys.exit(1)
 
 
@@ -445,6 +449,22 @@ def set_charge_limit(percent):
         data={'percent': percent}
     )
 
+def actuate_trunk():
+    result = _execute_request(
+        '{}/{}/command/actuate_trunk'.format(base_url, tesla_api_json['id']),
+        method='POST',
+        data={'which_trunk': 'rear'}
+    )
+    return result['response']['result']
+
+def actuate_frunk():
+    result = _execute_request(
+        '{}/{}/command/actuate_trunk'.format(base_url, tesla_api_json['id']),
+        method='POST',
+        data={'which_trunk': 'front'}
+    )
+    return result['response']['result']
+
 def flash_lights():
     result = _execute_request(
         '{}/{}/command/flash_lights'.format(base_url, tesla_api_json['id']),
@@ -547,6 +567,10 @@ def _get_arg_parser():
         help="VIN number of the car."
     )
     parser.add_argument(
+        "--name",
+        help="name of the car."
+    )
+    parser.add_argument(
         "--accesstoken",
         help="Access token to use instead of email/password"
     )
@@ -580,6 +604,11 @@ def main():
         SETTINGS['tesla_vin'] = args.vin
     else:
         SETTINGS['tesla_vin'] = os.environ.get('TESLA_VIN', '')
+
+    if args.name:
+        SETTINGS['tesla_name'] = args.name
+    else:
+        SETTINGS['tesla_name'] = os.environ.get('TESLA_NAME', '')
 
     if args.accesstoken:
         SETTINGS['tesla_access_token'] = args.accesstoken

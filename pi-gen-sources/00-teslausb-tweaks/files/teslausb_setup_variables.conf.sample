@@ -164,8 +164,10 @@ export HEADLESS_SETUP=true
 # export TESLA_REFRESH_TOKEN=abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
 #
 # If you have more than one Tesla vehicle on the account, you must also provide
-# the VIN for the vehicle for which this TeslaUSB install will be used, so that
-# TeslaUSB can keep the correct vehicle awake.
+# the name or VIN for the vehicle for which this TeslaUSB install will be used,
+# so that TeslaUSB can keep the correct vehicle awake.
+# If you only have one car on the account, you do not need to specify this.
+# export TESLA_NAME="Elon's CyberTruck"
 # export TESLA_VIN=5YJ3E1EA4JF000001
 
 # Uncomment if you want to increase the size of the root
