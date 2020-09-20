@@ -292,21 +292,58 @@ function disconnect_usb_drives_from_host () {
   log "Disconnected usb from host."
 }
 
+# Directory structure car uses:
+# TeslaCam/
+#   RecentClips/
+#      videos.mp4
+#   SavedClips/
+#     datetime/
+#       videos.mp4
+#       event.json
+#       thumb.png
+#   SentryClips/
+#     datetime/
+#       videos.mp4
+#       event.json
+#       thumb.png
+# TeslaTrackMode/
+#   lapvideo.mp4
+#   laptelemetry.csv
+
 function archive_teslacam_clips () {
   log "Checking saved folder count..."
 
   ensure_cam_file_is_mounted
 
-  DIR_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 2 -path './SavedClips/*' -type d -o -path './SentryClips/*' -type d | wc -l)
-  FILE_COUNT=$(cd "$CAM_MOUNT"/TeslaCam && find . -maxdepth 3 -path './SavedClips/*' -type f -o -path './SentryClips/*' -type f | wc -l)
+  # Build lists of the files to be archived.
+  # Two lists are built: one for the folders under TeslaCam, and one for the TeslaTrackMode folder.
+  local -r sentrylist=/tmp/sentry_files
+  local -r ignorelist=/tmp/ignore_files
+  (cd "$CAM_MOUNT/TeslaCam"; find . \( \( -path './SavedClips/*' -o -path './SentryClips/*' \) -type f \) \
+        -a \( \( -name '*.mp4' -size -100000c -fprintf "$ignorelist" '%P\n' \) -o -fprintf "$sentrylist" '%P\n' \) )
 
-  log "There are $DIR_COUNT event folder(s) with $FILE_COUNT file(s) to move."
+  local -r trackmodelist=/tmp/trackmode_files
+  (cd "$CAM_MOUNT"; find . \( -path './TeslaTrackMode/*' -type f \) \
+        -a \( \( -name '*.mp4' -size -100000c -fprintf /dev/stdout '%P\n' \) -o -fprintf "$trackmodelist" '%P\n' \) >> "$ignorelist" )
 
-  if [ "$DIR_COUNT" -gt 0 ]
+  local -r sentry_count=$(wc -l < "$sentrylist")
+  local -r trackmode_count=$(wc -l < "$trackmodelist")
+  local -r ignore_count=$(wc -l < "$ignorelist")
+  local -r total_count=$((sentry_count + trackmode_count))
+
+  # extract some noteworthy info from the file list
+  local -r saved_event_count=$(grep 'SavedClips/' < "$sentrylist" | sed 's/[^\/]\+$//' | sort -u  | wc -l)
+  local -r sentry_event_count=$(grep 'SentryClips/' < "$sentrylist" | sed 's/[^\/]\+$//' | sort -u  | wc -l)
+
+  local -r event_count=$((saved_event_count + sentry_event_count))
+
+  log "There are $event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s) to move. $ignore_count short recording(s) will be skipped."
+
+  if [ "$total_count" -gt 0 ]
   then
-    log "Starting recording archiving: $DIR_COUNT event folder(s) with $FILE_COUNT file(s)"
+    log "Starting recording archiving"
 
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Archiving $DIR_COUNT event folder(s) with $FILE_COUNT file(s) starting at $(date)"
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Archiving $event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s) starting at $(date)"
 
     # Ensure Sentry Mode is enabled before archiving
     declare is_sentry_mode_enabled
@@ -338,7 +375,10 @@ function archive_teslacam_clips () {
         export trigger_file_any
     fi
 
-    /root/bin/archive-clips.sh
+    /root/bin/archive-clips.sh "$CAM_MOUNT/TeslaCam" "${sentrylist}" "$CAM_MOUNT" "${trackmodelist}"
+
+    # delete empty directories under SavedClips, SentryClips and TeslaTrackMode
+    rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* "$CAM_MOUNT/TeslaTrackMode"/* || true
 
     # If Sentry Mode was previously disabled, restore it to that state
     if [ -x /root/bin/tesla_api.py ]

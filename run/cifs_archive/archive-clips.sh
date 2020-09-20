@@ -4,7 +4,6 @@ log "Moving clips to archive..."
 
 NUM_FILES_MOVED=0
 NUM_FILES_FAILED=0
-NUM_FILES_DELETED=0
 
 function connectionmonitor {
   while true
@@ -28,58 +27,48 @@ function connectionmonitor {
 }
 
 function moveclips() {
-  ROOT="$1"
-  SUB=$(basename "$ROOT")
+  cd "$1"
 
-  if [ ! -d "$ROOT" ]
-  then
-    log "$ROOT does not exist, skipping"
-    return
-  fi
-
-  while IFS= read -r -d '' file_name
+  while IFS= read -r srcfile
   do
-    PARENT=$(dirname "$file_name")
-    if [ ! -e "$PARENT" ]
-    then
-      log "Creating output directory '$SUB/$PARENT'"
-      if ! mkdir -p "$ARCHIVE_MOUNT/$SUB/$PARENT"
-      then
-        log "Failed to create '$SUB/$PARENT', check that archive server is writable and has free space"
-        return
-      fi
-    fi
+    # Remove the 'TeslaCam' folder
+    destfile="$srcfile"
+    destdir="$ARCHIVE_MOUNT"/$(dirname "$destfile")
 
-    if [ -f "$ROOT/$file_name" ]
+    if [ -f "$srcfile" ]
     then
-      size=$(stat -c%s "$ROOT/$file_name")
-      if [ "$size" -lt 100000 ] && [[ $file_name == *.mp4 ]]
+      log "Moving '$srcfile'"
+      if [ ! -e "$destdir" ]
       then
-        log "'$SUB/$file_name' is only $size bytes"
-        rm "$ROOT/$file_name"
-        NUM_FILES_DELETED=$((NUM_FILES_DELETED + 1))
-      else
-        log "Moving '$SUB/$file_name'"
-        outdir=$(dirname "$file_name")
-        if mv -f "$ROOT/$file_name" "$ARCHIVE_MOUNT/$SUB/$outdir"
+        log "Creating output directory '$destdir'"
+        if ! mkdir -p "$destdir"
         then
-          log "Moved '$SUB/$file_name'"
-          NUM_FILES_MOVED=$((NUM_FILES_MOVED + 1))
-        else
-          log "Failed to move '$SUB/$file_name'"
-          NUM_FILES_FAILED=$((NUM_FILES_FAILED + 1))
+          log "Failed to create '$destdir', check that archive server is writable and has free space"
+          return
         fi
       fi
+
+      if mv -f "$srcfile" "$destdir"
+      then
+        log "Moved '$srcfile'"
+        NUM_FILES_MOVED=$((NUM_FILES_MOVED + 1))
+      else
+        log "Failed to move '$srcfile'"
+        NUM_FILES_FAILED=$((NUM_FILES_FAILED + 1))
+      fi
     else
-      log "$SUB/$file_name not found"
+      log "$srcfile not found"
     fi
-  done < <( find "$ROOT" -type f -printf "%P\0" )
+  done < "$2"
 }
 
 connectionmonitor $$ &
 
-# new file name pattern, firmware 2019.*
-moveclips "$CAM_MOUNT/TeslaCam/SavedClips"
+while [ -n "${1+x}" ]
+do
+  moveclips "$1" "$2"
+  shift 2
+done
 
 # Create trigger file for SavedClips
 # shellcheck disable=SC2154
@@ -88,9 +77,6 @@ then
   log "Creating SavedClips Trigger File: $ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
   touch "$ARCHIVE_MOUNT/SavedClips/${trigger_file_saved}"
 fi
-
-# v10 firmware adds a SentryClips folder
-moveclips "$CAM_MOUNT/TeslaCam/SentryClips"
 
 # Create trigger file for SentryClips
 # shellcheck disable=SC2154
@@ -108,19 +94,13 @@ then
   touch "$ARCHIVE_MOUNT/${trigger_file_any}"
 fi
 
-# 2020.8.1 firmware adds a folder for track mode V2
-moveclips "$CAM_MOUNT/TeslaTrackMode"
-
 kill %1
 
-# delete empty directories under SavedClips, SentryClips and TeslaTrackMode
-rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* "$CAM_MOUNT/TeslaTrackMode"/* || true
-
-log "Moved $NUM_FILES_MOVED file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
+log "Moved $NUM_FILES_MOVED file(s), failed to copy ${NUM_FILES_FAILED}."
 
 if [ $NUM_FILES_MOVED -gt 0 ]
 then
-  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Moved $NUM_FILES_MOVED dashcam file(s), failed to copy $NUM_FILES_FAILED, deleted $NUM_FILES_DELETED."
+  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Moved $NUM_FILES_MOVED dashcam file(s), failed to copy ${NUM_FILES_FAILED}."
 fi
 
 log "Finished moving clips to archive."
