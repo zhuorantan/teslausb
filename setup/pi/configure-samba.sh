@@ -52,19 +52,15 @@ then
     ln -s /mutable/varlib/samba /var/lib/samba
   fi
 
-  # directory where the snapshots will be mounted and exported by samba
-  if [ ! -e /mnt/smbexport ]
-  then
-    mkdir /mnt/smbexport
-    echo "tmpfs /mnt/smbexport tmpfs nodev,nosuid 0 0" >> /etc/fstab
-  fi
-
   DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install samba
   service smbd start
   echo -e "raspberry\nraspberry\n" | smbpasswd -s -a pi
   service smbd stop
   log_progress "Done."
 fi
+
+# remove obsolete fstab entry
+sed -i '/^tmpfs \/mnt\/smbexport tmpfs nodev,nosuid 0 0$/d' /etc/fstab
 
 # always update smb.conf in case we're updating a previous install
 cat <<- EOF > /etc/samba/smb.conf
