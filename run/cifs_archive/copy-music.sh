@@ -24,7 +24,7 @@ function connectionmonitor {
         continue 2
       fi
     done
-    log "connection dead, killing archive-clips"
+    log "connection dead, killing copy-music"
     # The archive loop might be stuck on an unresponsive server, so kill it hard.
     # (should be no worse than losing power in the middle of an operation)
     kill -9 "$1"
