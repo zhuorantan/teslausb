@@ -26,7 +26,7 @@ function linksnapshotfiletorecents {
   local file=$1
   local curmnt=$2
   local finalmnt=$3
-  local recents=/backingfiles/TeslaCam/RecentClips
+  local recents=/mutable/TeslaCam/RecentClips
 
   filename=${file##/*/}
   filedate=${filename:0:10}
@@ -38,8 +38,8 @@ function linksnapshotfiletorecents {
 }
 
 function make_links_for_snapshot {
-  local saved=/backingfiles/TeslaCam/SavedClips
-  local sentry=/backingfiles/TeslaCam/SentryClips
+  local saved=/mutable/TeslaCam/SavedClips
+  local sentry=/mutable/TeslaCam/SentryClips
   if [ ! -d $saved ]
   then
     mkdir -p $saved

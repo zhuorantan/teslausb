@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-BASE=/backingfiles/TeslaCam
+BASE=/mutable/TeslaCam
 REPAIR=false
 if [ "${1:-}" = "repair" ]
 then
