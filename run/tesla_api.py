@@ -13,7 +13,9 @@ from pprint import pprint
 
 
 # Global vars for use by various functions.
-base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
+product_base_url = 'https://owner-api.teslamotors.com/api/1/products'
+vehicle_base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
+energy_base_url = 'https://owner-api.teslamotors.com/api/1/energy_sites/{}/calendar_history?kind={}&period=day&time_zone=GMT&end_date={}'
 oauth_url = 'https://owner-api.teslamotors.com/oauth/token'
 SETTINGS = {
     'DEBUG': False,
@@ -247,6 +249,30 @@ def _get_id():
     _error('Unable to retrieve vehicle ID: Unknown name or VIN. Cannot continue.')
     sys.exit(1)
 
+def _get_energy_id():
+    """
+    Put the energy site's ID into tesla_api_json['energy_site_id'].
+    For now support only one site, since it's not clear how to identify
+    specific sites via the API. The name shown in the app appears
+    to be local to the app, and doesn't appear in the product list.
+    """
+    # If it was already set by _load_tesla_api_json(), and a new
+    # VIN or name wasn't specified on the command line, we're done.
+    if 'energy_site_id' in tesla_api_json:
+        return
+
+    # Call list_products() and use the first energy site
+    result = list_products()
+    for product_dict in result['response']:
+        if 'energy_site_id' in product_dict:
+            tesla_api_json['energy_site_id'] = product_dict['energy_site_id']
+            _log('Retrieved energy site ID from Tesla API.')
+            _write_tesla_api_json()
+            return
+
+    _error('Unable to retrieve energy site ID. Cannot continue.')
+    sys.exit(1)
+
 
 def _load_tesla_api_json():
     """
@@ -316,37 +342,53 @@ def _error(msg, flush=True):
 ######################################
 # API GET Functions
 ######################################
+def list_products():
+    return _execute_request(product_base_url, None, None, False)
+
+
+def get_energy_for_date(when):
+    _get_energy_id()
+    enddate = datetime.fromisoformat(when) + timedelta(days=1,hours=6, minutes=59)
+    enddatestr = enddate.isoformat() + 'Z'
+    response = _execute_request(energy_base_url.format(tesla_api_json['energy_site_id'], 'power', enddatestr), None, None, False)['response']
+    for entry in response['time_series']:
+        print('{}: {}'.format(entry['timestamp'], entry['solar_power']))
+    response = _execute_request(energy_base_url.format(tesla_api_json['energy_site_id'], 'energy', enddatestr), None, None, False)['response']
+    print('total: {}'.format(response['time_series'][0]['solar_energy_exported']))
+    return ''
+
+
 def list_vehicles():
-    return _execute_request(base_url, None, None, False)
+    return _execute_request(vehicle_base_url, None, None, False)
 
 
 def get_service_data():
     return _execute_request(
-        '{}/{}/service_data'.format(base_url, tesla_api_json['id'])
+        '{}/{}/service_data'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_vehicle_summary():
     return _execute_request(
-        '{}/{}'.format(base_url, tesla_api_json['id'])
+        '{}/{}'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_vehicle_legacy_data():
     return _execute_request(
-        '{}/{}/data'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_nearby_charging():
     return _execute_request(
-        '{}/{}//nearby_charging_sites'.format(base_url, tesla_api_json['id'])
+        '{}/{}//nearby_charging_sites'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_vehicle_data():
     return _execute_request(
-        '{}/{}/vehicle_data'.format(base_url, tesla_api_json['id'])
+        '{}/{}/vehicle_data'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
@@ -360,31 +402,31 @@ def is_vehicle_online():
 
 def get_charge_state():
     return _execute_request(
-        '{}/{}/data_request/charge_state'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data_request/charge_state'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_climate_state():
     return _execute_request(
-        '{}/{}/data_request/climate_state'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data_request/climate_state'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_drive_state():
     return _execute_request(
-        '{}/{}/data_request/drive_state'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data_request/drive_state'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_gui_settings():
     return _execute_request(
-        '{}/{}/data_request/gui_settings'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data_request/gui_settings'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
 def get_vehicle_state():
     return _execute_request(
-        '{}/{}/data_request/vehicle_state'.format(base_url, tesla_api_json['id'])
+        '{}/{}/data_request/vehicle_state'.format(vehicle_base_url, tesla_api_json['id'])
     )
 
 
@@ -444,14 +486,14 @@ def wake_up_vehicle():
 
 def set_charge_limit(percent):
     return _execute_request(
-        '{}/{}/command/set_charge_limit'.format(base_url, tesla_api_json['id']),
+        '{}/{}/command/set_charge_limit'.format(vehicle_base_url, tesla_api_json['id']),
         method='POST',
         data={'percent': percent}
     )
 
 def actuate_trunk():
     result = _execute_request(
-        '{}/{}/command/actuate_trunk'.format(base_url, tesla_api_json['id']),
+        '{}/{}/command/actuate_trunk'.format(vehicle_base_url, tesla_api_json['id']),
         method='POST',
         data={'which_trunk': 'rear'}
     )
@@ -459,7 +501,7 @@ def actuate_trunk():
 
 def actuate_frunk():
     result = _execute_request(
-        '{}/{}/command/actuate_trunk'.format(base_url, tesla_api_json['id']),
+        '{}/{}/command/actuate_trunk'.format(vehicle_base_url, tesla_api_json['id']),
         method='POST',
         data={'which_trunk': 'front'}
     )
@@ -467,7 +509,7 @@ def actuate_frunk():
 
 def flash_lights():
     result = _execute_request(
-        '{}/{}/command/flash_lights'.format(base_url, tesla_api_json['id']),
+        '{}/{}/command/flash_lights'.format(vehicle_base_url, tesla_api_json['id']),
         method='POST'
     )
     return result['response']['result']
@@ -480,7 +522,7 @@ def set_sentry_mode(enabled: bool):
     """
     _log("Setting Sentry Mode Enabled: {}".format(enabled))
     result = _execute_request(
-        '{}/{}/command/set_sentry_mode'.format(base_url, tesla_api_json['id']),
+        '{}/{}/command/set_sentry_mode'.format(vehicle_base_url, tesla_api_json['id']),
         method='POST',
         data={'on': enabled}
     )
