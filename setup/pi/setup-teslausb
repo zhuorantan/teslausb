@@ -54,7 +54,7 @@ function read_setup_variables {
   SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
   INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
   export CAM_SIZE=${CAM_SIZE:-90%}
-  export MUSIC_SIZE=${MUSIC_SIZE:-100%}
+  export MUSIC_SIZE=${MUSIC_SIZE:-0}
   export USB_DRIVE=${USB_DRIVE:-''}
 }
 

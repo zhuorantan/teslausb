@@ -118,7 +118,7 @@ You'll stay in this root shell until you run the "halt" command in the "Set up U
 Follow the instructions corresponding to the technology you'd like to use to host the archive for your dashcam clips. You must choose just one of these technologies; don't follow more than one of these sets of instructions:
 * Windows file share, MacOS Sharing, or Samba on Linux: [Instructions](doc/SetupShare.md).
 * SFTP/rsync: [Instructions](doc/SetupRSync.md)
-* **Experimental:** Google Drive, Amazon S3, DropBox, Microsoft OneDrive: [Instructions](doc/SetupRClone.md)
+* Google Drive, Amazon S3, DropBox, Microsoft OneDrive: [Instructions](doc/SetupRClone.md)
 
 ### Optional: Allocate SD Card Storage
 
@@ -128,8 +128,8 @@ Indicate how much of the sd card you want to allocate to the car for recording d
  export CAM_SIZE=<number or percentage>
 ```
 
-For example, using `export CAM_SIZE=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export CAM_SIZE=50%` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive, unless otherwise specified. If you don't set `CAM_SIZE`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export CAM_SIZE=16G` would allocate 16 gigabytes for dashcam footage.
-If you want limit music storage so it doesn't use up all the remaining storage after camera storage has been allocated, use `export MUSIC_SIZE=<number or percentage>` to specify the size.
+For example, using `export CAM_SIZE=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export CAM_SIZE=50%` would allocate half of the space for a dashcam footage drive and not create a music partition, unless otherwise specified. If you don't set `CAM_SIZE`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export CAM_SIZE=16G` would allocate 16 gigabytes for dashcam footage.
+To specify the size of the music drive, use `export MUSIC_SIZE=<number or percentage>`. **NOTE** the music drive size needs to be explicitly specified and defaults to 0 (no music drive), but the default used to be to use all the remaining space.
 For example, if there is 100 gigabyte of free space, then
 ```
  export CAM_SIZE=50%

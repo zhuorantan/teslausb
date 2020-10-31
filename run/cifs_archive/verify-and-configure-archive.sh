@@ -98,6 +98,11 @@ check_archive_mountable "$ARCHIVE_SERVER" "$SHARE_NAME"
 # shellcheck disable=SC2154
 if [ -n "${musicsharename:+x}" ]
 then
+  if [ "$MUSIC_SIZE" = "0" ]
+  then
+    log_progress "STOP: musicsharename specified but no music drive size specified"
+    exit 1
+  fi
   check_archive_mountable "$ARCHIVE_SERVER" "$musicsharename"
 fi
 
