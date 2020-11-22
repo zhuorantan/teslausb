@@ -1,6 +1,6 @@
 # One-step setup
 
-This is a streamlined process for setting up the Pi. You'll flash a preconfigured version of Raspbian Stretch Lite and then fill out a config file.
+This is a streamlined process for setting up the Pi. You'll flash a preconfigured version of Raspbian Buster Lite and then fill out a config file.
 
 ## Notes
 
