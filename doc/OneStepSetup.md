@@ -14,7 +14,8 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
 A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available from GitHub via [pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample). 
-The sample file contains documentation and suggestions for values.
+The sample file contains documentation and suggestions for values.  
+**NOTE:** when creating/editing the configuration file on Windows, ensure that it is saved with the correct extension. It is recommended to disable the "hide extensions for known file types" option in Windows so you can see the full file name.
 
     Be sure that all values, especially your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
     If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
@@ -71,7 +72,7 @@ You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files
     * Double-check the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`, and remove `/boot/WIFI_ENABLED`, then booting the SD in your Pi to retry automatic Wifi setup.
   * If still no go, re-run `/etc/rc.local`
   * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings.
-* (Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
+* Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
 
 More troubleshooting information in the [wiki](https://github.com/marcone/teslausb/wiki/Troubleshooting)
 
