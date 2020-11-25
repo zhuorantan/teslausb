@@ -2,9 +2,12 @@
 
 This guide will show you how to install and configure [rclone](https://rclone.org/) to archive your saved TeslaCam footage on one of a number of different remote storage services including Google Drive, S3 and Dropbox.
 
-The easiest way to setup rclone is to:
-- use the [one-step setup process](OneStepSetup.md), but use the `none` archive method instead of `cifs`. Once setup has completed, you will have a Raspberry Pi based USB drive that works with the car, but that doesn't do any archiving. Make sure the Pi is fully functional before proceeding with the next steps.
-- ssh into the Pi and become root and remount the filesystems read-write:
+# Easy rclone setup
+
+The easiest way to to configure teslausb for rclone is:
+
+- use the [one-step setup process](OneStepSetup.md) first, but select the `none` archive method instead of `cifs`. Once setup has completed, you will have a Raspberry Pi based USB drive that works with the car, but that doesn't do any archiving. Make sure the Pi is fully functional before proceeding with the next steps.
+- ssh into the Pi, become root and remount the filesystems read-write:
   ```
   sudo -i
   /root/bin/remountfs_rw
@@ -12,7 +15,8 @@ The easiest way to setup rclone is to:
 - install rclone: `curl https://rclone.org/install.sh | sudo bash`
 - configure rclone for your chosen storage service: `rclone config`, then follow the instructions from [rclone.org](https://rclone.org/)
 - edit "/root/teslausb_setup_variables.conf" and change the archive method to `rclone`
-- add the RCLONE_DRIVE and RCLONE_PATH variables to the config, according to the values you used when you configured the rclone remote:
+- add the RCLONE_DRIVE and RCLONE_PATH variables to the config, according to the values you used when you configured the rclone remote.  
+  RCLONE_DRIVE should be a name shown by `rclone listremotes`, and RCLONE_PATH should be a path that exists on the named remote, i.e. `rclone ls "$RCLONE_DRIVE:$RCLONE_PATH"` should not print an error (but it may print nothing, if the path is newly created and currently empty).
   ```
   export RCLONE_DRIVE="remotename"
   export RCLONE_PATH="remotepathname"
@@ -24,6 +28,8 @@ Below are the old instructions in case you want to do things the hard way.
 
 
 # Legacy instructions
+
+**NOTE: it is recommended you follow the "Easy rclone setup" instructions listed above instead**
 
 You must perform these steps **after** getting a shell on the Pi and **before** running the `setup-teslacam` script on the Pi.
 
