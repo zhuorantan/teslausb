@@ -638,8 +638,8 @@ else
   setup_progress "updating rc.local"
   mv "$tmpdir/rc.local" /etc/rc.local
   readonly parent=$(ps -o ppid= $PPID)
-  readonly grandparent=$(ps -o ppid= "$parent" )
-  readonly caller=$(ps -o comm= "$grandparent")
+  readonly grandparent=$(ps -o ppid= "$((parent))" )
+  readonly caller=$(ps -o comm= "$((grandparent))")
   if [ "$caller" = "rc.local" ] && [ ! -t 0 ]
   then
     setup_progress "rebooting to run updated rc.local"
