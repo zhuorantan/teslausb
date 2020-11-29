@@ -43,32 +43,32 @@ function enable_wifi () {
   setup_progress "Detecting whether to update wpa_supplicant.conf"
   if [[ -n "$SSID" ]] && [[ -n "$WIFIPASS" ]]
   then
-      if [ ! -e /boot/WIFI_ENABLED ]
+    if [ ! -e /boot/WIFI_ENABLED ]
+    then
+      if [ -e /root/bin/remountfs_rw ]
       then
-        if [ -e /root/bin/remountfs_rw ]
-        then
-          /root/bin/remountfs_rw
-        fi
-        setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
-        cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
-        sed -i -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
-        sed -i -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
-        cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
-
-        # set the host name now if possible, so it's effective immediately after the reboot
-        local old_host_name
-        old_host_name=$(cat /etc/hostname)
-        if [[ -n "$TESLAUSB_HOSTNAME" ]] && [[ "$TESLAUSB_HOSTNAME" != "$old_host_name" ]]
-        then
-          local new_host_name="$TESLAUSB_HOSTNAME"
-          sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hosts
-          sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
-        fi
-
-        touch /boot/WIFI_ENABLED
-        setup_progress "Rebooting..."
-        reboot
+        /root/bin/remountfs_rw
       fi
+      setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
+      cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
+      sed -i -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
+      sed -i -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
+      cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+      # set the host name now if possible, so it's effective immediately after the reboot
+      local old_host_name
+      old_host_name=$(cat /etc/hostname)
+      if [[ -n "$TESLAUSB_HOSTNAME" ]] && [[ "$TESLAUSB_HOSTNAME" != "$old_host_name" ]]
+      then
+        local new_host_name="$TESLAUSB_HOSTNAME"
+        sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hosts
+        sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
+      fi
+
+      touch /boot/WIFI_ENABLED
+      setup_progress "Rebooting..."
+      exec reboot
+    fi
   fi
 }
 
@@ -85,6 +85,11 @@ fi
 if [ -e "/root/teslausb_setup_variables.conf" ]
 then
   source "/root/teslausb_setup_variables.conf"
+elif [ -e "/boot/teslausb_setup_variables.conf.sample" ]
+then
+  setup_progress "no config file found, but sample file is present."
+else
+  setup_progress "no config file found."
 fi
 
 # check if we previously marked wifi as enabled
@@ -101,43 +106,43 @@ then
   fi
   touch "/boot/TESLAUSB_SETUP_STARTED"
 
-    # Grab the setup variables. Should still be there since setup isn't finished.
-    # This is a double check to cover various scenarios of mixed headless/not headless setup attempts
-    if [ -e "/boot/teslausb_setup_variables.conf" ] && [ ! -e  "/root/teslausb_setup_variables.conf" ]
-    then
-      mv /boot/teslausb_setup_variables.conf /root/
-      dos2unix /root/teslausb_setup_variables.conf
-    fi
-    if [ -e "/root/teslausb_setup_variables.conf" ]
-    then
-      source "/root/teslausb_setup_variables.conf"
-    else
-      # No conf file found, can't complete setup
-      setup_progress "Setup appears not to have completed, but you didn't provide a teslausb_setup_variables.conf."
-    fi
+  # Grab the setup variables. Should still be there since setup isn't finished.
+  # This is a double check to cover various scenarios of mixed headless/not headless setup attempts
+  if [ -e "/boot/teslausb_setup_variables.conf" ] && [ ! -e  "/root/teslausb_setup_variables.conf" ]
+  then
+    mv /boot/teslausb_setup_variables.conf /root/
+    dos2unix /root/teslausb_setup_variables.conf
+  fi
+  if [ -e "/root/teslausb_setup_variables.conf" ]
+  then
+    source "/root/teslausb_setup_variables.conf"
+  else
+    # No conf file found, can't complete setup
+    setup_progress "Setup appears not to have completed, but you didn't provide a teslausb_setup_variables.conf."
+  fi
 
-    # Make the bin dir if needed to grab the setup script into it and persist
-    if [ ! -d "/root/bin" ]
-    then
-      mkdir "/root/bin"
-    fi
+  # Make the bin dir if needed to grab the setup script into it and persist
+  if [ ! -d "/root/bin" ]
+  then
+    mkdir "/root/bin"
+  fi
 
-    if [ ! -e "/root/bin/setup-teslausb" ]
-    then
-      REPO=${REPO:-marcone}
-      BRANCH=${BRANCH:-main-dev}
-      # Script doesn't exist, grab it.
-      setup_progress "Grabbing main setup file."
-      get_script /root/bin setup-teslausb setup/pi
-    fi
+  if [ ! -e "/root/bin/setup-teslausb" ]
+  then
+    REPO=${REPO:-marcone}
+    BRANCH=${BRANCH:-main-dev}
+    # Script doesn't exist, grab it.
+    setup_progress "Grabbing main setup file."
+    get_script /root/bin setup-teslausb setup/pi
+  fi
 
-    setup_progress "Starting setup."
+  setup_progress "Starting setup."
 
-    # Start setup. This should take us all the way through to reboot
-    /root/bin/setup-teslausb
+  # Start setup. This should take us all the way through to reboot
+  /root/bin/setup-teslausb
 
-    # reboot for good measure, also restarts the rc.local script
-    reboot
+  # reboot for good measure, also restarts the rc.local script
+  exec reboot
 fi
 
 LOGFILE=/tmp/rc.local.log

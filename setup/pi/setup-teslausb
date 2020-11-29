@@ -58,7 +58,7 @@ function read_setup_variables {
   export USB_DRIVE=${USB_DRIVE:-''}
 }
 
-if [ "$0" == "-bash" ]
+if [ "$0" = "-bash" ]
 then
   # called from .bashrc as part of root login, set completion
   complete -W "diagnose upgrade selfupdate install" setup-teslausb
@@ -628,6 +628,23 @@ then
   setup_progress "$0 is up to date"
 else
   setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 selfupdate' to update to that version"
+fi
+
+get_script "$tmpdir" rc.local pi-gen-sources/00-teslausb-tweaks/files &> /dev/null
+if cmp -s "$tmpdir/rc.local" /etc/rc.local
+then
+  setup_progress "rc.local is up to date"
+else
+  setup_progress "updating rc.local"
+  mv "$tmpdir/rc.local" /etc/rc.local
+  readonly parent=$(ps -o ppid= $PPID)
+  readonly grandparent=$(ps -o ppid= "$parent" )
+  readonly caller=$(ps -o comm= "$grandparent")
+  if [ "$caller" = "rc.local" ] && [ ! -t 0 ]
+  then
+    setup_progress "rebooting to run updated rc.local"
+    exec reboot
+  fi
 fi
 
 update_package_index
