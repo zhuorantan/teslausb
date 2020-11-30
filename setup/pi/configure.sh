@@ -120,7 +120,7 @@ function install_and_configure_tesla_api () {
       # Call script to fill in the empty vehicle_id field
       if ! /root/bin/tesla_api.py list_vehicles
       then
-        log_progress "tesla_ap.py config update failed"
+        log_progress "tesla_api.py config update failed"
       fi
     fi
   elif [[ ( -n "${TESLA_EMAIL:+x}" && -n "${TESLA_PASSWORD:+x}" ) || ( -n "${TESLA_ACCESS_TOKEN:+x}" && -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
@@ -131,7 +131,7 @@ function install_and_configure_tesla_api () {
     mount /mutable || log_progress "Failed to mount /mutable"
     if ! /root/bin/tesla_api.py list_vehicles
     then
-      log_progress "tesla_ap.py setup failed"
+      log_progress "tesla_api.py setup failed"
     fi
   else
     log_progress "Skipping tesla_api.py install because no credentials were provided"
