@@ -368,6 +368,37 @@ function set_timezone () {
   fi
 }
 
+# There's probably a better way of doing this.
+# If not, there should be.
+function get_usb_state {
+  local last
+  last=$(dmesg | grep 'g_mass_storage\|dwc2' | tail -1)
+  if [ -z "$last" ]
+  then
+    echo "no UMS/dwc2 messages in dmesg"
+    return
+  fi
+  local usbstatetime
+  usbstatetime=$(echo "$last" | awk '{print $1}' | tr -d '[]')
+  now=$(awk '{print $1}' /proc/uptime)
+  awk "BEGIN {printf \"USB state (%.1f seconds ago): \", $now-$usbstatetime}"
+  case $last in
+    *"Linux File-Backed Storage")
+      echo "connected to host and host mounted drive(s)"
+      ;;
+    *"new device"*)
+      ;&
+    *"new address"*)
+      echo "connected to host, but host didn't mount drive(s)"
+      ;;
+    *"bound driver"*)
+      echo "mass storage ready, but not connected to host (check cable)"
+      ;;
+    *)
+      echo "unknown":
+  esac
+}
+
 function cmd_install {
   /root/bin/remountfs_rw
   get_script /root/bin "$(basename "$1")" "$(dirname "$1")"
@@ -500,6 +531,8 @@ function cmd_diagnose {
     then
       echo 'ERROR: setup did not finish'
     fi
+
+    get_usb_state
 
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DEVICE}" print || true

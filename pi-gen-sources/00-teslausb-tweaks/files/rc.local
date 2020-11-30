@@ -69,6 +69,8 @@ function enable_wifi () {
       setup_progress "Rebooting..."
       exec reboot
     fi
+  else
+    setup_progress "skipping wifi setup because variables not specified"
   fi
 }
 
