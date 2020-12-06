@@ -379,7 +379,7 @@ function get_usb_state {
     return
   fi
   local usbstatetime
-  usbstatetime=$(echo "$last" | awk '{print $1}' | tr -d '[]')
+  usbstatetime=$(echo "$last" | tr -d '[]' | awk '{print $1}')
   now=$(awk '{print $1}' /proc/uptime)
   awk "BEGIN {printf \"USB state (%.1f seconds ago): \", $now-$usbstatetime}"
   case $last in
