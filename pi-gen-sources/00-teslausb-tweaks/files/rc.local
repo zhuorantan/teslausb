@@ -147,19 +147,7 @@ then
   exec reboot
 fi
 
-LOGFILE=/tmp/rc.local.log
-
-function log () {
-  echo "$( date ) ${1}" >> "$LOGFILE"
-}
-if [ -e "/root/bin/archiveloop" ]
-then
-  log "Launching archival script..."
-  /root/bin/archiveloop &
-  log "All done"
-else
-  echo "Setup doesn't seem to have completed, there is no /root/bin/archiveloop."
-  echo "Try re-running /root/bin/setup-teslausb or /etc/rc.local"
-fi
+# we're done. If setup completed successfully, teslausb will have been
+# started as a systemd service at this point
 
 exit 0
