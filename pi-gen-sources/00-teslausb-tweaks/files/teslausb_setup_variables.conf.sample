@@ -18,38 +18,34 @@ export SHARE_USER=username
 export SHARE_PASSWORD=password
 # export cifs_version="3.0"
 
-# Uncomment the following line and select drive if you want to use an external drive instead of built-in MicroSD card.
-# External USB drive is supported only for RPi4.
+# The following option is only for the Pi4. If you wish to boot the Pi4 from
+# sd card, but store recordings on a USB drive or SSD, uncomment the following
+# line. If you don't plan on using an sd card at all (i.e. you are both booting
+# from and storing recordings on the USB drive), or are ONLY using an sd card
+# (i.e. boot from and store recordings on sd card), do NOT uncommment this line.
 # export USB_DRIVE=/dev/sda
 
-# Uncomment to disable snapshots. This also disables samba and RecentClips-extension
+# Uncomment to disable snapshots. This also disables Samba and RecentClips-extension
 #export SNAPSHOTS_ENABLED=false
 
-# Recommendations on image sizes:
-# Notes:
-#   * You can use relative sizes to the available space (e.g., 10%) or explicit sizes (e.g., 16G)
-#   * The /backingfiles partition holds both the camera and music disk images.
-#   * Please note that the setup script will reserve a fixed 6GB of free space regardless of sd card size.
-# When using snapshots:
-#    Using images that fill the entire available space will make snapshots inoperable.
-#    The system removes snapshots when the available space on the /backingfiles partition falls
-#    below the size of the camera image.
-#    * CAM_SIZE should be a fairly small explicit value to leave room for the snapshots.
-#      The recommended size is between 8GB and 16GB.
-#    * MUSIC_SIZE should also be an explicit size  but should be large enough to hold your music
-#      library (obviously).
-# When not using snapshots:
-#    It is usually easiest to specify an explicit size for your music drive based on your actual
-#    library plus an expected growth factory. You can then set the camera size to a portion of the
-#    remaining space.
-#    * CAM_SIZE should still be a fairly small explicit value. The size is determined by the number of
-#      sentry mode and saved clips you expect to have before the RPi can offload them.
-#      * A single SentryClips/SavedClips event is about 1.2GB (MCU2.5) to 1.5GB (FSD) of data.
-#      * The hour of RecentClips is about 6.9GB (MCU2.5) to 8.8GB (FSD) of data.
-#        The car will delete clips from the RecentClips that are older than an hour.
-#    * MUSIC_SIZE can be an explicit or relative size but should be large enough to hold your music
-#      library (obviously).
-export CAM_SIZE=16G
+# Notes on sd card and image sizes:
+#   * A 128 GB or larger sd card (or USB drive, when using Pi4) is recommended. The
+#     minimum supported size is 64 GB.
+#   * When specifying sizes for the recordings and music drives, you can use specific
+#     sizes (e.g. 24G) or use sizes relative to the available space (e.g. 10%)
+#   * The setup script will reserve a fixed 6 GB of space regardless of sd card size.
+#   * CAM_SIZE should generally be somewhat small, around 16G to 32G, unless you plan
+#     on accumulating a lot of footage between archive operations, in which case you
+#     should increase the value (an hour of recordings, or 6 Sentry events, is about
+#     7-9 GB of data).
+#   * As of Tesla software version 2020.48.10, the car will warn when the recording drive
+#     is smaller than 32 GB, but smaller values will still work. Tesla appears to use
+#     power-of-ten based sizes, presumably because most storage manufacturers do too.
+#     Because teslausb uses power-of-two sizes, you can specify "30G" for the size and
+#     not get the warning.
+#   * MUSIC_SIZE should be large enough to hold your music library, obviously.
+#   * If no music size is specified, no music drive will be created.
+export CAM_SIZE=30G
 #export MUSIC_SIZE=4G
 
 # If you want to automatically copy music from a CIFS share every time
@@ -63,10 +59,10 @@ export CAM_SIZE=16G
 export SSID='your_ssid'
 export WIFIPASS='your_pass'
 
-# uncomment to enable a samba/cifs server that makes the recordings
+# uncomment to enable a Samba/CIFS server that makes the recordings
 # available as a network share
 #export SAMBA_ENABLED=true
-# uncomment to enable guest access to the samba server
+# uncomment to enable guest access to the Samba server
 #export SAMBA_GUEST=true
 
 # uncomment to enable teslausb to act as a wifi access point with the given
@@ -128,10 +124,10 @@ export WIFIPASS='your_pass'
 # tesla_dashcam / Trigger file support.
 # Uncomment any trigger_file_xxxxx below if you'd like to create trigger file(s) in the
 # archive directory for the listed clip type after all clips have been transferred for that type.
-# eg; export trigger_file_saved=ARCHIVE_UPLOADED would create a file in $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED on your CIFS / Samba server.
+# e.g: export trigger_file_saved=ARCHIVE_UPLOADED would create a file in $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED on your CIFS / Samba server.
 # Uncomment trigger_file_any to create a trigger file in $ARCHIVE_BASE. This will make tesla_dashcam process both SavedClips and SentryClips when either changes.
 # This is useful if using https://github.com/ehendrix23/tesla_dashcam to further process clips.
-# eg; tesla_dashcom --monitor --monitor_trigger $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED $ARCHIVE_BASE/SavedClips
+# e.g: tesla_dashcom --monitor --monitor_trigger $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED $ARCHIVE_BASE/SavedClips
 #
 # You may modify the value to your desired trigger filename, if you so choose. Remember to alter your tesla_dashcam trigger filename to match.
 #.
@@ -153,7 +149,7 @@ export WIFIPASS='your_pass'
 # ALSO NOTE: having sentry mode enabled in your Tesla will keep your car awake.
 #   But, make sure you have not excluded your home in the sentry mode settings.
 #
-# You can provider either email+password, or accesstoken+refreshtoken:
+# You can provide either email+password, OR accesstoken+refreshtoken:
 # export TESLA_EMAIL=joeshmo@gmail.com
 # export TESLA_PASSWORD=teslapass
 #
