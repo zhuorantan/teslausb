@@ -464,7 +464,10 @@ function cmd_diagnose {
     echo -e "====== summary ======"
     echo -e "hardware: ${hardware}"
     echo -e "OS: ${os}"
-    if [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
+    if [ "${ARCHIVE_SYSTEM:-unset}" = "unset" ]
+    then
+      echo "ERROR: no archive method specified!"
+    elif [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
     then
       if grep -q '/mnt/archive' /etc/fstab
       then
@@ -473,7 +476,7 @@ function cmd_diagnose {
         echo "ERROR: CIFS archiving selected, but archive not defined in fstab"
       fi
     else
-      echo "archive method: ${ARCHIVE_SYSTEM:-none}"
+      echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
 
     if ! blkid -L backingfiles > /dev/null
@@ -534,6 +537,13 @@ function cmd_diagnose {
 
     get_usb_state
 
+    local -r archiveloopcount=$(pgrep -f archiveloop | wc -l)
+    if ((archiveloopcount <= 2))
+    then
+      echo "archiveloop is not running"
+      journalctl -u teslausb | tail -30
+    fi
+
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DEVICE}" print || true
     if [ -n "${USB_DRIVE:+x}" ]
@@ -578,6 +588,9 @@ function cmd_diagnose {
     fi
     umount /tmp/root$$
     rmdir /tmp/root$$
+
+    echo -e "====== rc.local log ======"
+    journalctl -u rc-local
 
     echo -e "====== setup log ======"
     if [ -e /boot/teslausb-headless-setup.log ]

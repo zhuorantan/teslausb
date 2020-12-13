@@ -41,7 +41,7 @@ source /root/bin/setup-teslausb
 
 if [ -z "${ARCHIVE_SERVER+x}" ]
 then
-  case "$ARCHIVE_SYSTEM" in
+  case "${ARCHIVE_SYSTEM:-none}" in
     rsync)
       export ARCHIVE_SERVER="$RSYNC_SERVER"
       ;;
