@@ -55,7 +55,7 @@ or
 
 
 **Note: Of the many varieties of Raspberry Pi available only the Raspberry Pi Zero W and Raspberry Pi 4 will work with TeslaUSB**.
-* A Micro SD card, at least 16 GB in size, and an adapter (if necessary) to connect the card to your computer.
+* A Micro SD card, at least 64 GB in size, and an adapter (if necessary) to connect the card to your computer.
 * A mechanism to connect the Pi to the Tesla: a USB A/Micro B cable for the Pi Zero W, or a USB A/Micro C cable for Pi 4
 
 Optional:
