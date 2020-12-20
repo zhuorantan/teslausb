@@ -179,7 +179,7 @@ Your Pi is now ready to be plugged into your Tesla. If you want to add music to 
 
 ## Optional: Add music to the Pi
 
-> Note: If you set `CAM_SIZE` to `100%` then skip this step.
+> **Note:** If you set `CAM_SIZE` to `100%` then skip this step.
 
 Connect the Pi to a computer. If you're using a cable be sure to use the port labeled "USB" on the circuitboard.
 1. Wait for the Pi to show up on the computer as a USB drive.
@@ -190,6 +190,8 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 
 Alternatively, you can configure the Pi to automatically copy from a CIFS share. To do this, define the "musicsharename" variable to point at a CIFS share and folder. The share currently must exist on the same server as the one where recordings will be backed up, and use the same credentials. The Pi will sync down ALL music it finds under the specified folder, so be sure there is enough space on the Pi's music drive.
 For example, if you have your music on a share called 'Music', and on that share have a folder called 'CarMusic' where you copied all the songs that you want to have available in the car, use `export musicsharename=Music/CarMusic` in the setup file.
+
+> **Note:** if you find that not all  music is being copied, you may have unsupported characters in file names, such as `"`, `:` or `>`. If this is the case, either enable name-mangling on your server, or enable [catia](https://www.samba.org/samba/docs/current/man-html/vfs_catia.8.html).
 
 
 ## Optional: Making changes to the system after setup
