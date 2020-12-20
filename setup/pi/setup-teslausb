@@ -475,6 +475,17 @@ function cmd_diagnose {
       else
         echo "ERROR: CIFS archiving selected, but archive not defined in fstab"
       fi
+    elif [ "${ARCHIVE_SYSTEM:-none}" = "rclone" ]
+    then
+      if [ ! -e "/root/.config/rclone/rclone.conf" ]
+      then
+        echo "ERROR: rclone archiving selected, but rclone config does not exist"
+      elif [ ! -L "/root/.config/rclone" ]
+      then
+        echo "ERROR: rclone archiving selected, but rclone config is in /root"
+      else
+        echo "rclone archiving selected"
+      fi
     else
       echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
