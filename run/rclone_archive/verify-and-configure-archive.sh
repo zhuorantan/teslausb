@@ -29,7 +29,7 @@ function configure_archive () {
   log_progress "Configuring rclone archive..."
 
   local config_file_path="/root/.teslaCamRcloneConfig"
-  /root/bin/write-archive-configs-to.sh "$config_file_path"
+  /tmp/write-archive-configs-to.sh "$config_file_path"
 
   # Ensure that /root/.config/rclone is a directory not a symlink
   if [ ! -L "/root/.config/rclone" ] && [ -d "/root/.config/rclone" ]

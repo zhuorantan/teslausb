@@ -149,10 +149,10 @@ function install_archive_scripts () {
   install_and_configure_tesla_api
   log_progress "Installing archive module scripts"
   get_script /tmp verify-and-configure-archive.sh "$archive_module"
+  get_script /tmp write-archive-configs-to.sh "$archive_module"
   get_script "$install_path" archive-clips.sh "$archive_module"
   get_script "$install_path" connect-archive.sh "$archive_module"
   get_script "$install_path" disconnect-archive.sh "$archive_module"
-  get_script "$install_path" write-archive-configs-to.sh "$archive_module"
   get_script "$install_path" archive-is-reachable.sh "$archive_module"
   # shellcheck disable=SC2154
   if [ -n "${musicsharename:+x}" ] && grep cifs <<< "$archive_module"
@@ -431,6 +431,7 @@ install_push_message_scripts /root/bin
 check_archive_configs
 
 rm -f /root/teslausb.conf
+rm -f /root/bin/write-archive-configs-to.sh
 
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
