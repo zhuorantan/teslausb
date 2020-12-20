@@ -519,6 +519,20 @@ function snapshotloop {
   done
 }
 
+function set_sys_param() {
+  local -r parampath="$1"
+  local -r var="$2"
+  local -r defaultval="$3"
+
+  local -r val=${!var:-$defaultval}
+  if [[ ${val} = "default" ]]
+  then
+    log "not setting $parampath"
+  else
+    echo "$val" > "$parampath" || true
+  fi
+}
+
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
 export -f retry
@@ -527,6 +541,10 @@ export -f log
 
 echo "==============================================" >> "$LOG_FILE"
 log "Starting archiveloop at $(awk '{print $1}' /proc/uptime) seconds uptime..."
+
+set_sys_param /proc/sys/vm/dirty_background_bytes DIRTY_BACKGROUND_BYTES 65536
+set_sys_param /proc/sys/vm/dirty_ratio DIRTY_RATIO 80
+set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVERNOR conservative
 
 if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
 then

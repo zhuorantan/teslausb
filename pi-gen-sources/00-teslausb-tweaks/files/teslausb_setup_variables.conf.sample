@@ -170,6 +170,16 @@ export WIFIPASS='your_pass'
 # reboot. Sizes can be specified as for example "500M" or "2G"
 # export INCREASE_ROOT_SIZE=500M
 
+# Uncomment if you want to use different vm/cpu parameters.
+# Leave commented to use teslausb's defaults, or set to 'default'
+# to use the system defaults.
+# See https://www.kernel.org/doc/Documentation/sysctl/vm.txt
+# and https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt
+# for details.
+#export DIRTY_BACKGROUND_BYTES=65536
+#export DIRTY_RATIO=80
+#export CPU_GOVERNOR=conservative
+
 # Uncomment and change if you want setup scripts to be pulled
 # from a different repo than github.com/marcone/teslausb
 # export REPO=marcone
