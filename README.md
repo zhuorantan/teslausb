@@ -36,7 +36,7 @@ Alternatively, you can provide your Tesla account credentials and VIN in TeslaUS
 ## Contributing
 
 You're welcome to contribute to this repo by submitting pull requests and creating issues.
-For pull requests, please split complex changes into multiple pull requests when feasible, use one commit per pull request, and try to follow the existing code style.
+For pull requests, please split complex changes into multiple pull requests when feasible, and follow the existing code style.
 
 ## Prerequisites
 
