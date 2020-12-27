@@ -16,6 +16,7 @@ export ARCHIVE_SERVER=your_archive_name_or_ip
 export SHARE_NAME=your_archive_share_name
 export SHARE_USER=username
 export SHARE_PASSWORD=password
+# export SHARE_DOMAIN=domain
 # export cifs_version="3.0"
 
 # The following option is only for the Pi4. If you wish to boot the Pi4 from
