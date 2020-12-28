@@ -3,13 +3,8 @@
 TITLE="$1"
 MESSAGE="$2"
 
-function log () {
-  echo -n "$( date ): " >> "$LOG_FILE"
-  echo "$1" >> "$LOG_FILE"
-}
-
 function send_pushover () {
-  log "Sending Pushover message for moved files."
+  log "Sending Pushover message."
 
   source /root/.teslaCamPushoverCredentials
 
@@ -22,7 +17,7 @@ function send_pushover () {
 }
 
 function send_gotify () {
-  log "Sending Gotify message for moved files."
+  log "Sending Gotify message."
 
   source /root/.teslaCamGotifySettings
 
@@ -35,7 +30,7 @@ function send_gotify () {
 }
 
 function send_ifttt () {
-  log "Sending IFTTT message for moved files."
+  log "Sending IFTTT message."
 
   source /root/.teslaCamIftttSettings
 
@@ -46,7 +41,7 @@ function send_ifttt () {
 }
 
 function send_sns () {
-  log "Sending SNS message for moved files."
+  log "Sending SNS message."
 
   source /root/.teslaCamSNSTopicARN
 
@@ -57,7 +52,7 @@ function send_sns () {
 function send_telegram () {
   if [ -n "${TELEGRAM_ENABLED+x}" ]
   then
-    log "Sending Telegram message for moved files."
+    log "Sending Telegram message."
     curl -v -H "Content-Type: application/json" -d \
       '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$TITLE $MESSAGE"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
       https://api.telegram.org/"$TELEGRAM_BOT_TOKEN"/sendMessage
@@ -67,7 +62,7 @@ function send_telegram () {
 }
 
 function send_webhook () {
-  log "Sending Webhook message for moved files."
+  log "Sending Webhook message."
   
   source /root/.teslaCamWebhookSettings
 
@@ -77,6 +72,7 @@ function send_webhook () {
     "$WEBHOOK_URL"
 }
 
+log "$MESSAGE"
 [ -r "/root/.teslaCamPushoverCredentials" ] && send_pushover
 [ -r "/root/.teslaCamGotifySettings" ] && send_gotify
 [ -r "/root/.teslaCamIftttSettings" ] && send_ifttt

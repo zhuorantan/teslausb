@@ -1,10 +1,5 @@
 #!/bin/bash -eu
 
-log "Moving clips to archive..."
-
-NUM_FILES_MOVED=0
-NUM_FILES_FAILED=0
-
 function connectionmonitor {
   while true
   do
@@ -44,17 +39,16 @@ function moveclips() {
         if ! mkdir -p "$destdir"
         then
           log "Failed to create '$destdir', check that archive server is writable and has free space"
-          return
+          return 1
         fi
       fi
 
       if mv -f "$srcfile" "$destdir"
       then
         log "Moved '$srcfile'"
-        NUM_FILES_MOVED=$((NUM_FILES_MOVED + 1))
       else
         log "Failed to move '$srcfile'"
-        NUM_FILES_FAILED=$((NUM_FILES_FAILED + 1))
+        return 1
       fi
     else
       log "$srcfile not found"
@@ -96,11 +90,3 @@ fi
 
 kill %1
 
-log "Moved $NUM_FILES_MOVED file(s), failed to copy ${NUM_FILES_FAILED}."
-
-if [ $NUM_FILES_MOVED -gt 0 ]
-then
-  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Moved $NUM_FILES_MOVED dashcam file(s), failed to copy ${NUM_FILES_FAILED}."
-fi
-
-log "Finished moving clips to archive."

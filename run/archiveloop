@@ -318,17 +318,19 @@ function archive_teslacam_clips () {
   # Build lists of the files to be archived.
   # Two lists are built: one for the folders under TeslaCam, and one for the TeslaTrackMode folder.
   local -r sentrylist=/tmp/sentry_files
-  local -r ignorelist=/tmp/ignore_files
+  local -r ignorelist1=/tmp/ignore_files1
   (cd "$CAM_MOUNT/TeslaCam"; find . \( \( -path './SavedClips/*' -o -path './SentryClips/*' \) -type f \) \
-        -a \( \( -name '*.mp4' -size -100000c -fprintf "$ignorelist" '%P\n' \) -o -fprintf "$sentrylist" '%P\n' \) )
+        -a \( \( -name '*.mp4' -size -100000c -fprintf "$ignorelist1" '%P\n' \) -o -fprintf "$sentrylist" '%P\n' \) )
 
   local -r trackmodelist=/tmp/trackmode_files
+  local -r ignorelist2=/tmp/ignore_files2
   (cd "$CAM_MOUNT"; find . \( -path './TeslaTrackMode/*' -type f \) \
-        -a \( \( -name '*.mp4' -size -100000c -fprintf /dev/stdout '%P\n' \) -o -fprintf "$trackmodelist" '%P\n' \) >> "$ignorelist" )
+        -a \( \( -name '*.mp4' -size -100000c -fprintf /dev/stdout '%P\n' \) -o -fprintf "$trackmodelist" '%P\n' \) > "$ignorelist2" )
 
   local -r sentry_count=$(wc -l < "$sentrylist")
   local -r trackmode_count=$(wc -l < "$trackmodelist")
-  local -r ignore_count=$(wc -l < "$ignorelist")
+  local -r ignore_count1=$(wc -l < "$ignorelist1")
+  local -r ignore_count2=$(wc -l < "$ignorelist2")
   local -r total_count=$((sentry_count + trackmode_count))
 
   # extract some noteworthy info from the file list
@@ -337,9 +339,9 @@ function archive_teslacam_clips () {
 
   local -r event_count=$((saved_event_count + sentry_event_count))
 
-  log "There are $event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s) to move. $ignore_count short recording(s) will be skipped."
+  log "There are $event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s) to move. $((ignore_count1+ignore_count2)) short recording(s) will be skipped."
 
-  if [ "$total_count" -gt 0 ]
+  if [[ "$total_count" -gt 0 ]]
   then
     log "Starting recording archiving"
 
@@ -375,7 +377,44 @@ function archive_teslacam_clips () {
         export trigger_file_any
     fi
 
-    /root/bin/archive-clips.sh "$CAM_MOUNT/TeslaCam" "${sentrylist}" "$CAM_MOUNT" "${trackmodelist}"
+    local message
+    if /root/bin/archive-clips.sh "$CAM_MOUNT/TeslaCam" "${sentrylist}" "$CAM_MOUNT" "${trackmodelist}"
+    then
+      message="Archiving completed successfully. "
+    else
+      message+="Error during archiving. "
+    fi
+
+    local -i sentry_archived=0
+    local -i trackmode_archived=0
+
+    while read -r line
+    do
+      if [[ ! -e "$CAM_MOUNT/TeslaCam/$line" ]]
+      then
+        sentry_archived=$((sentry_archived + 1))
+      fi
+    done < ${sentrylist}
+
+    while read -r line
+    do
+      if [[ ! -e "$CAM_MOUNT/$line" ]]
+      then
+        trackmode_archived=$((trackmode_archived + 1))
+      fi
+    done < ${trackmodelist}
+
+    message+="Archived "
+    if [[ $sentry_count -gt 0 && $trackmode_count -gt 0 ]]
+    then
+      message+="${sentry_archived} event files and ${trackmode_archived} trackmode files"
+    elif [[ $sentry_count -gt 0 ]]
+    then
+      message+="${sentry_archived} event files"
+    else
+      message+="${trackmode_archived} trackmode files"
+    fi
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}"
 
     # delete empty directories under SavedClips, SentryClips and TeslaTrackMode
     rmdir --ignore-fail-on-non-empty "$CAM_MOUNT/TeslaCam/SavedClips"/* "$CAM_MOUNT/TeslaCam/SentryClips"/* "$CAM_MOUNT/TeslaTrackMode"/* || true
@@ -390,6 +429,26 @@ function archive_teslacam_clips () {
       fi
     fi
   fi
+
+  if [[ "$ignore_count1" -gt 0 ]]
+  then
+    (
+      cd "$CAM_MOUNT/TeslaCam"
+      xargs rm -f < "$ignorelist1"
+    )
+  fi
+
+  if [[ "$ignore_count2" -gt 0 ]]
+  then
+    (
+      cd "$CAM_MOUNT"
+      xargs rm -f < "$ignorelist2"
+    )
+  fi
+
+  # Delete the files that fsck "recovered". These are generally files
+  # that were deleted previously by the car or teslausb
+  rm -f "${CAM_MOUNT}"/FSCK????.REC
 
   # Trim the camera archive to reduce the number of blocks in the snapshot.
   trim_free_space "$CAM_MOUNT"
