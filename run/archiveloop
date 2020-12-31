@@ -253,7 +253,7 @@ function check_if_usb_gadget_is_mounted () {
     then
         log "USB Gadget not mounted. Fixing files and remounting..."
         disconnect_usb_drives_from_host
-        mount_and_fix_errors_in_files
+        fix_errors_in_images
         connect_usb_drives_to_host
     fi
 }
@@ -278,7 +278,7 @@ function trim_free_space() {
   fi
 }
 
-function mount_and_fix_errors_in_files () {
+function fix_errors_in_images () {
   fix_errors_in_image /backingfiles/cam_disk.bin
   if [ -e /backingfiles/music_disk.bin ]
   then
@@ -552,7 +552,7 @@ then
   snapshotloop &
 fi
 
-mount_and_fix_errors_in_files
+fix_errors_in_images
 
 if archive_is_reachable
 then
@@ -593,7 +593,7 @@ do
 
   disconnect_usb_drives_from_host
 
-  mount_and_fix_errors_in_files
+  fix_errors_in_images
 
   archive_clips
 
