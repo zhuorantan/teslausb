@@ -47,6 +47,53 @@ function check_variable () {
     fi
 }
 
+# as of March 2021, Raspberry Pi OS still includes a 3 year old version of
+# rsync, which has a bug (https://bugzilla.samba.org/show_bug.cgi?id=10494)
+# that breaks archiving from snapshots.
+# Check that the default rsync works correctly, and install a newer version
+# if needed.
+function check_default_rsync {
+  hash rsync
+
+  rm -rf /tmp/rsynctest
+  mkdir -p /tmp/rsynctest/src /tmp/rsynctest/dst
+  echo testfile > /tmp/testfile.dat
+  echo testfile.dat > /tmp/filelist
+  ln -s /tmp/testfile.dat /tmp/rsynctest/src/
+  if rsync -avhRL --remove-source-files --no-perms --omit-dir-times --files-from=/tmp/filelist /tmp/rsynctest/src/ /tmp/rsynctest/dst
+  then
+    if [ -s /tmp/rsynctest/dst/testfile.dat ] && ! [ -e /tmp/rsynctest/src/testfile.dat ]
+    then
+      rm -rf /tmp/rsynctest
+      return 0
+    fi
+  fi
+  return 1
+}
+
+function check_rsync {
+  if check_default_rsync
+  then
+    log_progress "rsync seems to work OK"
+    return 0
+  fi
+
+  log_progress "default rsync doesn't work, installing prebuilt 3.2.3"
+  if curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-rpi/rsync
+  then
+    chmod a+x /usr/local/bin/rsync
+    apt install -y libxxhash0
+    if check_default_rsync
+    then
+      log_progress "rsync works OK now"
+      return 0
+    fi
+  fi
+
+  log_progress "STOP: rsync doesn't work correctly"
+  exit 1
+}
+
 function check_archive_configs () {
     log_progress "Checking archive configs: "
 
@@ -56,6 +103,7 @@ function check_archive_configs () {
             check_variable "RSYNC_SERVER"
             check_variable "RSYNC_PATH"
             export ARCHIVE_SERVER="$RSYNC_SERVER"
+            check_rsync
             ;;
         rclone)
             check_variable "RCLONE_DRIVE"
@@ -67,6 +115,7 @@ function check_archive_configs () {
             check_variable "SHARE_USER"
             check_variable "SHARE_PASSWORD"
             check_variable "ARCHIVE_SERVER"
+            check_rsync
             ;;
         none)
             export ARCHIVE_SERVER=localhost
@@ -76,6 +125,16 @@ function check_archive_configs () {
             exit 1
             ;;
     esac
+
+    local -r sentrylist_previously_archived=/mutable/sentry_files_archived
+
+    if [ ! -e "$sentrylist_previously_archived" ]
+    then
+      # assume everything from the snapshots was already archived,
+      # to avoid re-archiving things that were manually deleted from
+      # the archive server
+      find /mutable/TeslaCam -type l -printf '%P\n' > "$sentrylist_previously_archived"
+    fi
 
     log_progress "done"
 }

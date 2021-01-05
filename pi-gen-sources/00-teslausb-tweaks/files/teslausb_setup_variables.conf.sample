@@ -28,10 +28,14 @@ export SHARE_PASSWORD=password
 # (i.e. boot from and store recordings on sd card), do NOT uncommment this line.
 # export USB_DRIVE=/dev/sda
 
-# Uncomment to disable snapshots. This also disables Samba and RecentClips-extension.
-# This option is no longer supported. If used, teslausb will be installed from the
-# legacy "no-snapshots" branch.
-#export SNAPSHOTS_ENABLED=false
+# uncomment this to archive RecentClips in addition to SavedClips and SentryClips
+#export ARCHIVE_RECENTCLIPS=true
+
+# SavedClips, SentryClips and track mode clips are archived by default, but
+# you can turn that off by uncommenting the settings below
+#export ARCHIVE_SAVEDCLIPS=false
+#export ARCHIVE_SENTRYCLIPS=false
+#export ARCHIVE_TRACKMODECLIPS=false
 
 # Notes on sd card and image sizes:
 #   * A 128 GB or larger sd card (or USB drive, when using Pi4) is recommended. The
@@ -144,6 +148,7 @@ export WIFIPASS='your_pass'
 #.
 # export TRIGGER_FILE_SAVED=ARCHIVE_UPLOADED
 # export TRIGGER_FILE_SENTRY=ARCHIVE_UPLOADED
+# export TRIGGER_FILE_RECENT=ARCHIVE_UPLOADED
 # export TRIGGER_FILE_ANY=ARCHIVE_UPLOADED
 
 # NOTE: the Tesla API functionality described below is currently broken, as
