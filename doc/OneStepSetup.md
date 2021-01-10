@@ -13,8 +13,8 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using Etcher or similar.
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
-A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available from GitHub via [pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample). 
-The sample file contains documentation and suggestions for values.  
+A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available from GitHub via [pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample).
+The sample file contains documentation and suggestions for values.
 **NOTE:** when creating/editing the configuration file on Windows, ensure that it is saved with the correct extension. It is recommended to disable the "hide extensions for known file types" option in Windows so you can see the full file name.
 
     Be sure that all values, especially your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
@@ -23,13 +23,13 @@ The sample file contains documentation and suggestions for values.
     export WIFIPASS='password'
     ```
     even if it contains other characters that might otherwise be special to bash, like \\, * and $ (but note that the \\ should still be escaped with an additional \\ in order for the password to be correctly handled)
-    
+
     If the password does contain a single quote, you will need to use a different syntax. E.g. if the password is `pass'word`, you would use:
     ```
     export WIFIPASS=$'pass\'word'
     ```
     and if the password contains both a single quote and a backslash, e.g. `pass'wo\rd`you'd use:
-    ``` 
+    ```
     export WIFIPASS=$'pass\'wo\\rd'
     ```
 
@@ -47,7 +47,7 @@ The sample file contains documentation and suggestions for values.
     ```
     export SSID='Foo Bar 2.4 GHz'
     ```
-    
+
 2. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
 | Stage (number of flashes)  |  Activity |
@@ -70,6 +70,7 @@ You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files
 * Try `sudo -i` and then run `/etc/rc.local`. The scripts are  fairly resilient to restarting and not re-running previous steps, and will tell you about progress/failure.
 * If Wifi didn't come up:
     * Double-check the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`, and remove `/boot/WIFI_ENABLED`, then booting the SD in your Pi to retry automatic Wifi setup.
+    * If you are using a WiFi network with a *hidden SSID*, edit `/boot/wpa_supplicant.conf.sample` and uncomment the line `scan_ssid=1` in the `network={...}` block.
   * If still no go, re-run `/etc/rc.local`
   * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings.
 * Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.

@@ -56,7 +56,9 @@ export CAM_SIZE=30G
 # the folder needs to be different.
 # export musicsharename=your_music_share/music_folder
 
-# Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz wifi
+# Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz wifi.
+# If you are you are trying to connect to a network with a _hidden_ SSID,
+#   edit /boot/wpa_supplicant.conf.sample and un-comment the indicated line.
 export SSID='your_ssid'
 export WIFIPASS='your_pass'
 
