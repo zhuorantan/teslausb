@@ -128,7 +128,7 @@ Indicate how much of the sd card you want to allocate to the car for recording d
  export CAM_SIZE=<number or percentage>
 ```
 
-For example, using `export CAM_SIZE=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export CAM_SIZE=50%` would allocate half of the space for a dashcam footage drive and not create a music partition, unless otherwise specified. If you don't set `CAM_SIZE`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export CAM_SIZE=16G` would allocate 16 gigabytes for dashcam footage.
+For example, using `export CAM_SIZE=100%` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export CAM_SIZE=50%` would allocate half of the space for a dashcam footage drive and not create a music partition, unless otherwise specified. If you don't set `CAM_SIZE`, the script will allocate 90% of the total space to the dashcam by default. Size can be specified as a percentage or as an absolute value, e.g. `export CAM_SIZE=30G` would allocate 30 gigabytes for dashcam footage (technically 30 "gibibytes", or 32212254720 bytes).
 To specify the size of the music drive, use `export MUSIC_SIZE=<number or percentage>`. **NOTE** the music drive size needs to be explicitly specified and defaults to 0 (no music drive), but the default used to be to use all the remaining space.
 For example, if there is 100 gigabyte of free space, then
 ```
@@ -137,9 +137,8 @@ For example, if there is 100 gigabyte of free space, then
 ```
 would allocate 50 gigabytes for camera and 10 gigabytes for music, leaving 40 gigabytes free.
 
-Note: since the car records about 5.5 gigabyte per hour, and throws away non-saved recordings after an hour, it is not very useful to make 'CAM_SIZE' very large. In fact, it is better to use a relatively small size, so that teslausb has space to preserve recordings that are older than 1 hour, which would otherwise be discarded by the car.
-As an example, if your normal use case is driving to work in the morning, enabling Sentry while parked, and going back home in the evening, with the car reporting up to 10 Sentry events, then 16 GB is a good size to use. This allows the car to keep about 2 hours worth of Sentry mode recordings, in addition to the normal recordings. If you anticipate needing more space for saved recordings, for example if your car generally reports much more Sentry events, you manually save recordings a lot, or if you're going to be away from wifi for multiple days, then increase size as needed.
-In order for teslausb to preserve recordings older than an hour, there needs to be enough free space on the sd card, at least 'CAM_SIZE' worth, preferably much more.
+Note: the current recommended CAM_SIZE is 30 gigabytes, i.e. `export CAM_SIZE=30G`. This is large enough that the car won't display the "USB too small" warning, holds about 25-30 Saved/Sentry events (each event is 10 minutes worth of video, unless they overlap in which case they're smaller). If you anticipate needing more space for saved recordings, for example if your car generally reports many more Sentry events because you park in a busy area, or if you're going to be away from wifi for multiple days, then increase size as needed.
+In order for teslausb to preserve recordings older than an hour, there needs to be enough free space on the sd card, at least 'CAM_SIZE' worth, preferably much more, so use of a large sd card or SSD drive is recommended.
 
 ### Optional: Configure push notification via Pushover, Gotify, IFTTT, or AWS SNS
 
