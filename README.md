@@ -7,20 +7,6 @@ You can configure a Raspberry Pi Zero W or Raspberry Pi 4 so that your Tesla thi
 * The Pi can hold both dashcam clips and music files.
 * The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
 
-## Improvements
-
-This fork contains the following improvements compared to the upstream [cimryan/teslausb](https://github.com/cimryan/teslausb):
-1. Supports Tesla firmware 2019.x and 2020.x
-1. Supports saving more than one hour of recordings
-1. Supports exporting the recordings as a CIFS share
-1. Optional hotspot to access recordings while on the go
-1. Supports automatically syncing music from a CIFS share folder
-1. Supports using the Tesla API to keep the car awake during archiving
-1. Status indicator while running
-1. Easier and more flexible way to specify sizes of camera and music disks
-1. Support for Gotify, IFTTT and AWS SNS in addition to Pushover for notifications
-
-
 ## Installing
 
 It is recommended to use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md) to get started, as the instructions below may be outdated.
@@ -31,7 +17,7 @@ If you've never worked with Raspberry Pi before, don't know what a Windows share
 
 Note that archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
 
-Alternatively, you can provide your Tesla account credentials and VIN in TeslaUSB's settings, which will allow it to use the [Tesla API](https://tesla-api.timdorr.com) to keep the car awake while the files transfer. Instructions are available in the [one step setup instructions](https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md)
+~~Alternatively, you can provide your Tesla account credentials and VIN in TeslaUSB's settings, which will allow it to use the [Tesla API](https://tesla-api.timdorr.com) to keep the car awake while the files transfer.~~ Using the Tesla API to keep the car awake during archiving is currently broken because Tesla switched to a different authentication method and teslausb has't yet been updated to match.
 
 ## Contributing
 

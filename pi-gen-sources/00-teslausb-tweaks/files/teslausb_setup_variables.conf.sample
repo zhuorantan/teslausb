@@ -138,6 +138,9 @@ export WIFIPASS='your_pass'
 # export trigger_file_sentry=ARCHIVE_UPLOADED
 # export trigger_file_any=ARCHIVE_UPLOADED
 
+# NOTE: the Tesla API functionality described below is currently broken, as
+# teslausb has not yet been updated to use Tesla's new authentication service.
+#
 # TeslaUSB can optionally use the Tesla API to keep your car awake, so it can
 # power the Pi long enough for the archiving process to complete. To enable
 # that, either provide your Tesla account email and password below, or obtain
