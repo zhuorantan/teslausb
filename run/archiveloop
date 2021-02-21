@@ -598,6 +598,39 @@ function snapshotloop {
   done
 }
 
+function wifichecker {
+  dmesg -w | {
+    while TMOUT=1 read -r line
+    do
+      true
+    done
+    wifi=working
+    while read -r line
+    do
+      case $line in
+        *"failed to enable fw supplicant")
+          if [ "$wifi" = "working" ]
+          then
+            wifi="notworking"
+          else
+            log "restarting wifi because of: $line"
+            modprobe -r brcmfmac cfg80211 brcmutil || true
+            modprobe brcmfmac || true
+            while TMOUT=1 read -r line
+            do
+              true
+            done
+            wifi="working"
+          fi
+          ;;
+        *)
+          wifi=working
+          ;;
+      esac
+    done
+  }
+}
+
 function set_sys_param() {
   local -r parampath="$1"
   local -r var="$2"
@@ -630,6 +663,8 @@ then
   /root/bin/make_snapshot.sh
   snapshotloop &
 fi
+
+wifichecker &
 
 fix_errors_in_images
 
