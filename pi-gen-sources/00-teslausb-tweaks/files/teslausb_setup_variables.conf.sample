@@ -26,7 +26,9 @@ export SHARE_PASSWORD=password
 # (i.e. boot from and store recordings on sd card), do NOT uncommment this line.
 # export USB_DRIVE=/dev/sda
 
-# Uncomment to disable snapshots. This also disables Samba and RecentClips-extension
+# Uncomment to disable snapshots. This also disables Samba and RecentClips-extension.
+# This option is no longer supported. If used, teslausb will be installed from the
+# legacy "no-snapshots" branch.
 #export SNAPSHOTS_ENABLED=false
 
 # Notes on sd card and image sizes:

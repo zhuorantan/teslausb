@@ -45,13 +45,24 @@ function read_setup_variables {
 
   # set defaults for things not set in the config
   REPO=${REPO:-marcone}
-  BRANCH=${BRANCH:-main-dev}
+  SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
+  if [ "$SNAPSHOTS_ENABLED" != "true" ]
+  then
+    BRANCH="no-snapshots"
+    if declare -F setup_progress > /dev/null
+    then
+      setup_progress "WARNING: using '$BRANCH' branch because SNAPSHOTS_ENABLED is not true"
+    else
+      echo "WARNING: using '$BRANCH' branch because SNAPSHOTS_ENABLED is not true"
+    fi
+  else
+    BRANCH=${BRANCH:-main-dev}
+  fi
   CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
   UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-false}
   export TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
   SAMBA_ENABLED=${SAMBA_ENABLED:-false}
   SAMBA_GUEST=${SAMBA_GUEST:-false}
-  SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
   INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
   export CAM_SIZE=${CAM_SIZE:-90%}
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
@@ -748,14 +759,9 @@ fi
 
 if [ "$SAMBA_ENABLED" = "true" ]
 then
-  if [ "$SNAPSHOTS_ENABLED" = "true" ]
-  then
-    export SAMBA_GUEST
-    get_script /tmp configure-samba.sh setup/pi
-    /tmp/configure-samba.sh
-  else
-    setup_progress "snapshots disabled, skipping Samba configuration"
-  fi
+  export SAMBA_GUEST
+  get_script /tmp configure-samba.sh setup/pi
+  /tmp/configure-samba.sh
 fi
 
 if [ -n "${AP_SSID:+x}" ]
@@ -764,13 +770,8 @@ then
   /tmp/configure-ap.sh
 fi
 
-if [ "$SNAPSHOTS_ENABLED" = "true" ]
-then
-  get_script /tmp configure-automount.sh setup/pi
-  /tmp/configure-automount.sh
-else
-  setup_progress "skipping automount setup because snapshots are disabled"
-fi
+get_script /tmp configure-automount.sh setup/pi
+/tmp/configure-automount.sh
 
 # source setup-teslausb from .bashrc to set up completion
 if ! grep -q setup-teslausb /root/.bashrc

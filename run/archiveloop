@@ -658,11 +658,8 @@ set_sys_param /proc/sys/vm/dirty_background_bytes DIRTY_BACKGROUND_BYTES 65536
 set_sys_param /proc/sys/vm/dirty_ratio DIRTY_RATIO 80
 set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVERNOR conservative
 
-if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
-then
-  /root/bin/make_snapshot.sh
-  snapshotloop &
-fi
+/root/bin/make_snapshot.sh
+snapshotloop &
 
 wifichecker &
 
@@ -699,11 +696,8 @@ do
 
   sleep "${archivedelay:-20}"
 
-  if [ "${SNAPSHOTS_ENABLED:-true}" = "true" ]
-  then
-    # take a snapshot before archive_clips starts deleting files
-    /root/bin/make_snapshot.sh
-  fi
+  # take a snapshot before archive_clips starts deleting files
+  /root/bin/make_snapshot.sh
 
   disconnect_usb_drives_from_host
 
