@@ -40,6 +40,7 @@ function linksnapshotfiletorecents {
 function make_links_for_snapshot {
   local saved=/mutable/TeslaCam/SavedClips
   local sentry=/mutable/TeslaCam/SentryClips
+  local track=/mutable/TeslaCam/TeslaTrackMode
   if [ ! -d $saved ]
   then
     mkdir -p $saved
@@ -85,6 +86,15 @@ function make_links_for_snapshot {
       mkdir -p "$sentry/$eventtime"
     fi
     ln -sf "${f/$curmnt/$finalmnt}" "$sentry/$eventtime"
+  done
+  # and finally the TrackMode files
+  for f in "$curmnt/TeslaTrackMode/"*
+  do
+    if [ ! -d "$track" ]
+    then
+      mkdir -p "$track"
+    fi
+    ln -sf "$f" "$track"
   done
   log "made all links for $curmnt"
   $restore_nullglob
@@ -145,6 +155,11 @@ function snapshot {
   local newsnapname=$newsnapdir/snap.bin
   log "taking snapshot of cam disk in $newsnapdir"
   /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$newsnapname" "$newsnapmnt"
+  while ! systemctl --quiet is-active autofs
+  do
+    log "waiting for autofs to be active"
+    sleep 1
+  done
   log "took snapshot"
 
   # check whether this snapshot is actually different from the previous one
