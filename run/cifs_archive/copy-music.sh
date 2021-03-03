@@ -1,15 +1,14 @@
 #!/bin/bash -eu
 
-log "Copying music from archive..."
-
-NUM_FILES_COPIED=0
-NUM_FILES_SKIPPED=0
-NUM_FILES_ERROR=0
-NUM_FILES_DELETED=0
-NUM_FILES_DELETE_ERROR=0
-
 SRC="/mnt/musicarchive"
 DST="/mnt/music"
+LOG="/tmp/rsyncmusiclog.txt"
+
+if ! findmnt --mountpoint $DST
+then
+  log "$DST not mounted, skipping music sync"
+  exit
+fi
 
 function connectionmonitor {
   while true
@@ -32,78 +31,44 @@ function connectionmonitor {
   done
 }
 
-if ! findmnt --mountpoint $DST
-then
-  log "$DST not mounted, skipping"
-  exit
-fi
+function do_music_sync {
+  log "Syncing music from archive..."
 
-connectionmonitor $$ &
+  connectionmonitor $$ &
 
-# Delete files from the local partition(DST) files that do not exist in the
-# music archive(SRC). This frees space for the new files that may be added.
-while IFS= read -r -d '' file_name
-do
-  if [ ! -e "$SRC/$file_name" ]
+  if ! rsync -rum --no-human-readable --exclude=.fseventsd/*** --exclude=*.DS_Store --exclude=.metadata_never_index --delete --modify-window=2 --info=stats2 "$SRC/" "$DST" &> "$LOG"
   then
-    if rm "$DST/$file_name"
-    then
-      NUM_FILES_DELETED=$((NUM_FILES_DELETED + 1))
-    else
-      log "Couldn't delete $DST/$file_name"
-      NUM_FILES_DELETE_ERROR=$((NUM_FILES_DELETE_ERROR + 1))
-    fi
+    log "rsync failed with error $?"
   fi
-done < <( find "$DST" -name .fseventsd -prune -o -type f \! -name .metadata_never_index -printf "%P\0" )
 
-# Copy from the music archive(SRC) to the local parition(DST)
-while IFS= read -r -d '' file_name
-do
-  if [ ! -e "$DST/$file_name" ] || [ "$SRC/$file_name" -nt "$DST/$file_name" ]
+  # Stop the connection monitor.
+  kill %1
+
+  # remove empty directories
+  find $DST -depth -type d -empty -delete || true
+
+  # parse log for relevant info
+  declare -i NUM_FILES_COPIED
+  NUM_FILES_COPIED=$(($(sed -n -e 's/\(^Number of regular files transferred: \)\([[:digit:]]\+\).*/\2/p' "$LOG")))
+  declare -i NUM_FILES_DELETED
+  NUM_FILES_DELETED=$(($(sed -n -e 's/\(^Number of deleted files: [[:digit:]]\+ (reg: \)\([[:digit:]]\+\)*.*/\2/p' "$LOG")))
+  declare -i TOTAL_FILES
+  TOTAL_FILES=$(sed -n -e 's/\(^Number of files: [[:digit:]]\+ (reg: \)\([[:digit:]]\+\)*.*/\2/p' "$LOG")
+  declare -i NUM_FILES_ERROR
+  NUM_FILES_ERROR=$(($(grep -c "failed to open" $LOG || true)))
+
+  declare -i NUM_FILES_SKIPPED=$((TOTAL_FILES-NUM_FILES_COPIED))
+  NUM_FILES_COPIED=$((NUM_FILES_COPIED-NUM_FILES_ERROR))
+
+  log "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, and encountered $NUM_FILES_ERROR errors."
+
+  if [ $NUM_FILES_COPIED -ne 0 ] || [ $NUM_FILES_DELETED -ne 0 ] || [ $NUM_FILES_ERROR -ne 0 ]
   then
-    dir=$(dirname "$file_name")
-    if ! mkdir -p "$DST/$dir"
-    then
-      log "couldn't make directory $DST/$dir"
-      NUM_FILES_ERROR=$((NUM_FILES_ERROR + 1))
-      continue
-    fi
-    if ! cp --preserve=timestamps "$SRC/$file_name" "$DST/$dir/__tmp__"
-    then
-      log "Couldn't copy $SRC/$file_name"
-      NUM_FILES_ERROR=$((NUM_FILES_ERROR + 1))
-      continue
-    fi
-    if mv "$DST/$dir/__tmp__" "$DST/$file_name"
-    then
-      # Push the modified timestamp forward by a 2 seconds.
-      # since vfat's time resolution is 2 seconds.
-      # This ensures the local copy is "-nt" the remote copy and
-      # does not appear to be "-ot" due to time truncation.
-      src_time=$(stat --format "%Y" "$SRC/$file_name")
-      advanced_time=$(( src_time + 2 ))
-      advanced_time_touch_fmt=$( date --date="@${advanced_time}" --iso-8601=seconds)
-      touch --date="${advanced_time_touch_fmt}" "$DST/$file_name" || true
-    else
-      log "Couldn't move to $DST/$file_name"
-      NUM_FILES_ERROR=$((NUM_FILES_ERROR + 1))
-      continue
-    fi
-    NUM_FILES_COPIED=$((NUM_FILES_COPIED + 1))
-  else
-    NUM_FILES_SKIPPED=$((NUM_FILES_SKIPPED + 1))
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, and encountered $NUM_FILES_ERROR errors."
   fi
-done < <( find "$SRC" -type f -printf "%P\0" )
+}
 
-# Stop the connection monitor.
-kill %1
-
-# remove empty directories
-find $DST -depth -type d -empty -delete || true
-
-log "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR copy errors and $NUM_FILES_DELETE_ERROR delete errors."
-
-if [ $NUM_FILES_COPIED -gt 0 ]
+if ! do_music_sync
 then
-  /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "Copied $NUM_FILES_COPIED music file(s), deleted $NUM_FILES_DELETED, skipped $NUM_FILES_SKIPPED previously-copied files, encountered $NUM_FILES_ERROR copy errors and $NUM_FILES_DELETE_ERROR delete errors."
+  log "Error while syncing music"
 fi
