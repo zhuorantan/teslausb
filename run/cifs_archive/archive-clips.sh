@@ -14,54 +14,33 @@ function connectionmonitor {
       fi
     done
     log "connection dead, killing archive-clips"
-    # The archive loop might be stuck on an unresponsive server, so kill it hard.
-    # (should be no worse than losing power in the middle of an operation)
-    kill -9 "$1"
+    # Since there can be a substantial delay before rsync deletes archived
+    # source files, give it an opportunity to delete them before killing it
+    # hard.
+    killall rsync || true
+    sleep 2
+    killall -9 rsync || true
+    kill -9 "$1" || true
     return
   done
 }
 
-function moveclips() {
-  cd "$1"
-
-  while IFS= read -r srcfile
-  do
-    # Remove the 'TeslaCam' folder
-    destfile="$srcfile"
-    destdir="$ARCHIVE_MOUNT"/$(dirname "$destfile")
-
-    if [ -f "$srcfile" ]
-    then
-      log "Moving '$srcfile'"
-      if [ ! -e "$destdir" ]
-      then
-        log "Creating output directory '$destdir'"
-        if ! mkdir -p "$destdir"
-        then
-          log "Failed to create '$destdir', check that archive server is writable and has free space"
-          return 1
-        fi
-      fi
-
-      if mv -f "$srcfile" "$destdir"
-      then
-        log "Moved '$srcfile'"
-      else
-        log "Failed to move '$srcfile'"
-        return 1
-      fi
-    else
-      log "$srcfile not found"
-    fi
-  done < "$2"
-}
-
 connectionmonitor $$ &
+
+# rsync's temp files may be left behind if the connection is lost,
+# but rsync doesn't clean these up on subsequent runs. Putting
+# them in a temp dir allows them to be easily cleaned up.
+rsynctmp=".teslausbtmp"
+rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}"
+mkdir -p "$ARCHIVE_MOUNT/$rsynctmp"
 
 while [ -n "${1+x}" ]
 do
-  moveclips "$1" "$2"
+  rsync -auvhR --remove-source-files --temp-dir="$rsynctmp" --no-perms --omit-dir-times --stats --log-file=/tmp/archive-rsync-cmd.log \
+        --files-from="$2" "$1/" "$ARCHIVE_MOUNT" &> /tmp/rsynclog
   shift 2
 done
 
-kill %1
+rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}"
+
+kill %1 || true

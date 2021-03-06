@@ -4,7 +4,8 @@ SRC="/mnt/musicarchive"
 DST="/mnt/music"
 LOG="/tmp/rsyncmusiclog.txt"
 
-if ! findmnt --mountpoint $DST
+# check that DST is the mounted disk image, not the mountpoint directory
+if ! findmnt --mountpoint $DST > /dev/null
 then
   log "$DST not mounted, skipping music sync"
   exit
@@ -24,9 +25,11 @@ function connectionmonitor {
       fi
     done
     log "connection dead, killing copy-music"
-    # The archive loop might be stuck on an unresponsive server, so kill it hard.
-    # (should be no worse than losing power in the middle of an operation)
-    kill -9 "$1"
+    # Give rsync a chance to clean up before killing it hard.
+    killall rsync || true
+    sleep 2
+    killall -9 rsync || true
+    kill -9 "$1" || true
     return
   done
 }
@@ -34,15 +37,31 @@ function connectionmonitor {
 function do_music_sync {
   log "Syncing music from archive..."
 
+  # return immediately if the archive mount can't be accessed
+  if ! timeout 5 stat "$SRC"
+  then
+    log "Error: $SRC is not accessible"
+    return
+  fi
+
+  # check that SRC is the mounted cifs archive and not the empty mountpoint
+  # directory, since the latter would cause all music to be deleted from DST
+  if ! findmnt --mountpoint $SRC > /dev/null
+  then
+    log "Error: $SRC not mounted"
+    return
+  fi
+
   connectionmonitor $$ &
 
-  if ! rsync -rum --no-human-readable --exclude=.fseventsd/*** --exclude=*.DS_Store --exclude=.metadata_never_index --delete --modify-window=2 --info=stats2 "$SRC/" "$DST" &> "$LOG"
+  if ! rsync -rum --no-human-readable --exclude=.fseventsd/*** --exclude=*.DS_Store --exclude=.metadata_never_index \
+               --delete --modify-window=2 --info=stats2 "$SRC/" "$DST" &> "$LOG"
   then
     log "rsync failed with error $?"
   fi
 
   # Stop the connection monitor.
-  kill %1
+  kill %1 || true
 
   # remove empty directories
   find $DST -depth -type d -empty -delete || true
