@@ -90,8 +90,7 @@ function add_drive () {
   local partition_offset
   partition_offset=$(first_partition_offset "$filename")
 
-  losetup -o "$partition_offset" -f "$filename"
-  loopdev=$(losetup -j "$filename" | awk '{print $1}' | sed 's/://')
+  loopdev=$(losetup -o "$partition_offset" -f --show "$filename")
   log_progress "Creating filesystem with label '$label'"
   mkfs.vfat "$loopdev" -F 32 -n "$label"
   losetup -d "$loopdev"
