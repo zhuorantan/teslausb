@@ -374,26 +374,31 @@ function archive_teslacam_clips () {
         fi
     fi
 
-    # Create trigger file for SavedClips
-    if [ -n "${trigger_file_saved+x}" ]
+    # setup trigger files
+    local -r triggerdir=/tmp/triggers
+    local -r triggerlist=/tmp/triggers.txt
+    rm -rf "${triggerdir}"
+    mkdir -p "${triggerdir}/SentryClips"
+    mkdir -p "${triggerdir}/SavedClips"
+    rm -f "${triggerlist}"
+    if [ -n "${TRIGGER_FILE_SAVED+x}" ]
     then
-        export trigger_file_saved
+      touch "${triggerdir}/SavedClips/${TRIGGER_FILE_SAVED}"
+      echo "SavedClips/${TRIGGER_FILE_SAVED}" >> "${triggerlist}"
     fi
-
-    # Create trigger file for SentryClips
-    if [ -n "${trigger_file_sentry+x}" ]
+    if [ -n "${TRIGGER_FILE_SENTRY+x}" ]
     then
-        export trigger_file_sentry
+      touch "${triggerdir}/SentryClips/${TRIGGER_FILE_SENTRY}"
+      echo "SentryClips/${TRIGGER_FILE_SENTRY}" >> "${triggerlist}"
     fi
-
-    # Create trigger file for Archive root
-    if [ -n "${trigger_file_any+x}" ]
+    if [ -n "${TRIGGER_FILE_ANY+x}" ]
     then
-        export trigger_file_any
+      touch "${triggerdir}/${TRIGGER_FILE_ANY}"
+      echo "${TRIGGER_FILE_ANY}" >> "${triggerlist}"
     fi
 
     local message
-    if /root/bin/archive-clips.sh "$CAM_MOUNT/TeslaCam" "${sentrylist}" "$CAM_MOUNT" "${trackmodelist}"
+    if /root/bin/archive-clips.sh "$CAM_MOUNT/TeslaCam" "${sentrylist}" "$CAM_MOUNT" "${trackmodelist}" "${triggerdir}" "${triggerlist}"
     then
       message="Archiving completed successfully. "
     else

@@ -127,18 +127,22 @@ export WIFIPASS='your_pass'
 # export WEBHOOK_URL=http://domain/path
 
 # tesla_dashcam / Trigger file support.
-# Uncomment any trigger_file_xxxxx below if you'd like to create trigger file(s) in the
-# archive directory for the listed clip type after all clips have been transferred for that type.
-# e.g: export trigger_file_saved=ARCHIVE_UPLOADED would create a file in $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED on your CIFS / Samba server.
-# Uncomment trigger_file_any to create a trigger file in $ARCHIVE_BASE. This will make tesla_dashcam process both SavedClips and SentryClips when either changes.
-# This is useful if using https://github.com/ehendrix23/tesla_dashcam to further process clips.
+# Uncomment any TRIGGER_FILE_xxxxx below to create trigger file(s) in the
+# archive directory for the listed clip type after all clips have been
+# transferred for that type.
+# e.g: export TRIGGER_FILE_SAVED=ARCHIVE_UPLOADED would create a file in
+# $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED.
+# Uncomment TRIGGER_FILE_ANY to create a trigger file in $ARCHIVE_BASE. This will
+# make tesla_dashcam process both SavedClips and SentryClips when either changes.
+# This is useful if using https://github.com/ehendrix23/tesla_dashcam to further
+# process clips.
 # e.g: tesla_dashcom --monitor --monitor_trigger $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED $ARCHIVE_BASE/SavedClips
 #
-# You may modify the value to your desired trigger filename, if you so choose. Remember to alter your tesla_dashcam trigger filename to match.
+# You may modify the value to your desired trigger filename. Remember to alter your tesla_dashcam trigger filename to match.
 #.
-# export trigger_file_saved=ARCHIVE_UPLOADED
-# export trigger_file_sentry=ARCHIVE_UPLOADED
-# export trigger_file_any=ARCHIVE_UPLOADED
+# export TRIGGER_FILE_SAVED=ARCHIVE_UPLOADED
+# export TRIGGER_FILE_SENTRY=ARCHIVE_UPLOADED
+# export TRIGGER_FILE_ANY=ARCHIVE_UPLOADED
 
 # NOTE: the Tesla API functionality described below is currently broken, as
 # teslausb has not yet been updated to use Tesla's new authentication service.
