@@ -31,6 +31,9 @@ function read_setup_variables {
   newnamefor[tesla_vin]=TESLA_VIN
   newnamefor[timezone]=TIME_ZONE
   newnamefor[usb_drive]=USB_DRIVE
+  newnamefor[trigger_file_saved]=TRIGGER_FILE_SAVED
+  newnamefor[trigger_file_sentry]=TRIGGER_FILE_SENTRY
+  newnamefor[trigger_file_any]=TRIGGER_FILE_ANY
 
   local oldname
   for oldname in "${!newnamefor[@]}"
