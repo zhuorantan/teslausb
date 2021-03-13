@@ -380,7 +380,7 @@ function archive_teslacam_clips () {
     rm -rf "${triggerdir}"
     mkdir -p "${triggerdir}/SentryClips"
     mkdir -p "${triggerdir}/SavedClips"
-    rm -f "${triggerlist}"
+    true > "${triggerlist}"
     if [ -n "${TRIGGER_FILE_SAVED+x}" ]
     then
       touch "${triggerdir}/SavedClips/${TRIGGER_FILE_SAVED}"
