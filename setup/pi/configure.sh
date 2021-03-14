@@ -450,6 +450,7 @@ After=mutable.mount backingfiles.mount
 [Service]
 Type=simple
 ExecStart=/bin/bash /root/bin/archiveloop
+Restart=always
 
 [Install]
 WantedBy=backingfiles.mount

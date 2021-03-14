@@ -6,35 +6,42 @@ then
   return 1 # shouldn't use exit when sourced
 fi
 
+export LOG_FILE=/mutable/archiveloop.log
+
+function log () {
+  echo -n "$( date ): " >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+function log_errors_on_exit {
+  log "archiveloop exited with code $1. Recent errors follow"
+  journalctl -n 15 -u teslausb >> "$LOG_FILE"
+  log "end of errors."
+  exit "$1"
+}
+
 if [ "${FLOCKED:-}" != "$0" ]
 then
   if FLOCKED="$0" flock -en -E 99 "$0" "$0" "$@" || case "$?" in
   99) echo already running
       exit 99
       ;;
-  *)  exit $?
+  *)  log_errors_on_exit $?
       ;;
   esac
   then
     # success
-    exit 0
+    log_errors_on_exit 0
   fi
 fi
 
 # turning off hdmi saves a little bit of power
 /usr/bin/tvservice -o
 
-export LOG_FILE=/mutable/archiveloop.log
-
 export CAM_MOUNT=/mnt/cam
 export MUSIC_MOUNT=/mnt/music
 export ARCHIVE_MOUNT=/mnt/archive
 export MUSIC_ARCHIVE_MOUNT=/mnt/musicarchive
-
-function log () {
-  echo -n "$( date ): " >> "$LOG_FILE"
-  echo "$1" >> "$LOG_FILE"
-}
 
 # when sourced, setup-teslausb sets the config variables in the environment
 source /root/bin/setup-teslausb
