@@ -55,7 +55,8 @@ function do_music_sync {
   connectionmonitor $$ &
 
   if ! rsync -rum --no-human-readable --exclude=.fseventsd/*** --exclude=*.DS_Store --exclude=.metadata_never_index \
-               --delete --modify-window=2 --info=stats2 "$SRC/" "$DST" &> "$LOG"
+                --exclude=IndexerVolumeGuid \
+                --delete --modify-window=2 --info=stats2 "$SRC/" "$DST" &> "$LOG"
   then
     log "rsync failed with error $?"
   fi
