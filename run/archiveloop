@@ -705,7 +705,7 @@ do
 
   set_time
 
-  sleep "${archivedelay:-20}"
+  sleep "${ARCHIVE_DELAY:-20}"
 
   # take a snapshot before archive_clips starts deleting files
   /root/bin/make_snapshot.sh

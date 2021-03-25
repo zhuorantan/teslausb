@@ -149,13 +149,11 @@ function install_archive_scripts () {
   install_and_configure_tesla_api
   log_progress "Installing archive module scripts"
   get_script /tmp verify-and-configure-archive.sh "$archive_module"
-  get_script /tmp write-archive-configs-to.sh "$archive_module"
   get_script "$install_path" archive-clips.sh "$archive_module"
   get_script "$install_path" connect-archive.sh "$archive_module"
   get_script "$install_path" disconnect-archive.sh "$archive_module"
   get_script "$install_path" archive-is-reachable.sh "$archive_module"
-  # shellcheck disable=SC2154
-  if [ -n "${musicsharename:+x}" ] && grep cifs <<< "$archive_module"
+  if [ -n "${MUSIC_SHARE_NAME:+x}" ] && grep cifs <<< "$archive_module"
   then
     get_script "$install_path" copy-music.sh "$archive_module"
   fi
@@ -169,247 +167,231 @@ function install_python_packages () {
 }
 
 function check_pushover_configuration () {
-    # shellcheck disable=SC2154
-    if [ -n "${pushover_enabled+x}" ]
+  if [ "${PUSHOVER_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${PUSHOVER_USER_KEY+x}" ] || [ -z "${PUSHOVER_APP_KEY+x}"  ]
     then
-        if [ -z "${pushover_user_key+x}" ] || [ -z "${pushover_app_key+x}"  ]
-        then
-            log_progress "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
-            log_progress "Define the variables like this:"
-            log_progress "export pushover_user_key=put_your_userkey_here"
-            log_progress "export pushover_app_key=put_your_appkey_here"
-            exit 1
-        elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
-        then
-            log_progress "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
-            exit 1
-        fi
+      log_progress "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      log_progress "Define the variables like this:"
+      log_progress "export PUSHOVER_USER_KEY=put_your_userkey_here"
+      log_progress "export PUSHOVER_APP_KEY=put_your_appkey_here"
+      exit 1
+    elif [ "${PUSHOVER_USER_KEY}" = "put_your_userkey_here" ] || [  "${PUSHOVER_APP_KEY}" = "put_your_appkey_here" ]
+    then
+      log_progress "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
+      exit 1
     fi
+  fi
 }
 
 function check_gotify_configuration () {
-    # shellcheck disable=SC2154
-    if [ -n "${gotify_enabled+x}" ]
+  if [ "${GOTIFY_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${GOTIFY_DOMAIN+x}" ] || [ -z "${GOTIFY_APP_TOKEN+x}" ] || [ -z "${GOTIFY_PRIORITY+x}" ]
     then
-        if [ -z "${gotify_domain+x}" ] || [ -z "${gotify_app_token+x}"  ]
-        then
-            log_progress "STOP: You're trying to setup Gotify but didn't provide your Domain and/or App token."
-            log_progress "Define the variables like this:"
-            log_progress "export gotify_domain=https://gotify.domain.com"
-            log_progress "export gotify_app_token=put_your_token_here"
-            exit 1
-        elif [ "${gotify_domain}" = "https://gotify.domain.com" ] || [  "${gotify_app_token}" = "put_your_token_here" ]
-        then
-            log_progress "STOP: You're trying to setup Gotify, but didn't replace the default Domain and/or App token values."
-            exit 1
-        fi
+      log_progress "STOP: You're trying to setup Gotify but didn't provide your Domain, App token or priority."
+      log_progress "Define the variables like this:"
+      log_progress "export GOTIFY_DOMAIN=https://gotify.domain.com"
+      log_progress "export GOTIFY_APP_TOKEN=put_your_token_here"
+      log_progress "export GOTIFY_PRIORITY=5"
+      exit 1
+    elif [ "${GOTIFY_DOMAIN}" = "https://gotify.domain.com" ] || [  "${GOTIFY_APP_TOKEN}" = "put_your_token_here" ]
+    then
+      log_progress "STOP: You're trying to setup Gotify, but didn't replace the default Domain and/or App token values."
+      exit 1
     fi
+  fi
 }
 
 function check_ifttt_configuration () {
-    # shellcheck disable=SC2154
-    if [ -n "${ifttt_enabled+x}" ]
+  if [ "${IFTTT_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${IFTTT_EVENT_NAME+x}" ] || [ -z "${IFTTT_KEY+x}"  ]
     then
-        if [ -z "${ifttt_event_name+x}" ] || [ -z "${ifttt_key+x}"  ]
-        then
-            log_progress "STOP: You're trying to setup IFTTT but didn't provide your Event Name and/or key."
-            log_progress "Define the variables like this:"
-            log_progress "export ifttt_event_name=put_your_event_name_here"
-            log_progress "export ifttt_key=put_your_key_here"
-            exit 1
-        elif [ "${ifttt_event_name}" = "put_your_event_name_here" ] || [  "${ifttt_key}" = "put_your_key_here" ]
-        then
-            log_progress "STOP: You're trying to setup IFTTT, but didn't replace the default Event Name and/or key values."
-            exit 1
-        fi
+      log_progress "STOP: You're trying to setup IFTTT but didn't provide your Event Name and/or key."
+      log_progress "Define the variables like this:"
+      log_progress "export IFTTT_EVENT_NAME=put_your_event_name_here"
+      log_progress "export IFTTT_KEY=put_your_key_here"
+      exit 1
+    elif [ "${IFTTT_EVENT_NAME}" = "put_your_event_name_here" ] || [  "${IFTTT_KEY}" = "put_your_key_here" ]
+    then
+      log_progress "STOP: You're trying to setup IFTTT, but didn't replace the default Event Name and/or key values."
+      exit 1
     fi
+  fi
 }
 
 function check_webhook_configuration () {
-    # shellcheck disable=SC2154
-    if [ -n "${WEBHOOK_ENABLED+x}" ]
+  if [ "${WEBHOOK_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${WEBHOOK_URL+x}"  ]
     then
-        if [ -z "${WEBHOOK_URL+x}"  ]
-        then
-            log_progress "STOP: You're trying to setup a Webhook but didn't provide your webhook url."
-            log_progress "Define the variable like this:"
-            log_progress "export WEBHOOK_URL=http://domain/path/"
-            exit 1
-        elif [ "${WEBHOOK_URL}" = "http://domain/path/" ]
-        then
-            log_progress "STOP: You're trying to setup a Webhook, but didn't replace the default url."
-            exit 1
-        fi
+      log_progress "STOP: You're trying to setup a Webhook but didn't provide your webhook url."
+      log_progress "Define the variable like this:"
+      log_progress "export WEBHOOK_URL=http://domain/path/"
+      exit 1
+    elif [ "${WEBHOOK_URL}" = "http://domain/path/" ]
+    then
+      log_progress "STOP: You're trying to setup a Webhook, but didn't replace the default url."
+      exit 1
     fi
+  fi
 }
 
 function check_sns_configuration () {
-    # shellcheck disable=SC2154
-    if [ -n "${sns_enabled+x}" ]
+  if [ "${SNS_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${AWS_ACCESS_KEY_ID:+x}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:+x}" ] || [ -z "${AWS_SNS_TOPIC_ARN:+x}" ]
     then
-        if [ -z "${aws_access_key_id:+x}" ] || [ -z "${aws_secret_key:+x}" ] || [ -z "${aws_sns_topic_arn:+x}" ]
-        then
-            echo "STOP: You're trying to setup AWS SNS but didn't provide your User and/or App key and/or topic ARN."
-            echo "Define the variables like this:"
-            echo "export aws_access_key_id=put_your_accesskeyid_here"
-            echo "export aws_secret_key=put_your_secretkey_here"
-            echo "export aws_sns_topic_arn=put_your_sns_topicarn_here"
-            exit 1
-        elif [ "${aws_access_key_id}" = "put_your_accesskeyid_here" ] || [ "${aws_secret_key}" = "put_your_secretkey_here" ] || [ "${aws_sns_topic_arn}" = "put_your_sns_topicarn_here" ]
-        then
-            echo "STOP: You're trying to setup SNS, but didn't replace the default values."
-            exit 1
-        fi
+      echo "STOP: You're trying to setup AWS SNS but didn't provide your User and/or App key and/or topic ARN."
+      echo "Define the variables like this:"
+      echo "export AWS_ACCESS_KEY_ID=put_your_accesskeyid_here"
+      echo "export AWS_SECRET_ACCESS_KEY=put_your_secretkey_here"
+      echo "export AWS_SNS_TOPIC_ARN=put_your_sns_topicarn_here"
+      exit 1
+    elif [ "${AWS_ACCESS_KEY_ID}" = "put_your_accesskeyid_here" ] || [ "${AWS_SECRET_ACCESS_KEY}" = "put_your_secretkey_here" ] || [ "${AWS_SNS_TOPIC_ARN}" = "put_your_sns_topicarn_here" ]
+    then
+      echo "STOP: You're trying to setup SNS, but didn't replace the default values."
+      exit 1
     fi
+  fi
 }
 
 function check_telegram_configuration () {
-    if [ -n "${TELEGRAM_ENABLED+x}" ]
+  if [ "${TELEGRAM_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${TELEGRAM_BOT_TOKEN+x}"  ] || [ -z "${TELEGRAM_CHAT_ID:+x}" ]
     then
-        if [ -z "${TELEGRAM_BOT_TOKEN+x}"  ] || [ -z "${TELEGRAM_CHAT_ID:+x}" ]
-        then
-            log_progress "STOP: You're trying to setup Telegram but didn't provide your Bot Token or Chat id."
-            echo "Define the variables in config file like this:"
-            echo "export TELEGRAM_CHAT_ID=123456789"
-            echo "export TELEGRAM_BOT_TOKEN=bot123456789:abcdefghijklmnopqrstuvqxyz987654321"
-            exit 1
-        elif [ "${TELEGRAM_BOT_TOKEN}" = "bot123456789:abcdefghijklmnopqrstuvqxyz987654321" ] || [ "${TELEGRAM_CHAT_ID}" = "123456789" ]
-        then
-            log_progress "STOP: You're trying to setup Telegram, but didn't replace the default values."
-            exit 1
-        fi
+      log_progress "STOP: You're trying to setup Telegram but didn't provide your Bot Token or Chat id."
+      echo "Define the variables in config file like this:"
+      echo "export TELEGRAM_CHAT_ID=123456789"
+      echo "export TELEGRAM_BOT_TOKEN=bot123456789:abcdefghijklmnopqrstuvqxyz987654321"
+      exit 1
+    elif [ "${TELEGRAM_BOT_TOKEN}" = "bot123456789:abcdefghijklmnopqrstuvqxyz987654321" ] || [ "${TELEGRAM_CHAT_ID}" = "123456789" ]
+    then
+      log_progress "STOP: You're trying to setup Telegram, but didn't replace the default values."
+      exit 1
     fi
+  fi
 }
 
 function configure_pushover () {
-    if [ -n "${pushover_enabled+x}" ]
-    then
-        log_progress "Enabling pushover"
-        {
-            echo "export pushover_enabled=true"
-            echo "export pushover_user_key=$pushover_user_key"
-            echo "export pushover_app_key=$pushover_app_key"
-        } > /root/.teslaCamPushoverCredentials
-    else
-        log_progress "Pushover not configured."
-    fi
+  # remove legacy file
+  rm -f /root/.teslaCamPushoverCredentials
+
+  if [ "${PUSHOVER_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Pushover enabled"
+  else
+    log_progress "Pushover not enabled."
+  fi
 }
 
 function configure_gotify () {
-    # shellcheck disable=SC2154
-    if [ -n "${gotify_enabled+x}" ]
-    then
-        log_progress "Enabling Gotify"
-        {
-            echo "export gotify_enabled=true"
-            echo "export gotify_domain=$gotify_domain"
-            echo "export gotify_app_token=$gotify_app_token"
-            echo "export gotify_priority=$gotify_priority"
-        } > /root/.teslaCamGotifySettings
-    else
-        log_progress "Gotify not configured."
-    fi
+  # remove legacy file
+  rm -f /root/.teslaCamGotifySettings
+
+  if [ "${GOTIFY_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Gotify enabled."
+  else
+    log_progress "Gotify not enabled."
+  fi
 }
 
 function configure_ifttt () {
-    if [ -n "${ifttt_enabled+x}" ]
-    then
-        log_progress "Enabling IFTTT"
-        {
-            echo "export ifttt_enabled=true"
-            echo "export ifttt_event_name=$ifttt_event_name"
-            echo "export ifttt_key=$ifttt_key"
-        } > /root/.teslaCamIftttSettings
-    else
-        log_progress "IFTTT not configured."
-    fi
+  # remove legacy file
+  rm -f /root/.teslaCamIftttSettings
+
+  if [ "${IFTTT_ENABLED:-false}" = "true" ]
+  then
+    log_progress "IFTTT enabled."
+  else
+    log_progress "IFTTT not enabled."
+  fi
 }
 
 function configure_telegram () {
-    if [ -n "${TELEGRAM_ENABLED+x}" ]
-    then
-        log_progress "Enabling Telegram"
-    else
-        log_progress "Telegram not configured."
-    fi
+  if [ "${TELEGRAM_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Telegram enabled."
+  else
+    log_progress "Telegram not enabled."
+  fi
 }
 
 function configure_webhook () {
-    if [ -n "${WEBHOOK_ENABLED+x}" ]
-    then
-        log_progress "Enabling Webhook"
-        {
-            echo "export WEBHOOK_ENABLED=true"
-            echo "export WEBHOOK_URL=$WEBHOOK_URL"
-        } > /root/.teslaCamWebhookSettings
-    else
-        log_progress "Webhook not configured."
-    fi
+  # remove legacy file
+  rm -f /root/.teslaCamWebhookSettings
+
+  if [ "${WEBHOOK_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Webhook enabled."
+  else
+    log_progress "Webhook not enabled."
+  fi
 }
 
 function configure_sns () {
-    # shellcheck disable=SC2154
-    if [ -n "${sns_enabled+x}" ]
-    then
-        log_progress "Enabling SNS"
-        mkdir -p /root/.aws
+  # remove legacy file
+  rm -f /root/.teslaCamSNSTopicARN
 
-        echo "[default]" > /root/.aws/credentials
-        echo "aws_access_key_id = $aws_access_key_id" >> /root/.aws/credentials
-        echo "aws_secret_access_key = $aws_secret_key" >> /root/.aws/credentials
+  if [ "${SNS_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Enabling SNS"
+    mkdir -p /root/.aws
 
-        echo "[default]" > /root/.aws/config
-        echo "region = $aws_region" >> /root/.aws/config
+    rm -f /root/.aws/credentials
 
-        echo "export sns_enabled=true" > /root/.teslaCamSNSTopicARN
-        echo "export sns_topic_arn=$aws_sns_topic_arn" >> /root/.teslaCamSNSTopicARN
+    echo "[default]" > /root/.aws/config
+    echo "region = $AWS_REGION" >> /root/.aws/config
 
-        install_python_packages
-    else
-        log_progress "SNS not configured."
-    fi
+    install_python_packages
+  else
+    log_progress "SNS not configured."
+  fi
 }
 
 function check_and_configure_pushover () {
-    check_pushover_configuration
+  check_pushover_configuration
 
-    configure_pushover
+  configure_pushover
 }
 
 function check_and_configure_gotify () {
-    check_gotify_configuration
+  check_gotify_configuration
 
-    configure_gotify
+  configure_gotify
 }
 
 function check_and_configure_ifttt () {
-    check_ifttt_configuration
+  check_ifttt_configuration
 
-    configure_ifttt
+  configure_ifttt
 }
 
 function check_and_configure_webhook () {
-    check_webhook_configuration
+  check_webhook_configuration
 
-    configure_webhook
+  configure_webhook
 }
 
 function check_and_configure_telegram () {
-    check_telegram_configuration
+  check_telegram_configuration
 
-    configure_telegram
+  configure_telegram
 }
 
 function check_and_configure_sns () {
-    check_sns_configuration
+  check_sns_configuration
 
-    configure_sns
+  configure_sns
 }
 
 function install_push_message_scripts() {
-    local install_path="$1"
-    get_script "$install_path" send-push-message run
-    get_script "$install_path" send_sns.py run
+  local install_path="$1"
+  get_script "$install_path" send-push-message run
+  get_script "$install_path" send_sns.py run
 }
 
 if [[ $EUID -ne 0 ]]
@@ -431,7 +413,6 @@ install_push_message_scripts /root/bin
 check_archive_configs
 
 rm -f /root/teslausb.conf
-rm -f /root/bin/write-archive-configs-to.sh
 
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"

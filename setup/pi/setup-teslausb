@@ -24,6 +24,7 @@ function read_setup_variables {
   newnamefor[camsize]=CAM_SIZE
   newnamefor[musicsize]=MUSIC_SIZE
   newnamefor[sharename]=SHARE_NAME
+  newnamefor[musicsharename]=MUSIC_SHARE_NAME
   newnamefor[shareuser]=SHARE_USER
   newnamefor[sharepassword]=SHARE_PASSWORD
   newnamefor[tesla_email]=TESLA_EMAIL
@@ -31,9 +32,25 @@ function read_setup_variables {
   newnamefor[tesla_vin]=TESLA_VIN
   newnamefor[timezone]=TIME_ZONE
   newnamefor[usb_drive]=USB_DRIVE
+  newnamefor[archivedelay]=ARCHIVE_DELAY
   newnamefor[trigger_file_saved]=TRIGGER_FILE_SAVED
   newnamefor[trigger_file_sentry]=TRIGGER_FILE_SENTRY
   newnamefor[trigger_file_any]=TRIGGER_FILE_ANY
+  newnamefor[pushover_enabled]=PUSHOVER_ENABLED
+  newnamefor[pushover_user_key]=PUSHOVER_USER_KEY
+  newnamefor[pushover_app_key]=PUSHOVER_APP_KEY
+  newnamefor[gotify_enabled]=GOTIFY_ENABLED
+  newnamefor[gotify_domain]=GOTIFY_DOMAIN
+  newnamefor[gotify_app_token]=GOTIFY_APP_TOKEN
+  newnamefor[gotify_priority]=GOTIFY_PRIORITY
+  newnamefor[ifttt_enabled]=IFTTT_ENABLED
+  newnamefor[ifttt_event_name]=IFTTT_EVENT_NAME
+  newnamefor[ifttt_key]=IFTTT_KEY
+  newnamefor[sns_enabled]=SNS_ENABLED
+  newnamefor[aws_region]=AWS_REGION
+  newnamefor[aws_access_key_id]=AWS_ACCESS_KEY_ID
+  newnamefor[aws_secret_key]=AWS_SECRET_ACCESS_KEY
+  newnamefor[aws_sns_topic_arn]=AWS_SNS_TOPIC_ARN
 
   local oldname
   for oldname in "${!newnamefor[@]}"
@@ -43,6 +60,7 @@ function read_setup_variables {
     then
       local value=${!oldname}
       export $newname="$value"
+      unset $oldname
     fi
   done
 

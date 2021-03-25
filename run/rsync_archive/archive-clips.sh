@@ -1,10 +1,8 @@
 #!/bin/bash -eu
 
-source /root/.teslaCamRsyncConfig
-
 while [ -n "${1+x}" ]
 do
-  # shellcheck disable=SC2154
-  rsync -auvhR --timeout=60 --remove-source-files --no-perms --omit-dir-times --stats --log-file=/tmp/archive-rsync-cmd.log --files-from="$2" "$1" "$user@$server:$path" &> /tmp/rsynclog
+  rsync -auvhR --timeout=60 --remove-source-files --no-perms --omit-dir-times --stats --log-file=/tmp/archive-rsync-cmd.log --files-from="$2" "$1" \
+        "$RSYNC_USER@$RSYNC_SERVER:$RSYNC_PATH" &> /tmp/rsynclog
   shift 2
 done

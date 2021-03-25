@@ -9,9 +9,9 @@ The Pushover service is free for up to 7,500 messages per month, but the [iOS](h
 1. Copy the **Application Key** for the application you just created. The User key + Application Key are basically a username/password combination to needed to send the push.
 1. Run these commands, substituting your user key and app key in the appropriate places. No `"` are needed.
     ```
-    export pushover_enabled=true
-    export pushover_user_key=put_your_userkey_here
-    export pushover_app_key=put_your_appkey_here
+    export PUSHOVER_ENABLED=true
+    export PUSHOVER_USER_KEY=put_your_userkey_here
+    export PUSHOVER_APP_KEY=put_your_appkey_here
     ```
 
 # Gotify
@@ -22,10 +22,10 @@ Gotify is a self-hosted notification service. The android client is available on
 1. Copy the app's token
 1. Run these commands, substituting your domain and app token in the appropriate places.
     ```
-    export gotify_enabled=true
-    export gotify_domain=https://gotify.domain.com
-    export gotify_app_token=put_your_token_here
-    export gotify_priority=5
+    export GOTIFY_ENABLED=true
+    export GOTIFY_DOMAIN=https://gotify.domain.com
+    export GOTIFY_APP_TOKEN=put_your_token_here
+    export GOTIFY_PRIORITY=5
     ```
 
 # IFTTT
@@ -52,9 +52,9 @@ IFTTT is a completely free alternative that can be configured to send notificati
 1. You should receive a notification within a few seconds. :)
 1. Run these commands, substituting your event name and key in the appropriate places.
     ```
-    export ifttt_enabled=true
-    export ifttt_event_name=put_your_event_name_here
-    export ifttt_key=put_your_key_here
+    export IFTTT_ENABLED=true
+    export IFTTT_EVENT_NAME=put_your_event_name_here
+    export IFTTT_KEY=put_your_key_here
     ```
 
 # AWS SNS
@@ -64,13 +64,13 @@ You can also choose to send notification through AWS SNS. You can create a free 
 1. Create a user in IAM and give it the rights to SNS.
 1. Create a new SNS topic.
 1. Create the notification end point (email or other)
-1. Run these commands, substituting your user key and app key in the appropriate places. Use of `"` is required for aws_sns_topic_arn.
+1. Run these commands, substituting your user key and app key in the appropriate places. Use of `"` is required for AWS_SNS_TOPIC_ARN.
     ```
-    export sns_enabled=true
-    export aws_region=us-east-1
-    export aws_access_key_id=put_your_accesskeyid_here
-    export aws_secret_key=put_your_secretkey_here
-    export aws_sns_topic_arn=put_your_sns_topicarn_here
+    export SNS_ENABLED=true
+    export AWS_REGION=us-east-1
+    export AWS_ACCESS_KEY_ID=put_your_accesskeyid_here
+    export AWS_SECRET_ACCESS_KEY=put_your_secretkey_here
+    export AWS_SNS_TOPIC_ARN=put_your_sns_topicarn_here
     ```
 
 # Webhook

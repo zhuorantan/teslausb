@@ -1,82 +1,65 @@
 #!/bin/bash -eu
 
-TITLE="$1"
-MESSAGE="$2"
+title="$1"
+message="$2"
 
 function send_pushover () {
   log "Sending Pushover message."
 
-  source /root/.teslaCamPushoverCredentials
-
-  # shellcheck disable=SC2154
-  curl -F "token=$pushover_app_key" \
-    -F "user=$pushover_user_key" \
-    -F "title=$TITLE" \
-    -F "message=$MESSAGE" \
+  curl -F "token=$PUSHOVER_APP_KEY" \
+    -F "user=$PUSHOVER_USER_KEY" \
+    -F "title=$title" \
+    -F "message=$message" \
     https://api.pushover.net/1/messages
 }
 
 function send_gotify () {
   log "Sending Gotify message."
 
-  source /root/.teslaCamGotifySettings
-
-  # shellcheck disable=SC2154
   curl -X POST \
-    -F "title=$TITLE" \
-    -F "message=$MESSAGE" \
-    -F "priority=$gotify_priority" \
-    "$gotify_domain/message?token=$gotify_app_token"
+    -F "title=$title" \
+    -F "message=$message" \
+    -F "priority=$GOTIFY_PRIORITY" \
+    "$GOTIFY_DOMAIN/message?token=$GOTIFY_APP_TOKEN"
 }
 
 function send_ifttt () {
   log "Sending IFTTT message."
 
-  source /root/.teslaCamIftttSettings
-
-  # shellcheck disable=SC2154
   curl -X POST -H "Content-Type: application/json" -d \
-    '{"value1":"'"$TITLE"'","value2":"'"$MESSAGE"'"}' \
-    "https://maker.ifttt.com/trigger/$ifttt_event_name/with/key/$ifttt_key"
+    '{"value1":"'"$title"'","value2":"'"$message"'"}' \
+    "https://maker.ifttt.com/trigger/$IFTTT_EVENT_NAME/with/key/$IFTTT_KEY"
 }
 
 function send_sns () {
   log "Sending SNS message."
 
-  source /root/.teslaCamSNSTopicARN
-
-  # shellcheck disable=SC2154
-  python3 /root/bin/send_sns.py -t "$sns_topic_arn" -s "$TITLE" -m "$MESSAGE"
+  python3 /root/bin/send_sns.py -t "$AWS_SNS_TOPIC_ARN" -s "$title" -m "$message"
 }
 
 function send_telegram () {
-  if [ -n "${TELEGRAM_ENABLED+x}" ]
-  then
-    log "Sending Telegram message."
-    curl -v -H "Content-Type: application/json" -d \
-      '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$TITLE $MESSAGE"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
-      https://api.telegram.org/"$TELEGRAM_BOT_TOKEN"/sendMessage
-  fi
-
-  
+  log "Sending Telegram message."
+  curl -v -H "Content-Type: application/json" -d \
+    '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$title $message"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
+    https://api.telegram.org/"$TELEGRAM_BOT_TOKEN"/sendMessage
 }
 
 function send_webhook () {
   log "Sending Webhook message."
   
-  source /root/.teslaCamWebhookSettings
-
-  # shellcheck disable=SC2154
   curl -X POST \
-    -d "{\"value1\":\"${TITLE}\",\"value2\":\"${MESSAGE}\"}" \
+    -d "{\"value1\":\"${title}\",\"value2\":\"${message}\"}" \
     -H "Content-Type: application/json" \
     "$WEBHOOK_URL"
 }
 
-log "$MESSAGE"
-[ -r "/root/.teslaCamPushoverCredentials" ] && send_pushover
-[ -r "/root/.teslaCamGotifySettings" ] && send_gotify
-[ -r "/root/.teslaCamIftttSettings" ] && send_ifttt
-[ -r "/root/.teslaCamSNSTopicARN" ] && send_sns
-[ -r "/root/.teslaCamWebhookSettings" ] && send_webhook
-send_telegram
+log "$message"
+
+[ "${PUSHOVER_ENABLED:-false}" = "true" ] && send_pushover
+[ "${GOTIFY_ENABLED:-false}" = "true" ] && send_gotify
+[ "${IFTTT_ENABLED:-false}" = "true" ] && send_ifttt
+[ "${SNS_ENABLED:-false}" = "true" ] && send_sns
+[ "${WEBHOOK_ENABLED:-false}" = "true" ] && send_webhook
+[ "${TELEGRAM_ENABLED:-false}" = "true" ] && send_telegram
+
+exit 0

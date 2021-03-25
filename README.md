@@ -173,8 +173,8 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 4. Unplug the Pi from the computer.
 5. Plug the Pi into your Tesla.
 
-Alternatively, you can configure the Pi to automatically copy from a CIFS share. To do this, define the "musicsharename" variable to point at a CIFS share and folder. The share currently must exist on the same server as the one where recordings will be backed up, and use the same credentials. The Pi will sync down ALL music it finds under the specified folder, so be sure there is enough space on the Pi's music drive.
-For example, if you have your music on a share called 'Music', and on that share have a folder called 'CarMusic' where you copied all the songs that you want to have available in the car, use `export musicsharename=Music/CarMusic` in the setup file.
+Alternatively, you can configure the Pi to automatically copy from a CIFS share. To do this, define the "MUSIC_SHARE_NAME" variable to point at a CIFS share and folder. The share currently must exist on the same server as the one where recordings will be backed up, and use the same credentials. The Pi will sync down ALL music it finds under the specified folder, so be sure there is enough space on the Pi's music drive.
+For example, if you have your music on a share called 'Music', and on that share have a folder called 'CarMusic' where you copied all the songs that you want to have available in the car, use `export MUSIC_SHARE_NAME=Music/CarMusic` in the setup file.
 
 > **Note:** if you find that not all  music is being copied, you may have unsupported characters in file names, such as `"`, `:` or `>`. If this is the case, either enable name-mangling on your server, or enable [catia](https://www.samba.org/samba/docs/current/man-html/vfs_catia.8.html).
 

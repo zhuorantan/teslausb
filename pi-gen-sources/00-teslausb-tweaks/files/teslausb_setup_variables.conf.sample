@@ -16,8 +16,10 @@ export ARCHIVE_SERVER=your_archive_name_or_ip
 export SHARE_NAME=your_archive_share_name
 export SHARE_USER=username
 export SHARE_PASSWORD=password
+# the cifs options below usually don't need to be specified
 # export SHARE_DOMAIN=domain
-# export cifs_version="3.0"
+# export CIFS_VERSION="3.0"
+# export CIFS_SEC="ntlm"
 
 # The following option is only for the Pi4. If you wish to boot the Pi4 from
 # sd card, but store recordings on a USB drive or SSD, uncomment the following
@@ -56,7 +58,7 @@ export CAM_SIZE=30G
 # assumed to exist on the same server as the archive share. It can
 # be the same share as the share used for backing up recordings, but
 # the folder needs to be different.
-# export musicsharename=your_music_share/music_folder
+# export MUSIC_SHARE_NAME=your_music_share/music_folder
 
 # Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz wifi.
 # If you are you are trying to connect to a network with a _hidden_ SSID,
@@ -88,33 +90,33 @@ export WIFIPASS='your_pass'
 # By default there is a 20 second delay between connecting to wifi and
 # starting the archiving of recorded clips. Uncomment this to change
 # the duration of that delay
-# export archivedelay=20
+# export ARCHIVE_DELAY=20
 
 # Uncomment if you want to override the default hostname of "teslausb"
 # export TESLAUSB_HOSTNAME=teslausb-Model3
 
 # Uncomment if setting up Pushover push notifications
-# export pushover_enabled=true
-# export pushover_user_key=user_key
-# export pushover_app_key=app_key
+# export PUSHOVER_ENABLED=true
+# export PUSHOVER_USER_KEY=user_key
+# export PUSHOVER_APP_KEY=app_key
 
 # Uncomment if setting up Gotify push notifications
-# export gotify_enabled=true
-# export gotify_domain=https://gotify.domain.com
-# export gotify_app_token=put_your_token_here
-# export gotify_priority=5
+# export GOTIFY_ENABLED=true
+# export GOTIFY_DOMAIN=https://gotify.domain.com
+# export GOTIFY_APP_TOKEN=put_your_token_here
+# export GOTIFY_PRIORITY=5
 
 # Uncomment if setting up IFTTT push notifications
-# export ifttt_enabled=true
-# export ifttt_event_name=put_your_event_name_here
-# export ifttt_key=put_your_key_here
+# export IFTTT_ENABLED=true
+# export IFTTT_EVENT_NAME=put_your_event_name_here
+# export IFTTT_KEY=put_your_key_here
 
 # Uncomment if setting up AWS SNS notifications
-# export sns_enabled=true
-# export aws_region=us-east-1
-# export aws_access_key_id=put_your_accesskeyid_here
-# export aws_secret_key=put_your_secretkey_here
-# export aws_sns_topic_arn=put_your_sns_topicarn_here
+# export SNS_ENABLED=true
+# export AWS_REGION=us-east-1
+# export AWS_ACCESS_KEY_ID=put_your_accesskeyid_here
+# export AWS_SECRET_ACCESS_KEY=put_your_secretkey_here
+# export AWS_SNS_TOPIC_ARN=put_your_sns_topicarn_here
 
 # Uncomment if setting up Telegram notifications
 # export TELEGRAM_ENABLED=true
