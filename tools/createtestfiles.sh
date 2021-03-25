@@ -18,8 +18,14 @@ do
   for c in front back left-repeater right-repeater
   do
     fullname="$name-$c.mp4"
-    echo "creating $fullname"
-    fallocate -l 29M "$fullname"
+    if [ "$t" = "5" ]
+    then
+      echo "creating short file $fullname"
+      fallocate -l 1K "$fullname"
+    else
+      echo "creating $fullname"
+      fallocate -l 29M "$fullname"
+    fi
   done
 done
 
