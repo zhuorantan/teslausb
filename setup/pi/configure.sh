@@ -126,16 +126,6 @@ function check_archive_configs () {
             ;;
     esac
 
-    local -r sentrylist_previously_archived=/mutable/sentry_files_archived
-
-    if [ ! -e "$sentrylist_previously_archived" ]
-    then
-      # assume everything from the snapshots was already archived,
-      # to avoid re-archiving things that were manually deleted from
-      # the archive server
-      find /mutable/TeslaCam -type l -printf '%P\n' > "$sentrylist_previously_archived"
-    fi
-
     log_progress "done"
 }
 

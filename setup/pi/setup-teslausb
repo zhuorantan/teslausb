@@ -305,6 +305,13 @@ function create_usb_drive_backing_files () {
     setup_progress "Mounted the partition for the backing files."
   fi
 
+  if ! findmnt --mountpoint $MUTABLE_MOUNTPOINT
+  then
+    setup_progress "Mounting the mutable partition..."
+    mount $MUTABLE_MOUNTPOINT
+    setup_progress "Mounted the mutable partition."
+  fi
+
   if [ ! -e $BACKINGFILES_MOUNTPOINT/cam_disk.bin ]
   then
     setup_progress "Creating backing disk files."
@@ -316,6 +323,21 @@ function create_usb_drive_backing_files () {
     then
       mkdir -p /mnt/cam/TeslaCam
       mkdir -p /mnt/cam/TeslaTrackMode
+
+      local -r sentrylist_previously_archived=/mutable/sentry_files_archived
+ 
+      # For upgrades from before snapshot-archiving, assume everything from the
+      # snapshots -except the files still on the disk image- was already archived,
+      # to avoid re-archiving things that were manually deleted from the archive
+      # server.
+      if [ ! -e "$sentrylist_previously_archived" ] && [ -d "$MUTABLE_MOUNTPOINT/TeslaCam" ]
+      then
+        find "$MUTABLE_MOUNTPOINT/TeslaCam" -type l -printf '%P\n' | sort > /tmp/allfiles.txt
+        find /mnt/cam/TeslaCam /mnt/cam/ -type f -printf '%P\n' | sort > /tmp/stilloncard.txt
+        comm -2 -3 /tmp/allfiles.txt /tmp/stilloncard.txt > "$sentrylist_previously_archived"
+        rm -f /tmp/allfiles.txt /tmp/stilloncard.txt
+      fi
+
       umount /mnt/cam
     else
       setup_progress "STOP: Couldn't check image"
