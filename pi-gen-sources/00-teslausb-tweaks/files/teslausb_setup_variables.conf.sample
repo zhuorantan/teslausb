@@ -21,6 +21,11 @@ export SHARE_PASSWORD=password
 # export CIFS_VERSION="3.0"
 # export CIFS_SEC="ntlm"
 
+# Variables for RClone, used with ARCHIVE_SYSTEM=rclone
+#export RCLONE_DRIVE="remotename"
+#export RCLONE_PATH="remotepathname"
+#export RCLONE_FLAGS=()
+
 # The following option is only for the Pi4. If you wish to boot the Pi4 from
 # sd card, but store recordings on a USB drive or SSD, uncomment the following
 # line. If you don't plan on using an sd card at all (i.e. you are both booting
