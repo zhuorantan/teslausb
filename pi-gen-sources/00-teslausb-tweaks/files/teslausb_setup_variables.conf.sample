@@ -10,7 +10,7 @@
 #
 ######################################################################
 
-# Default variables for CIFS (Windows/Mac file sharing) setup
+# Variables for CIFS (Windows/Mac file sharing) archiving
 export ARCHIVE_SYSTEM=cifs
 export ARCHIVE_SERVER=your_archive_name_or_ip
 export SHARE_NAME=your_archive_share_name
@@ -21,9 +21,17 @@ export SHARE_PASSWORD=password
 # export CIFS_VERSION="3.0"
 # export CIFS_SEC="ntlm"
 
-# Variables for RClone, used with ARCHIVE_SYSTEM=rclone
+# Variables for rsync archiving
+#export ARCHIVE_SYSTEM=rsync
+#export RSYNC_USER=username
+#export RSYNC_SERVER=hostname_or_ip
+#export RSYNC_PATH=path_on_server
+
+# Variables for rclone archiving
+#export ARCHIVE_SYSTEM=rclone
 #export RCLONE_DRIVE="remotename"
 #export RCLONE_PATH="remotepathname"
+# The following is optional
 #export RCLONE_FLAGS=()
 
 # The following option is only for the Pi4. If you wish to boot the Pi4 from
