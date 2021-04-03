@@ -3,8 +3,7 @@
 function connectionmonitor {
   while true
   do
-    # shellcheck disable=SC2034
-    for i in {1..5}
+    for _ in {1..5}
     do
       if timeout 6 /root/bin/archive-is-reachable.sh "$ARCHIVE_SERVER"
       then

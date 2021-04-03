@@ -9,8 +9,7 @@ COUNT=0
 BURSTSIZE=0
 
 log "waiting up to 90 seconds for idle interval"
-# shellcheck disable=SC2034
-for i in {1..90}
+for _ in {1..90}
 do
   sleep 1
   PROC=$(pgrep -x file-storage || true)
