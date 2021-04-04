@@ -10,6 +10,7 @@ function log_progress () {
   if declare -F setup_progress > /dev/null
   then
     setup_progress "configure: $1"
+    return
   fi
   echo "configure: $1"
 }

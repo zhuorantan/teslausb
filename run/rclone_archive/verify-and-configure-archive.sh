@@ -4,6 +4,7 @@ function log_progress () {
   if declare -F setup_progress > /dev/null
   then
     setup_progress "verify-and-configure-archive: $*"
+    return
   fi
   echo "verify-and-configure-archive: $1"
 }
@@ -16,7 +17,7 @@ function verify_configuration () {
         exit 1
     fi
 
-    if ! rclone ls "$RCLONE_DRIVE:$RCLONE_PATH"
+    if ! rclone lsd "$RCLONE_DRIVE:$RCLONE_PATH" > /dev/null
     then
         log_progress "STOP: Could not find the $RCLONE_DRIVE:$RCLONE_PATH"
         exit 1

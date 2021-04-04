@@ -233,7 +233,7 @@ function verify_configuration () {
 
 function curlwrapper () {
   setup_progress "curl $*"
-  while ! curl --fail "$@"
+  while ! curl -s --fail "$@"
   do
     setup_progress "'curl $*' failed, retrying" > /dev/null
     sleep 3
@@ -298,14 +298,14 @@ function create_usb_drive_backing_files () {
 
   /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
 
-  if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
+  if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT > /dev/null
   then
     setup_progress "Mounting the partition for the backing files..."
     mount $BACKINGFILES_MOUNTPOINT
     setup_progress "Mounted the partition for the backing files."
   fi
 
-  if ! findmnt --mountpoint $MUTABLE_MOUNTPOINT
+  if ! findmnt --mountpoint $MUTABLE_MOUNTPOINT > /dev/null
   then
     setup_progress "Mounting the mutable partition..."
     mount $MUTABLE_MOUNTPOINT
@@ -318,7 +318,7 @@ function create_usb_drive_backing_files () {
     /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT"
   else
     # mount cam image and make sure the right directories exist
-    umount /mnt/cam || true
+    umount /mnt/cam > /dev/null || true
     if modprobe -r g_mass_storage && mount /mnt/cam
     then
       mkdir -p /mnt/cam/TeslaCam
@@ -486,15 +486,17 @@ function cmd_upgrade {
 
 function cmd_upgrade_prepare {
   setup_progress "preparing for full upgrade"
-  systemctl stop teslausb || true
-  killall archiveloop || true
-  service smbd stop || true
-  service autofs stop || true
-  umount /backingfiles/snapshots/snap*/mnt || true
-  umount /mnt/cam /mnt/music || true
-  umount /mnt/archive /mnt/musicarchive || true
-  modprobe -r g_mass_storage
-  /root/bin/remountfs_rw > /dev/null
+  (
+    systemctl stop teslausb || true
+    killall archiveloop || true
+    service smbd stop || true
+    service autofs stop || true
+    umount /backingfiles/snapshots/snap*/mnt || true
+    umount /mnt/cam /mnt/music || true
+    umount /mnt/archive /mnt/musicarchive || true
+    modprobe -r g_mass_storage
+    /root/bin/remountfs_rw
+  ) &> /dev/null
 }
 
 function cmd_upgrade_finish {

@@ -4,6 +4,7 @@ function log_progress () {
   if declare -F setup_progress > /dev/null
   then
     setup_progress "create-backingfiles-partition: $1"
+    return
   fi
   echo "create-backingfiles-partition: $1"
 }
