@@ -124,6 +124,13 @@ LAST_ROOT_SECTOR=$(sfdisk -l "${BOOT_DEVICE}" | grep "${BOOT_DEVICE_PART}2" | aw
 FIRST_BACKINGFILES_SECTOR=$((LAST_ROOT_SECTOR + 1))
 BACKINGFILES_NUM_SECTORS=$((FIRST_MUTABLE_SECTOR - FIRST_BACKINGFILES_SECTOR))
 
+# As a rule of thumb, one gigabyte of /backingfiles space can hold about 36
+# recording files. We need enough inodes in /mutable to create symlinks to
+# the recordings. Leaving enough headroom to account for short recordings,
+# directories, duplication of sentry files in recentclips, etc, this works
+# out to about 1 inode for every 20000 sectors in /backingfiles.
+NUM_MUTABLE_INODES=$((BACKINGFILES_NUM_SECTORS / 20000))
+
 ORIGINAL_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DEVICE}" | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
 log_progress "Modifying partition table for backing files partition..."
@@ -152,7 +159,7 @@ sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 log_progress "Formatting new partitions..."
 # Force creation of filesystems even if previous filesystem appears to exist
 mkfs.xfs -f -m reflink=1 -L backingfiles "${BOOT_DEVICE_PART}3"
-mkfs.ext4 -F -L mutable "${BOOT_DEVICE_PART}4"
+mkfs.ext4 -F -N "$NUM_MUTABLE_INODES" -L mutable "${BOOT_DEVICE_PART}4"
 
 echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
 echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
