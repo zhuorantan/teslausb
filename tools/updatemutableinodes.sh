@@ -6,7 +6,7 @@ num_backingfiles_sectors=$(blockdev --getsz "$backingfiles_device")
 num_wanted_mutable_inodes=$((num_backingfiles_sectors / 20000))
 num_mutable_inodes=$(df --output=itotal /mutable | sed 1d)
 
-if [[ "$num_mutable_inodes" -gt "$num_wanted_mutable_inodes" ]]
+if [[ "$num_mutable_inodes" -ge "$num_wanted_mutable_inodes" ]]
 then
   echo "/mutable already has sufficient inodes ($num_mutable_inodes > $num_wanted_mutable_inodes)"
   exit 0
