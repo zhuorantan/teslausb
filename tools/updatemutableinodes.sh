@@ -14,10 +14,10 @@ fi
 
 echo "Want $num_wanted_mutable_inodes, have $num_mutable_inodes: reformatting."
 
-systemctl stop teslausb
-systemctl stop dnsmasq
-systemctl stop smbd
-systemctl stop nmbd
+systemctl stop teslausb || true
+systemctl stop dnsmasq  || true
+systemctl stop smbd || true
+systemctl stop nmbd || true
 
 tar -C /mutable --create --file /backingfiles/mutable.tgz . &> /tmp/tar.out
 
