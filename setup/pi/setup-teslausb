@@ -547,6 +547,11 @@ function cmd_diagnose {
       echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
 
+    if [[ "$USB_DRIVE" != "" ]]
+    then
+      echo "USB_DRIVE=$USB_DRIVE: consider booting from USB instead."
+    fi
+
     if ! blkid -L backingfiles > /dev/null
     then
       echo "ERROR: backingfiles partition does not exist"
@@ -610,6 +615,17 @@ function cmd_diagnose {
     then
       echo "archiveloop is not running"
       journalctl -u teslausb | tail -30
+    fi
+
+    local -r inodes=$(df --output=ipcent /mutable/ | sed 1d | sed 's/[^0-9]//g')
+    if [[ "$inodes" -gt 80 ]]
+    then
+      echo "WARNING: /mutable is low on inodes: ${inodes}% used"
+    fi
+
+    if [[ "$BRANCH" != "main-dev" || "$REPO" != "marcone" ]]
+    then
+      echo "WARNING: using $REPO/$BRANCH"
     fi
 
     echo -e "====== disk / images ======"
