@@ -860,6 +860,28 @@ then
   echo "source /root/bin/setup-teslausb" >> /root/.bashrc
 fi
 
+# UX courtesy reminders
+if ! grep -q TESLAUSB_TIP1 /root/.bashrc
+then
+  cat >> /root/.bashrc <<- EOC
+	cat << TESLAUSB_TIP1
+	Run 'bin/setup-teslausb upgrade' to update to the latest version of teslausb,
+	or run 'bin/remountfs_rw' to allow writing to the root partition.
+
+	TESLAUSB_TIP1
+	EOC
+fi
+
+if ! grep -q TESLAUSB_TIP1 /home/pi/.bashrc
+then
+  cat >> /home/pi/.bashrc <<- EOC
+	cat << TESLAUSB_TIP1
+	Run 'sudo -i' if you need to make changes.
+
+	TESLAUSB_TIP1
+	EOC
+fi
+
 make_root_fs_readonly
 
 upgrade_packages
