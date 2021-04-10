@@ -35,8 +35,9 @@ mkdir -p "$ARCHIVE_MOUNT/$rsynctmp"
 
 while [ -n "${1+x}" ]
 do
-  rsync -avhRL --remove-source-files --temp-dir="$rsynctmp" --no-perms --omit-dir-times --stats --log-file=/tmp/archive-rsync-cmd.log \
-        --files-from="$2" "$1/" "$ARCHIVE_MOUNT" &> /tmp/rsynclog
+  rsync -avhRL --remove-source-files --temp-dir="$rsynctmp" --no-perms --omit-dir-times --stats \
+        --log-file=/tmp/archive-rsync-cmd.log --ignore-missing-args \
+        --files-from="$2" "$1/" "$ARCHIVE_MOUNT" &> /tmp/rsynclog || [[ "$?" = "24" ]]
   shift 2
 done
 
