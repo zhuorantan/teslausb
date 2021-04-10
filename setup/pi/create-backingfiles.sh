@@ -47,11 +47,9 @@ function is_percent() {
 
 available_space () {
   freespace=$(df --output=avail --block-size=1K "$BACKINGFILES_MOUNTPOINT/" | tail -n 1)
-  # leave 6 GB of free space for filesystem bookkeeping and snapshotting
-  # (in kilobytes so 6M KB)
-  # TODO: investigate whether this value can be smaller in general, or
-  # when SMB access is not enabled.
-  padding=$(dehumanize "6M")
+  # leave 10 GB of free space for filesystem bookkeeping and snapshotting
+  # (in kilobytes so 10M KB)
+  padding=$(dehumanize "10M")
   echo $((freespace-padding))
 }
 

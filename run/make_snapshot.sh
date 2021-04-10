@@ -100,34 +100,51 @@ function make_links_for_snapshot {
   $restore_nullglob
 }
 
-function snapshot {
-  # Only take a snapshot if the remaining free space is greater than
-  # the size of the cam disk image. Delete older snapshots if necessary
-  # to achieve that.
+function dehumanize () {
+  echo $(($(echo "$1" | sed 's/GB/G/;s/MB/M/;s/KB/K/;s/G/*1024M/;s/M/*1024K/;s/K/*1024/')))
+}
+
+function manage_free_space {
+  # Try to maintain 9 GB of free space, which should be enough to
+  # hold the next hour of recordings.
   # todo: this could be put in a background task and with a lower free
   # space requirement, to delete old snapshots just before running out
   # of space and thus make better use of space
-  local imgsize
-  imgsize=$(eval "$(stat --format="echo \$((%b*%B))" /backingfiles/cam_disk.bin)")
+  local reserve
+  reserve=$(dehumanize "9G")
   while true
   do
     local freespace
     freespace=$(eval "$(stat --file-system --format="echo \$((%f*%S))" /backingfiles/cam_disk.bin)")
-    if [ "$freespace" -gt "$imgsize" ]
+    if [ "$freespace" -gt "$reserve" ]
     then
       break
     fi
     if ! stat /backingfiles/snapshots/snap-*/snap.bin > /dev/null 2>&1
     then
-      log "warning: low space for snapshots"
+      log "Warning: low space for new snapshots, but no snapshots exist."
+      log "Please use a larger storage medium or reduce CAM_SIZE"
       break
     fi
+    # if there's only one snapshot then we likely just took it, so don't immediately delete it
+    if [ "$(find /backingfiles/snapshots/ -name snap.bin 2> /dev/null | wc -l)" -lt 2 ]
+    then
+      # there's only one snapshot and yet we're low on space
+      log "Warning: low space for new snapshots, but only one snapshot exists."
+      log "Please use a larger storage medium or reduce CAM_SIZE"
+      break
+    fi
+
     oldest=$(find /backingfiles/snapshots -maxdepth 1 -name 'snap-*' | sort | head -1)
     log "low space, deleting $oldest"
     /root/bin/release_snapshot.sh "$oldest"
     rm -rf "$oldest"
   done
+}
 
+function snapshot {
+  # since taking a snapshot doesn't take much extra space, do that first,
+  # before cleaning up old snapshots to maintain free space.
   local oldnum=-1
   local newnum=0
   if stat /backingfiles/snapshots/snap-*/snap.bin > /dev/null 2>&1
@@ -180,5 +197,10 @@ function snapshot {
 if ! snapshot
 then
   log "failed to take snapshot"
+fi
+
+if ! manage_free_space
+then
+  log "failed to clean up old snapshots"
 fi
 

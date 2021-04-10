@@ -56,8 +56,8 @@ function check_available_space_sd () {
   part2size=$(blockdev --getsize64 "${BOOT_DEVICE_PART}2")
   available_space=$((totalsize - part1size - part2size))
 
-  # Require at least 12 GB of available space.
-  if [ "$available_space" -lt  $(( (1<<30) * 12)) ]
+  # Require at least 40 GB of available space.
+  if [ "$available_space" -lt  $(( (1<<30) * 40)) ]
   then
     setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
     setup_progress "$(parted "${BOOT_DEVICE}" print)"
@@ -87,10 +87,10 @@ function check_available_space_usb () {
   local drive_size
   drive_size=$(blockdev --getsize64 "$USB_DRIVE")
 
-  # Require at least 16GB drive size.
-  if [ "$drive_size" -lt  $(( (1<<30) * 16)) ]
+  # Require at least 64GB drive size, or 59 GiB.
+  if [ "$drive_size" -lt  $(( (1<<30) * 59)) ]
   then
-    setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 16GB"
+    setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 64GB"
     setup_progress "$(parted "$USB_DRIVE" print)"
     exit 1
   fi
