@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html><head>
+<title>TeslaUSB</title>
+
+<style>
+html {
+  height: 100%;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  height: calc(100% - 8px);
+}
+
+.tabholder {
+  position: relative;
+}
+
+.tab {
+   position: absolute;
+  top: 30px;
+  left: 0;
+  visibility: hidden;
+}
+
+input { display: none; }
+input + label { display: inline-block }
+
+input ~ .tab { visibility: hidden; }
+#tab1:checked ~ .tab.content1,
+#tab2:checked ~ .tab.content2,
+#tab3:checked ~ .tab.content3,
+#tab4:checked ~ .tab.content4,
+#tab5:checked ~ .tab.content5 { visibility: visible;
+}
+
+input + label {
+  padding: 4px 12px;
+  position: relative;
+  top: 2px;
+  color: #444;
+}
+input:hover + label {
+  border-bottom: 3px solid #AAA;
+  color: #000;
+  z-index:1;
+}
+input:checked + label {
+  border-bottom: 3px solid red;
+  color: #000;
+  z-index:1;
+}
+input ~ .tab {
+  border-top: 1px solid #DDD;
+  padding: 2px;
+  width:100%;
+  height:100%;
+}
+
+button {
+  padding:6px;
+}
+
+.tabholder {
+  width:100%;
+  height:calc(100% - 60px);
+}
+
+.mypre {
+  width:100%;
+  height:calc(100% - 60px);
+  padding-top:4px;
+  padding-bottom:4px;
+  overflow:auto;
+  border-top:1px solid black;
+  border-bottom:1px solid black;
+}
+
+</style>
+</head>
+<body>
+
+<div class="tabholder">
+
+<input type="radio" name="tabs" id="tab1" checked />
+<label for="tab1">Diagnostics</label>
+
+<input type="radio" name="tabs" id="tab2" />
+<label for="tab2">Archiveloop log</label>
+
+<input type="radio" name="tabs" id="tab3" />
+<label for="tab3">Setup log</label>
+
+<input type="radio" name="tabs" id="tab4" />
+<label for="tab4">Tools</label>
+
+<a href="https://www.github.com/marcone/teslausb" target="_blank" style="float:right;font-size:70%;">TeslaUSB on GitHub</a>
+
+
+<div class="tab content1">
+<div style="width:100%;height:100%">
+<pre class="mypre" id="diagnosticspre">...</pre>
+<p>
+<button class="group1" id="diagrefreshbtn" onclick="refreshdiagnostics();">Refresh diagnostics</button>
+<button class="group1" id="diagdwnbtn" onclick="download('diagnostics.txt', document.getElementById('diagnosticspre').textContent);">Download diagnostics</button>
+</div>
+</div>
+
+<div class="tab content2">
+<div style="width:100%;height:100%">
+<pre class="mypre" id="archivelooppre">Loading...</pre>
+<p>
+<button class="group1" id="aldwnbtn" onclick="download('archiveloop.log', document.getElementById('archivelooppre').textContent);">Download archiveloop log</button>
+</div>
+</div>
+
+<div class="tab content3">
+<div style="width:100%;height:100%">
+<pre class="mypre" id="setuplogpre">Loading...</pre>
+<p>
+<button class="group1" id="sudwnbtn" onclick="download('teslausb-headless-setup.log', document.getElementById('setuplogpre').textContent);">Download setup log</button>
+</div>
+</div>
+
+<div class="tab content4">
+<div style="width:100%;height:100%">
+<p>
+<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px"></span>
+<p>
+<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px"></span>
+</div>
+</div>
+
+</div>
+
+<script>
+
+function download(filename, text) {
+  var elem = document.createElement('a');
+  elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  elem.setAttribute('download', filename);
+  elem.style.display = 'none';
+  document.body.appendChild(elem);
+  elem.click();
+  document.body.removeChild(elem);
+}
+
+function cachebustingurl(url) {
+  return url + '?' + Math.random();
+}
+
+function starttailing({url, pre, button}) {
+  if (pre.tailcorrection === undefined) {
+    pre.tailcorrection=0;
+  }
+  var tailpos=pre.textContent.length - 1 + pre.tailcorrection;
+  var request = new XMLHttpRequest();
+  request.open('GET', cachebustingurl(url));
+  request.setRequestHeader('Range', 'bytes=' + tailpos + '-' + (tailpos + 32768));
+  request.onreadystatechange = function () {
+    if (request.readyState === 4) {
+      if (request.status === 206) {
+        var scrollpos=pre.scrollTop+pre.clientHeight;
+        var scrollheight=pre.scrollHeight;
+        var shouldgotobottom=(Math.abs(scrollpos-scrollheight) < 5)
+        pre.textContent+=request.responseText.substring(1);
+        if (shouldgotobottom) {
+          pre.scrollTo(0,pre.scrollHeight);
+        }
+        setTimeout(function() {
+                                starttailing({url:url, pre:pre, button:button});
+                              }, 500);
+      } else if (request.status === 416) {
+        /* log was truncated, find the end of the currently
+           displayed log in the new remote log to determine
+           the offset at which we should now read. */
+        console.log('reloading truncated log: ' + tailpos);
+        var newreq = new XMLHttpRequest();
+        newreq.open('GET', cachebustingurl(url));
+        newreq.onreadystatechange = function () {
+          if (newreq.readyState === 4) {
+            if (newreq.status === 200) {
+              var len=pre.textContent.length;
+              var lastshown=pre.textContent.substring(len-200,len);
+              var newpos=newreq.responseText.indexOf(lastshown);
+              if (newpos > 0) {
+                pre.tailcorrection=-(len-(newpos+200));
+                starttailing({url:url, pre:pre, button:button});
+                return;
+              }
+            }
+            console.log('could not read file "' + url + '", status: ' + request.status);
+            pre.textContent="Attempting refresh..."
+            pre.tailcorrection=0;
+            readfile({url:url, pre:pre.id, button:button, tail:true});
+          }
+        }
+        newreq.send();
+      } else {
+        console.log('unexpected status: ' + request.status);
+      }
+    }
+  }
+  request.send();
+}
+
+function readfile({url, callback, pre, tail, button}) {
+  var request = new XMLHttpRequest();
+  request.open('GET', cachebustingurl(url));
+  request.onreadystatechange = function () {
+    if (request.readyState === 4 && request.status === 200) {
+      var type = request.getResponseHeader('Content-Type');
+      if (type.indexOf("text") !== 1) {
+        if (callback != null) {
+          callback(request.responseText);
+        }
+        if (pre != null) {
+          var preobj = document.getElementById(pre);
+          preobj.textContent=request.responseText;
+          if (tail === true) {
+            preobj.scrollTo(0,preobj.scrollHeight);
+            starttailing({url:url, pre:preobj, button:button});
+          }
+        }
+        if (button != null) {
+          var btn = document.getElementById(button);
+          btn.disabled=false;
+        }
+      }
+    }
+  }
+  request.send();
+}
+
+function callcgi(url) {
+  var request = new XMLHttpRequest();
+  request.open('GET', cachebustingurl(url));
+  request.onreadystatechange = function () {
+    if (request.readyState === 4 && request.status === 200) {
+      var type = request.getResponseHeader('Content-Type');
+      if (type.indexOf("text") !== 1) {
+        return request.responseText;
+      }
+    }
+  }
+  request.send();
+}
+
+function syncfunc() {
+  callcgi('cgi-bin/trigger_sync.sh');
+  var msg=document.getElementById('synctext');
+  msg.textContent="Sync triggered";
+  setTimeout(function() { msg.textContent=""; }, 5000);
+}
+
+function setbuttonsdisabled(group, disabled) {
+  var buttons=document.getElementsByClassName(group);
+  for (btn of buttons) {
+    btn.disabled=disabled;
+  }
+}
+
+function restorerebootbutton(button) {
+  button.disabled=false;
+  button.textContent='Restart Raspberry Pi';
+  button.onclick=function() { rebootfunc(button); };
+}
+
+function waitforreboot(button) {
+  console.log('waitforreboot');
+  var request = new XMLHttpRequest();
+  request.open('GET', cachebustingurl("index.html"));
+  request.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+  request.onreadystatechange = function () {
+    console.log('readstatechange, state: ' + request.readyState + ', status: ' + request.status);
+    if (request.readyState === 4) {
+      if (request.status === 200) {
+        restorerebootbutton(button);
+        var msg=document.getElementById('reboottext');
+        msg.textContent='';
+        initialize();
+        return;
+      }
+      console.log("waiting for rpi");
+      window.setTimeout(function() { waitforreboot(button); }, 1000);
+    }
+  }
+  request.send();
+}
+
+var rebootbuttonresetter;
+function realrebootfunc(button) {
+  clearTimeout(rebootbuttonresetter);
+  setbuttonsdisabled('group1', true);
+  setbuttonsdisabled('group2', true);
+  callcgi('cgi-bin/reboot.sh');
+  var msg=document.getElementById('reboottext');
+  msg.textContent="Reboot is in progress";
+  button.disabled=true;
+  setTimeout(function() { waitforreboot(button); }, 5000);
+}
+
+function rebootfunc (button) {
+  button.textContent="Press again to confirm reboot";
+  button.onclick=function() { realrebootfunc(button); }
+  rebootbuttonresetter=setTimeout(function() { restorerebootbutton(button); }, 10000);
+}
+
+function refreshdiagnostics() {
+  var btn1=document.getElementById('diagrefreshbtn');
+  var btn2=document.getElementById('diagdwnbtn');
+  var pre=document.getElementById('diagnosticspre');
+  btn1.disabled=true;
+  btn2.disabled=true;
+  pre.textContent='Generating diagnostics...';
+
+  readfile({url:'cgi-bin/diagnose.sh', callback:function(value) {
+    readfile({pre:'diagnosticspre', url:'diagnostics.txt', button:'diagdwnbtn'});
+    var btn=document.getElementById('diagrefreshbtn');
+    btn.disabled=false;
+  }});
+}
+
+function initialize() {
+  setbuttonsdisabled('group1', true);
+  setbuttonsdisabled('group2', false);
+  readfile({pre:'archivelooppre', url:'archiveloop.log', tail:true, button:'aldwnbtn'});
+  readfile({pre:'setuplogpre', url:'teslausb-headless-setup.log', tail:true, button:'sudwnbtn'});
+  refreshdiagnostics();
+}
+
+initialize();
+
+</script>
+</body>
+</html>

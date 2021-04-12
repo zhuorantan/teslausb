@@ -846,6 +846,9 @@ fi
 get_script /tmp configure-automount.sh setup/pi
 /tmp/configure-automount.sh
 
+get_script /tmp configure-web.sh setup/pi
+/tmp/configure-web.sh
+
 # source setup-teslausb from .bashrc to set up completion
 if ! grep -q setup-teslausb /root/.bashrc
 then
