@@ -232,7 +232,7 @@ function verify_configuration () {
 }
 
 function curlwrapper () {
-  setup_progress "curl $*"
+  setup_progress "curl $*" > /dev/null
   while ! curl -s --fail "$@"
   do
     setup_progress "'curl $*' failed, retrying" > /dev/null
@@ -245,15 +245,21 @@ function get_script () {
   local name="$2"
   local remote_path="${3:-}"
 
-  if [ -z ${CURL_PREFIX:+x} ]
+  if [ -z ${SOURCE_DIR:+x} ]
   then
-    HEAD_VERSION=$(curlwrapper -s "https://api.github.com/repos/$REPO/teslausb/git/refs/heads/$BRANCH" | grep '"sha":' | awk '{print $2}' | sed 's/"\|,//g')
-    BRANCH="$HEAD_VERSION"
-    export CURL_PREFIX=https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"
+    export SOURCE_DIR=/tmp/sourcedir
+    umount "$SOURCE_DIR" &> /dev/null || true
+    rm -rf "$SOURCE_DIR"
+    mkdir -p "$SOURCE_DIR"
+    mount -t tmpfs none "$SOURCE_DIR"
+    (
+      cd "$SOURCE_DIR"
+      curlwrapper -L "https://github.com/${REPO}/teslausb/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
+    )
   fi
 
   # shellcheck disable=SC2086
-  curlwrapper -o "$local_path/$name" $CURL_PREFIX"/$remote_path/$name"
+  cp "${SOURCE_DIR}/$remote_path/$name" "$local_path/$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
 }
@@ -325,7 +331,7 @@ function create_usb_drive_backing_files () {
       mkdir -p /mnt/cam/TeslaTrackMode
 
       local -r sentrylist_previously_archived=/mutable/sentry_files_archived
- 
+
       # For upgrades from before snapshot-archiving, assume everything from the
       # snapshots -except the files still on the disk image- was already archived,
       # to avoid re-archiving things that were manually deleted from the archive
