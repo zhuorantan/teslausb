@@ -247,15 +247,20 @@ function get_script () {
 
   if [ -z ${SOURCE_DIR:+x} ]
   then
-    export SOURCE_DIR=/tmp/sourcedir
-    umount "$SOURCE_DIR" &> /dev/null || true
-    rm -rf "$SOURCE_DIR"
-    mkdir -p "$SOURCE_DIR"
-    mount -t tmpfs none "$SOURCE_DIR"
-    (
-      cd "$SOURCE_DIR"
-      curlwrapper -L "https://github.com/${REPO}/teslausb/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
-    )
+    if declare -F download_sources &> /dev/null
+    then
+      download_sources
+    else
+      export SOURCE_DIR=/tmp/sourcedir
+      umount "$SOURCE_DIR" &> /dev/null || true
+      rm -rf "$SOURCE_DIR"
+      mkdir -p "$SOURCE_DIR"
+      mount -t tmpfs none "$SOURCE_DIR"
+      (
+        cd "$SOURCE_DIR"
+        curlwrapper -L "https://github.com/${REPO}/teslausb/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
+      )
+    fi
   fi
 
   # shellcheck disable=SC2086
