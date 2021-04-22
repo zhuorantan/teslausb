@@ -13,7 +13,12 @@ html {
 
 body {
   font-family: Arial, sans-serif;
-  height: calc(100% - 8px);
+  height: calc(100% - 16px);
+}
+
+.recordings {
+  width:100%;
+  height:100%;
 }
 
 .tabholder {
@@ -98,6 +103,9 @@ button {
 <input type="radio" name="tabs" id="tab4" />
 <label for="tab4">Tools</label>
 
+<input type="radio" name="tabs" id="tab5" />
+<label for="tab5">Recordings</label>
+
 <a href="https://www.github.com/marcone/teslausb" target="_blank" style="float:right;font-size:70%;">TeslaUSB on GitHub</a>
 
 
@@ -132,6 +140,12 @@ button {
 <button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px"></span>
 <p>
 <button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px"></span>
+</div>
+</div>
+
+<div class="tab content5">
+<div style="width:100%;height:100%;">
+<iframe class="recordings" src="TeslaCam/" ></iframe>
 </div>
 </div>
 
@@ -333,7 +347,19 @@ function initialize() {
   refreshdiagnostics();
 }
 
-initialize();
+function inIframe () {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+}
+
+if (inIframe()) {
+  document.location.replace('TeslaCam/');
+} else {
+  initialize();
+}
 
 </script>
 </body>

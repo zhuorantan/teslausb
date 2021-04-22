@@ -1,22 +1,26 @@
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-	root /var/www/html;
+    root /var/www/html;
 
-	index index.html
+    index index.html
 
-	server_name _;
+    server_name _;
 
-	location / {
-		try_files $uri $uri/ =404;
-	}
+    location / {
+        try_files $uri $uri/ =404;
+    }
 
-	location /cgi-bin/ {
-	     gzip off;
-	     root /var/www/html;
-	     fastcgi_pass  unix:/var/run/fcgiwrap.socket;
-	     include /etc/nginx/fastcgi_params;
-	     fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-	}
+    location /cgi-bin/ {
+         gzip off;
+         root /var/www/html;
+         fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+         include /etc/nginx/fastcgi_params;
+         fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+    }
+    location /TeslaCam/ {
+         root /var/www/html;
+         fancyindex on;
+    }
 }
