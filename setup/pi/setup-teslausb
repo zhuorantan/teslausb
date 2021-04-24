@@ -101,6 +101,11 @@ if [ "${BASH_SOURCE[0]}" != "$0" ]
 then
   echo "${BASH_SOURCE[0]} was sourced, setting setup variables"
   read_setup_variables
+  if [ -t 0 ] && ! declare -F log > /dev/null
+  then
+    function log { echo "$@"; }
+    export -f log
+  fi
   return 0 # shouldn't use exit when sourced
 fi
 
