@@ -301,6 +301,23 @@ function check_webhook_configuration () {
   fi
 }
 
+function check_slack_configuration () {
+  if [ "${SLACK_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${SLACK_WEBHOOK_URL+x}"  ]
+    then
+      log_progress "STOP: You're trying to setup a Slack webhook but didn't provide your webhook url."
+      log_progress "Define the variable like this:"
+      log_progress "export SLACK_WEBHOOK_URL=http://domain/path/"
+      exit 1
+    elif [ "${SLACK_WEBHOOK_URL}" = "http://domain/path/" ]
+    then
+      log_progress "STOP: You're trying to setup a Slack webhook, but didn't replace the default url."
+      exit 1
+    fi
+  fi
+}
+
 function check_matrix_configuration () {
   if [ "${MATRIX_ENABLED:-false}" = "true" ]
   then
@@ -415,6 +432,15 @@ function configure_webhook () {
   fi
 }
 
+function configure_slack () {
+  if [ "${SLACK_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Slack enabled."
+  else
+    log_progress "Slack not enabled."
+  fi
+}
+
 function configure_matrix () {
   if [ "${MATRIX_ENABLED:-false}" = "true" ]
   then
@@ -469,6 +495,12 @@ function check_and_configure_webhook () {
   configure_webhook
 }
 
+function check_and_configure_slack () {
+  check_slack_configuration
+
+  configure_slack
+}
+
 function check_and_configure_matrix () {
   check_matrix_configuration
 
@@ -506,6 +538,7 @@ check_and_configure_pushover
 check_and_configure_gotify
 check_and_configure_ifttt
 check_and_configure_webhook
+check_and_configure_slack
 check_and_configure_matrix
 check_and_configure_telegram
 check_and_configure_sns

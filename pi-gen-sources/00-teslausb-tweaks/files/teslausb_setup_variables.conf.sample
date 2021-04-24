@@ -145,6 +145,10 @@ export WIFIPASS='your_pass'
 # export WEBHOOK_ENABLED=true
 # export WEBHOOK_URL=http://domain/path
 
+# Uncomment if setting up Slack notifications
+# export SLACK_ENABLED=true
+# export SLACK_WEBHOOK_URL=http://domain/path
+
 # Uncomment if setting up Matrix notifications
 # export MATRIX_ENABLED=true
 # export MATRIX_SERVER_URL=https://matrix.org

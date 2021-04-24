@@ -114,3 +114,17 @@ Matrix is a federated messaging protocol that can be used via [Matrix.org](https
     export MATRIX_PASSWORD='put_your_matrix_password_here'
     export MATRIX_ROOM='put_the_matrix_target_room_id_here'
     ```
+
+# Slack
+Notifications can be sent via webhook to channels or DM in Slack.
+
+1. Go to https://api.slack.com and click "Create a custom app"
+2. Enter an Application name and select a workspace that you want this application added to
+3. Under "Add features and functionality" select "Incoming Webhooks"
+4. Toggle Webhooks on and select "Add Webhook to Workspace". Copy this URL for the webhook url in step 5
+5. Remove the comments and update the following values in the ```teslausb_setup_variables.conf``` file with the gathered information.
+    
+    ```
+    export SLACK_ENABLED=true
+    export SLACK_WEBHOOK_URL=http://localhost
+    ```
