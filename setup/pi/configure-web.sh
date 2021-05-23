@@ -2,12 +2,16 @@
 
 setup_progress "configuring nginx"
 
-if ! grep nginx /etc/fstab
-then
-  echo "tmpfs /var/log/nginx tmpfs nodev,nosuid 0 0" >> /etc/fstab
-  mkdir -p /var/log/nginx # only needed for initial setup, since systemd will create it automatically after that
-  mount /var/log/nginx
-fi
+# delete existing nginx fstab entries
+sed -i "/.*\/nginx tmpfs.*/d" /etc/fstab
+# and recreate them
+echo "tmpfs /var/log/nginx tmpfs nodev,nosuid 0 0" >> /etc/fstab
+echo "tmpfs /var/lib/nginx tmpfs nodev,nosuid 0 0" >> /etc/fstab
+# only needed for initial setup, since systemd will create these automatically after that
+mkdir -p /var/log/nginx
+mkdir -p /var/lib/nginx
+mount /var/log/nginx
+mount /var/lib/nginx
 
 apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex libfuse-dev
 

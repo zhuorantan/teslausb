@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html><head>
+<meta charset="UTF-8">
 <title>TeslaUSB</title>
 
 <style>
@@ -21,45 +22,55 @@ body {
   height:100%;
 }
 
+/* The map doesn't resize properly in Firefox sometimes, ending up with scrollbars. Use Chrome instead. */
+#sentrymap {
+  width:100%;
+  height:100%;
+  border: 0;
+}
+
 .tabholder {
   position: relative;
 }
 
 .tab {
-   position: absolute;
+  position: absolute;
   top: 30px;
   left: 0;
   visibility: hidden;
 }
 
-input { display: none; }
-input + label { display: inline-block }
+.tabheader { display: none; }
+.tabheader + label { display: inline-block }
 
-input ~ .tab { visibility: hidden; }
+.tabheader ~ .tab { visibility: hidden; }
 #tab1:checked ~ .tab.content1,
 #tab2:checked ~ .tab.content2,
 #tab3:checked ~ .tab.content3,
 #tab4:checked ~ .tab.content4,
-#tab5:checked ~ .tab.content5 { visibility: visible;
+#tab5:checked ~ .tab.content5,
+#tab6:checked ~ .tab.content6 { visibility: visible;
 }
 
-input + label {
+.tabheader + label {
   padding: 4px 12px;
   position: relative;
   top: 2px;
   color: #444;
 }
-input:hover + label {
+.tabheader:hover + label {
   border-bottom: 3px solid #AAA;
   color: #000;
-  z-index:1;
+  z-index:10;
 }
-input:checked + label {
+
+.tabheader:checked + label {
   border-bottom: 3px solid red;
   color: #000;
-  z-index:1;
+  z-index:11;
 }
-input ~ .tab {
+
+.tabheader ~ .tab {
   border-top: 1px solid #DDD;
   padding: 2px;
   width:100%;
@@ -85,29 +96,196 @@ button {
   border-bottom:1px solid black;
 }
 
+td {
+  padding:0px;
+}
+
+video {
+  padding:0px;
+}
+
+.flipped {
+  -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1);
+  transform: scale(-1, 1); filter: FlipH;
+}
+
+#videoholder {
+  background-color: #333;
+}
+
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.navbar a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.subnav {
+  float: left;
+  overflow: hidden;
+}
+
+.subnav .subnavbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+
+.navbar a:hover, .subnav:hover .subnavbtn {
+  background-color: rgb(100,100,100);
+}
+
+.subnav-content {
+  display: none;
+  position: absolute;
+  left: 0;
+  background-color: rgba(100,100,100,0.7);
+  width: 70%;
+  z-index: 12;
+}
+
+.subnav-content a {
+  float: left;
+  color: white;
+  text-decoration: none;
+  padding: 14px 8px;
+}
+
+.subnav-content a:hover {
+  background-color: #eee;
+  color: black;
+}
+
+.subnav:hover .subnav-content {
+  display: block;
+}
+
+.slider {
+    margin: .4rem;
+}
+
+#videocontrols {
+  opacity: 0.0;
+  z-index: 2;
+  margin: auto;
+  position: fixed;
+  bottom: 0;
+  width: calc(100% - 200px);
+  height: 100px;
+  background-color: #555;
+  transition: opacity 0.5s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
+#videocontrols:hover {
+  opacity: 0.7;
+  transition: opacity 0.5s;
+}
+
+#videocontrols.shown {
+  opacity: 0.7;
+  transition: opacity 0.5s;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+  fill: black;
+  stroke: black;
+  stroke-width: 3px;
+}
+
+svg:hover {
+  fill: white;
+  stroke: white;
+  width: 100%;
+  height: 100%;
+}
+
+.play svg path {
+  d: path('M 8,30 30,18 8,6 z') !important;
+}
+
+.pause svg path {
+  d: path('M 8,30 14,30 14,6 8,6 z M 24,30 30,30 30,6 24,6 z') !important;
+}
+
+/* Firefox doesn't support setting svg paths in css, so these are set
+   in the html instead. The play/pause button doesn't change in FF because of this */
+.skipback svg path {
+  fill: none;
+  /* d: path('M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z') !important; */
+}
+
+.skipforward svg path {
+  fill: none;
+  /* d: path('M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z') !important; */
+}
+
+.flatbutton {
+  width: 50px;
+  height: 50px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.buttoncontainer {
+  margin: 0 auto;
+  display: inline-block;
+}
+
+.flatbutton:hover {
+  color: white;
+}
+
 </style>
 </head>
 <body>
 
 <div class="tabholder">
 
-<input type="radio" name="tabs" id="tab1" checked />
+<input class="tabheader" type="radio" name="tabs" id="tab1" />
 <label for="tab1">Diagnostics</label>
 
-<input type="radio" name="tabs" id="tab2" />
+<input class="tabheader" type="radio" name="tabs" id="tab2" />
 <label for="tab2">Archiveloop log</label>
 
-<input type="radio" name="tabs" id="tab3" />
+<input class="tabheader" type="radio" name="tabs" id="tab3" />
 <label for="tab3">Setup log</label>
 
-<input type="radio" name="tabs" id="tab4" />
+<input class="tabheader" type="radio" name="tabs" id="tab4" />
 <label for="tab4">Tools</label>
 
-<input type="radio" name="tabs" id="tab5" />
+<input class="tabheader" type="radio" name="tabs" id="tab5" />
 <label for="tab5">Recordings</label>
 
-<a href="https://www.github.com/marcone/teslausb" target="_blank" style="float:right;font-size:70%;">TeslaUSB on GitHub</a>
+<input class="tabheader" type="radio" name="tabs" id="tab6" checked />
+<label for="tab6">Viewer</label>
 
+<a href="https://www.github.com/marcone/teslausb" target="_blank" style="float:right;font-size:70%;">TeslaUSB on GitHub</a>
 
 <div class="tab content1">
 <div style="width:100%;height:100%">
@@ -149,9 +327,135 @@ button {
 </div>
 </div>
 
+<div class="tab content6">
+<div style="width:100%;height:100%;">
+<div class="navbar">
+  <div class="subnav">
+    <button class="subnavbtn">RecentClips</button>
+    <div id="RecentClips" class="subnav-content"></div>
+  </div>
+  <div class="subnav">
+    <button class="subnavbtn">SavedClips</button>
+    <div id="SavedClips" class="subnav-content"></div>
+  </div>
+  <div class="subnav">
+    <button class="subnavbtn">SentryClips</button>
+    <div id="SentryClips" class="subnav-content"></div>
+  </div>
+</div>
+<div>
+<table id="videoholder" style="width:100%;height:100%;" cellspacing="0" onmousemove="showcontrols()">
+<tr>
+  <td width="33%">
+  <div style="display:grid;">
+    <video id="leftview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+    <canvas id="leftviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  </div>
+  </td>
+  <td width="34%">
+  <div style="display:grid;">
+    <video id="frontview" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+    <canvas id="frontviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  </div>
+  </td>
+  <td width="33%">
+  <div style="display:grid;">
+    <video id="rightview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+    <canvas id="rightviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  </div>
+  </td>
+</tr>
+<tr>
+  <td height="100%">
+    <iframe id="sentrymap"></iframe>
+  </td>
+  <td>
+  <div style="display:grid;">
+    <video id="backview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+    <canvas id="backviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  </div>
+  </td>
+  <td>
+    <div style="margin-left:12px;color:white;height:100%;">
+      <div id="sequencename" style="margin-top:12px;margin-bottom:2px;"></div>
+      <div id="segmentname" style="margin-bottom:12px;"></div>
+      <span id="currenttime" style="margin-top:24px;"></span><span id="totaltime"></span>
+      <div id="debuginfo"></div>
+    </div>
+  </td>
+</tr>
+</table>
+<div id="videocontrols" >
+  <input type="range" class="slider" id="position" name="position"
+         min="0" max="60" style="width:90%;max-width:600px;height:70%;">
+  <div class="buttoncontainer">
+    <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
+      <svg><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
+    </button>
+    <button id="playpause" class="flatbutton play" onclick="startPlaying()">
+      <svg><path d="M 8,30 30,18 8,6 z"></path></svg>
+    </button>
+    <button id="skipforward" class="flatbutton skipforward" onclick="skipForward()">
+      <svg><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
+    </button>
+  </div>
+</div>
+
+</div>
+</div>
 </div>
 
 <script>
+
+var DEBUG = false;
+function log(what) {
+  if (DEBUG) {
+    console.log(what);
+  }
+}
+
+function showDebugInfo() {
+  if (DEBUG == false) {
+    return;
+  }
+  var db = document.getElementById('debuginfo');
+  var debuginfo = "segments: " + currentsequence.currentSegmentIdx() + "/" + currentsequence.length();
+  debuginfo += ", position: ";
+  for (var vid of videoelems) {
+    if (vid == undefined) {
+      debuginfo = debuginfo + "unused/"
+    } else {
+      debuginfo = debuginfo + parseInt(vid.currentTime) + "/";
+    }
+  }
+  db.innerText = debuginfo;
+}
+
+
+function showcontrols() {
+  var c=document.getElementById("videocontrols");
+  if (c.classList.contains("shown")) {
+    return;
+  }
+  c.classList.add("shown");
+  setTimeout(function() { c.classList.remove("shown"); }, 5000);
+}
+
+showcontrols();
+
+function skipBack() {
+  var slider=document.getElementById('position');
+  currentsequence.seekTo(parseInt(slider.value) - 10000);
+}
+
+function startPlaying() {
+  currentsequence.toggleplaypause();
+}
+
+function skipForward() {
+  var slider=document.getElementById('position');
+  currentsequence.seekTo(parseInt(slider.value) + 30000);
+}
 
 function download(filename, text) {
   var elem = document.createElement('a');
@@ -192,7 +496,7 @@ function starttailing({url, pre, button}) {
         /* log was truncated, find the end of the currently
            displayed log in the new remote log to determine
            the offset at which we should now read. */
-        console.log('reloading truncated log: ' + tailpos);
+        log('reloading truncated log: ' + tailpos);
         var newreq = new XMLHttpRequest();
         newreq.open('GET', cachebustingurl(url));
         newreq.onreadystatechange = function () {
@@ -207,7 +511,7 @@ function starttailing({url, pre, button}) {
                 return;
               }
             }
-            console.log('could not read file "' + url + '", status: ' + request.status);
+            log('could not read file "' + url + '", status: ' + request.status);
             pre.textContent="Attempting refresh..."
             pre.tailcorrection=0;
             readfile({url:url, pre:pre.id, button:button, tail:true});
@@ -215,7 +519,7 @@ function starttailing({url, pre, button}) {
         }
         newreq.send();
       } else {
-        console.log('unexpected status: ' + request.status);
+        log('unexpected status: ' + request.status);
       }
     }
   }
@@ -285,12 +589,12 @@ function restorerebootbutton(button) {
 }
 
 function waitforreboot(button) {
-  console.log('waitforreboot');
+  log('waitforreboot');
   var request = new XMLHttpRequest();
   request.open('GET', cachebustingurl("index.html"));
   request.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
   request.onreadystatechange = function () {
-    console.log('readstatechange, state: ' + request.readyState + ', status: ' + request.status);
+    log('readstatechange, state: ' + request.readyState + ', status: ' + request.status);
     if (request.readyState === 4) {
       if (request.status === 200) {
         restorerebootbutton(button);
@@ -299,7 +603,7 @@ function waitforreboot(button) {
         initialize();
         return;
       }
-      console.log("waiting for rpi");
+      log("waiting for rpi");
       window.setTimeout(function() { waitforreboot(button); }, 1000);
     }
   }
@@ -357,9 +661,522 @@ function inIframe () {
 
 if (inIframe()) {
   document.location.replace('TeslaCam/');
-} else {
-  initialize();
+  /* prevent further execution in this iframe and just let it reload*/
+  nonExistentFunction();
 }
+
+function timeString(time_ms) {
+  var seconds = parseInt(time_ms / 1000);
+  var hours = parseInt(seconds / 3600);
+  var minutes = parseInt((seconds % 3600) / 60);
+  var seconds = seconds % 60;
+  var output = "";
+  if (hours != 0) {
+    output = hours + ":";
+  }
+  output = output + minutes.toString().padStart(2, "0") + ":";
+  output = output + seconds.toString().padStart(2, "0");
+  return output;
+}
+
+function showCurrentTime(time) {
+  var elem = document.getElementById('currenttime');
+  elem.innerText = timeString(time);
+}
+
+function showCurrentSegment(segmentname) {
+  var elem = document.getElementById('segmentname');
+  elem.innerText = segmentname;
+}
+
+/* a collection of videos that share the same timestamp */
+class VideoSegment {
+  group;
+  sequence;
+  front;
+  left;
+  right;
+  back;
+  unknown;
+  numangles;
+  activevideoelems = [];
+  longestvideoelem;
+  readytoplay;
+  autoplay;
+  autoseek;
+
+  constructor(group, sequence) {
+    this.group = group; // RecentClips, SavedClips or SentryClips
+    this.sequence = sequence;
+    this.numangles = 0;
+    this.onDurationChange = this.onDurationChange.bind(this);
+    this.onTimeUpdate = this.onTimeUpdate.bind(this);
+    this.onVideoEnded = this.onVideoEnded.bind(this);
+    this.onDblClickVideo = this.onDblClickVideo.bind(this);
+    this.initdefaults();
+  }
+
+  initdefaults() {
+    this.activevideoelems = [];
+    this.longestvideoelem = undefined;
+    this.autoplay = false;
+    this.autoseek = -1;
+    this.readytoplay = false;
+  }
+
+  addVideo(path) {
+    if (path.includes('front')) {
+      this.front=path;
+      this.numangles++;
+    } else if (path.includes('left')) {
+      this.left=path;
+      this.numangles++;
+    } else if (path.includes('right')) {
+      this.right=path;
+      this.numangles++;
+    } else if (path.includes('back')) {
+      this.back=path;
+      this.numangles++;
+    }
+  }
+
+  onDblClickVideo(event) {
+    log(event);
+    event.target.requestFullscreen();
+  }
+
+  onDurationChange(event) {
+    var elem = event.target;
+    this.activevideoelems = this.activevideoelems.concat(elem);
+    log(this.activevideoelems.length + "/" + this.numangles + " duration: " + elem.duration);
+    if (this.longestvideoelem == undefined || elem.duration > this.longestvideoelem.duration) {
+      this.longestvideoelem = elem;
+    }
+    if (this.activevideoelems.length == this.numangles) {
+      log("all videos loaded. Longest: " + this.longestvideoelem.id + ": " + this.longestvideoelem.duration);
+      this.readytoplay = true;
+      this.longestvideoelem.ontimeupdate = this.onTimeUpdate;
+      for (var vid of this.activevideoelems) {
+        vid.onended=this.onVideoEnded;
+      }
+      if (this.autoseek) {
+        this.seekTo(this.autoseek);
+        this.autoseek = -1;
+      }
+      unfreezeVideoElems();
+      if (this.autoplay) {
+        log("autoplay was set");
+        this.autoplay = false;
+        this.play();
+      } else {
+        log("no autoplay");
+      }
+    }
+  }
+
+  onTimeUpdate(event) {
+    var elem = event.target;
+    var slider=document.getElementById('position');
+    // assume all segments are 60 seconds long, but correct for any shortfall
+    slider.value=(60000 - (this.longestvideoelem.duration*1000)) + (currentsequence.currentSegmentIdx() * 60000) + (elem.currentTime * 1000);
+    log("time: " + elem.currentTime);
+
+    showCurrentTime(slider.value);
+
+    showDebugInfo();
+
+    if (currentsequence.isPlaying()) {
+      for (var vid of this.activevideoelems) {
+        if (vid != elem && vid.paused && !vid.ended && elem.currentTime > (elem.duration - vid.duration)) {
+          log("starting vid");
+          vid.play();
+        }
+      }
+    } else {
+      log("not playing");
+    }
+  }
+
+  onVideoEnded() {
+    log("onvideoended");
+    for (var vid of this.activevideoelems) {
+      if (!vid.ended) {
+        log("still playing");
+        return;
+      }
+    }
+    log("all ended");
+    // all videos ended
+    currentsequence.next();
+  }
+
+  select() {
+    var prefix = "TeslaCam/" + this.group + "/" + this.sequence + "/";
+    log("===== segment =====");
+    freezeVideoElems();
+    videoelems[0].src = prefix + this.left;
+    videoelems[1].src = prefix + this.front;
+    videoelems[2].src = prefix + this.right;
+    videoelems[3].src = prefix + this.back;
+
+    for (var i=0; i < 4;i++) {
+      var v = videoelems[i];
+      v.ontimeupdate = undefined;
+      v.onended = undefined;
+      v.ondblclick = this.onDblClickVideo;
+      if (v.src != undefined) {
+        v.ondurationchange = this.onDurationChange;
+      }
+    }
+
+    for (var n of [this.left, this.right, this.front, this.back]) {
+      if (n != undefined) {
+        showCurrentSegment(n.substring(0, 19));
+        break;
+      }
+    }
+    var tt = document.getElementById('totaltime');
+    tt.innerText = " / " + timeString(currentsequence.length() * 60000);
+
+    this.initdefaults();
+  }
+
+  seekTo(position) {
+    if (this.readytoplay == true) {
+      log("segment seekTo " + position);
+      for (var vid of this.activevideoelems) {
+        // todo: account for differences in length
+        vid.currentTime=position;
+      }
+      return;
+    }
+    log("deferred seekTo " + position);
+    this.autoseek = position;
+  }
+
+  play() {
+    if (this.readytoplay == true) {
+      log("direct play");
+      this.longestvideoelem.play();
+      return;
+    }
+    log("deferred play");
+    this.autoplay = true;
+  }
+
+  pause() {
+    log("pause clearing autoplay");
+    this.autoplay = false;
+    for (var vid of this.activevideoelems) {
+      vid.pause();
+    }
+  }
+}
+
+var ro = new ResizeObserver(entries => {
+  if (currentsequence != undefined) {
+    currentsequence.onMapResize();
+  }
+});
+
+var m = document.getElementById('sentrymap');
+ro.observe(m);
+
+/* a sequence of segments, e.g. a single sentry event, or a day's worth of RecentClips */
+class VideoSequence {
+  segments;
+  segmentsbytime;
+  sequencegroup; // RecentClips, SavedClips or SentryClips
+  sequencename;
+  currentsegmentidx;
+  isplaying;
+  json;
+  lat;
+  lon;
+
+  constructor(group, name) {
+    this.segments = [];
+    this.segmentsbytime = {};
+    this.sequencegroup = group;
+    this.sequencename = name;
+    this.reset();
+  }
+
+  reset() {
+    this.currentsegmentidx = -1;
+    this.isplaying = false;
+    var b = document.getElementById('playpause');
+    b.classList.remove("pause");
+  }
+
+  getSegmentByName(timestamp) {
+    if (! this.segmentsbytime.hasOwnProperty(timestamp)) {
+      var segment = new VideoSegment(this.sequencegroup, this.sequencename);
+      this.segments = this.segments.concat(segment);
+      this.segmentsbytime[timestamp] = segment;
+    }
+    return this.segmentsbytime[timestamp];
+  }
+
+  getSegmentByIndex(index) {
+    return this.segments[index]
+  }
+
+  currentSegmentIdx() {
+    return this.currentsegmentidx;
+  }
+
+  length() {
+    return this.segments.length;
+  }
+
+  isPlaying() {
+    return this.isplaying == true;
+  }
+
+  select() {
+    this.reset();
+    currentsequence=this;
+    var name = document.getElementById('sequencename');
+    name.innerText = this.sequencegroup + " / " + this.sequencename;
+    var slider = document.getElementById('position');
+    slider.max = (this.length() * 60000) - 1;
+    slider.oninput = this.onSeek.bind(this);
+    slider.onmousedown = this.onSeekStart.bind(this);
+    slider.onchange =  this.onSeekEnd.bind(this);
+    this.seekTo(0);
+    this.onMapResize();
+  }
+
+  onMapResize() {
+    var m = document.getElementById('sentrymap');
+    log("map resized to " + m.clientWidth + "x" + m.clientHeight);
+
+    if (this.lat != undefined && this.lon != undefined) {
+      var url = "https://www.bing.com/maps/embed?w=" + m.clientWidth + "&h=" + m.clientHeight +
+                "&cp=" + this.lat + "~" + this.lon + "&lvl=18&typ=d&sty=h&src=SHELL&FORM=MBEDV8";
+      log("url: " + url);
+      // For some reason resize events are reported even when the size
+      // didn't actually change, so don't set the url the same value
+      // it already has, since that forces a refresh.
+      if (m.src != url) {
+        m.src = url;
+      }
+      m.style.visibility = "inherit";
+      return;
+    }
+
+    m.style.visibility = "hidden";
+
+    if (this.json == undefined) {
+      log("no location");
+      return;
+    }
+
+    var jsonurl = "TeslaCam/" + this.sequencegroup + "/" + this.sequencename + "/" + this.json;
+    this.json = undefined;
+    readfile({url:jsonurl, callback:function(value) {
+        log(value);
+        var parsed = JSON.parse(value);
+        log(parsed);
+        currentsequence.lat = parsed.est_lat;
+        currentsequence.lon = parsed.est_lon;
+        currentsequence.onMapResize();
+    }});
+  }
+
+  onSeekStart(event) {
+    log("seek start");
+  }
+
+  onSeek(event) {
+    this.seekTo(event.target.value);
+  }
+
+  onSeekEnd(event) {
+    log("seek end");
+  }
+
+  seekTo(seektime) {
+    if (seektime < 0) {
+      seektime = 0;
+    }
+    // assume each segment is exactly 1 minute long
+    var slider=document.getElementById('position');
+    if (seektime > parseInt(slider.max)) {
+      log("seeking past max");
+      seektime = slider.max;
+    }
+    slider.value=seektime;
+    showCurrentTime(seektime);
+    var index = parseInt(seektime / 60000);
+    var segment = this.getSegmentByIndex(index);
+    if (index != this.currentsegmentidx) {
+      log("pausing current segment");
+      var oldsegment = this.getSegmentByIndex(this.currentsegmentidx);
+      if (oldsegment != undefined) {
+        oldsegment.pause();
+      }
+      log("selecting new segment " + index);
+      segment.select();
+      if (this.isplaying) {
+        log("playing new segment");
+        segment.play();
+      }
+      this.currentsegmentidx=index;
+    }
+    segment.seekTo((seektime % 60000) / 1000);
+  }
+
+  next() {
+    var nextsegment = this.currentsegmentidx + 1; 
+    log("next: " + this.currentsegmentidx);
+    if (nextsegment >= this.length()) {
+      return false;
+    }
+    this.seekTo(nextsegment * 60000);
+    return true;
+  }
+
+  toggleplaypause() {
+    if (this.isplaying) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
+  play() {
+    log("play: " + this.currentsegmentidx);
+    this.isplaying = true;
+    var segment = this.getSegmentByIndex(this.currentsegmentidx);
+    segment.play();
+    var b = document.getElementById('playpause');
+    b.classList.add("pause");
+  }
+
+  pause() {
+    this.isplaying = false;
+    var segment = this.getSegmentByIndex(this.currentsegmentidx);
+    segment.pause();
+    var b = document.getElementById('playpause');
+    b.classList.remove("pause");
+  }
+}
+
+var videos={};
+var currentsequence;
+
+var videoelems = [
+  document.getElementById('leftview'),
+  document.getElementById('frontview'),
+  document.getElementById('rightview'),
+  document.getElementById('backview')
+];
+
+var canvaselems = [
+  document.getElementById('leftviewfreeze'),
+  document.getElementById('frontviewfreeze'),
+  document.getElementById('rightviewfreeze'),
+  document.getElementById('backviewfreeze')
+];
+
+function freezeVideoElems() {
+  for (var i=0; i < 4;i++) {
+    var v = videoelems[i];
+    var c = canvaselems[i];
+    c.width = v.clientWidth;
+    c.height = v.clientHeight;
+    var ctx = c.getContext("2d");
+    if (v.classList.contains("flipped")) {
+      ctx.scale(-1, 1);
+      ctx.drawImage(v, 0, 0, -c.width, c.height);
+    } else {
+      ctx.drawImage(v, 0, 0, c.width, c.height);
+    }
+    v.style.visibility="hidden";
+  }
+}
+
+function unfreezeVideoElems() {
+  for (var i=0; i < 4;i++) {
+    var v = videoelems[i];
+    v.style.visibility="inherit";
+  }
+
+}
+
+readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
+  var newest="0-";
+  var newestsequence;
+  var lines = value.split('\n');
+  for (line of lines) {
+    var [group, sequencename, filename] = line.split('/');
+    if (sequencename == undefined) {
+      continue;
+    }
+    if (filename.includes("~")) {
+       /* skip fsck recovered files for now */
+       continue;
+    }
+    if (sequencename.includes("json")) {
+       /* this shouldn't be necessary, and can be removed once
+          teslausb no longer creates an "event.json" folder */
+       continue;
+    }
+    if (!videos.hasOwnProperty(group)) {
+      videos[group]={};
+    }
+    var sequence;
+    if (videos[group].hasOwnProperty(sequencename)) {
+      sequence=videos[group][sequencename];
+    } else {
+      sequence=new VideoSequence(group, sequencename);
+      videos[group][sequencename]=sequence;
+    }
+    if (filename.includes(".mp4")) {
+      videotime=filename.substring(0, 19);
+      segment=sequence.getSegmentByName(videotime);
+      segment.addVideo(filename);
+      if (sequencename > newest) {
+        newest = sequencename;
+        newestsequence=sequence;
+      }
+    } else if (filename.includes("thumb")) {
+      sequence.thumb=filename;
+    } else if (filename.includes("json")) {
+      sequence.json=filename;
+    }
+  }
+  newestsequence.select();
+
+  for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
+    var d=document.getElementById(i);
+    for (c in videos[i]) {
+      var newelem = document.createElement("a");
+      newelem.innerHTML = c.toString();
+      newelem.group=i;
+      newelem.sequence=videos[i][c];
+      newelem.onclick=function() {
+        log(this.sequence);
+        this.parentElement.style.display="none";
+        /* There's probably a better way, but I couldn't figure it out.
+           This hides the menu dropdown when clicked, then re-enables
+           once the mouse has moved so it doesn't stay hidden forever */
+        document.onmousemove=function(self) {
+                return function() {
+                        self.parentElement.style.display="";
+                        document.onmousemove=undefined;};
+                }(this);
+        this.sequence.select();
+      };
+      d.appendChild(newelem);
+    }
+  }
+}
+});
+
+initialize();
 
 </script>
 </body>
