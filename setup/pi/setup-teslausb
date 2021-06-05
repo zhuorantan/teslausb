@@ -773,7 +773,12 @@ if cmp -s "$tmpdir/setup-teslausb" "$0"
 then
   setup_progress "$0 is up to date"
 else
-  setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 selfupdate' to update to that version"
+  if [ -e /boot/TESLAUSB_SETUP_FINISHED ] || [ -t 0 ]
+  then
+    setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 selfupdate' to update to that version"
+  else
+    exec "$tmpdir/setup-teslausb"
+  fi
 fi
 
 get_script "$tmpdir" rc.local pi-gen-sources/00-teslausb-tweaks/files &> /dev/null
