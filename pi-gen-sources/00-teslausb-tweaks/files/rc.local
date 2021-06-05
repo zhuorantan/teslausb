@@ -135,7 +135,7 @@ then
   use_snapshots=${SNAPSHOTS_ENABLED:-true}
   if [ "$use_snapshots" != "true" ]
   then
-    BRANCH="no-snapshots"
+    export BRANCH="no-snapshots"
   fi
   # Script doesn't exist, grab it.
   setup_progress "Grabbing main setup file."
