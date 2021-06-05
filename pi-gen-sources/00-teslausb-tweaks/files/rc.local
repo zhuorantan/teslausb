@@ -129,14 +129,17 @@ then
     mkdir "/root/bin"
   fi
 
-  if [ ! -e "/root/bin/setup-teslausb" ]
+  # always read the latest setup script
+  REPO=${REPO:-marcone}
+  BRANCH=${BRANCH:-main-dev}
+  use_snapshots=${SNAPSHOTS_ENABLED:-true}
+  if [ "$use_snapshots" != "true" ]
   then
-    REPO=${REPO:-marcone}
-    BRANCH=${BRANCH:-main-dev}
-    # Script doesn't exist, grab it.
-    setup_progress "Grabbing main setup file."
-    get_script /root/bin setup-teslausb setup/pi
+    BRANCH="no-snapshots"
   fi
+  # Script doesn't exist, grab it.
+  setup_progress "Grabbing main setup file."
+  get_script /root/bin setup-teslausb setup/pi
 
   setup_progress "Starting setup."
 
