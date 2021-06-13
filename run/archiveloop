@@ -736,6 +736,19 @@ function snapshotloop {
   done
 }
 
+function logrotator {
+  while true
+  do
+    mv -f /var/log/nginx/access.log /var/log/nginx/access.log.prev || true
+    mv -f /var/log/nginx/error.log /var/log/nginx/error.log.prev || true
+    if [ -e /var/run/nginx.pid ]
+    then
+      kill -USR1 "$(cat /var/run/nginx.pid)"
+    fi
+    sleep 1800
+  done
+}
+
 function wifichecker {
   dmesg -w | {
     while TMOUT=1 read -r line
@@ -798,6 +811,7 @@ set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVER
 
 /root/bin/make_snapshot.sh
 snapshotloop &
+logrotator &
 
 wifichecker &
 
