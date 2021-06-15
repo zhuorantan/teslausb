@@ -431,7 +431,6 @@ function showDebugInfo() {
   db.innerText = debuginfo;
 }
 
-
 function showcontrols() {
   var c=document.getElementById("videocontrols");
   if (c.classList.contains("shown")) {
@@ -472,6 +471,13 @@ function cachebustingurl(url) {
 }
 
 function starttailing({url, pre, button}) {
+  if (window.getComputedStyle(pre).visibility === "hidden") {
+    setTimeout(function() {
+                            starttailing({url:url, pre:pre, button:button});
+                          }, 1000);
+    return;
+  }
+  log("tail " + url);
   if (pre.tailcorrection === undefined) {
     pre.tailcorrection=0;
   }
