@@ -180,8 +180,7 @@ export WIFIPASS='your_pass'
 #
 # TeslaUSB can optionally use the Tesla API to keep your car awake, so it can
 # power the Pi long enough for the archiving process to complete. To enable
-# that, either provide your Tesla account email and password below, or obtain
-# access and refresh tokens yourself, and specify those.
+# that, provide your Tesla account email and password below.
 # TeslaUSB will only send your credentials to the Tesla API itself.
 #
 # NOTE:  if you do this, it's highly recommended that you set up 'PIN to Drive'
@@ -192,12 +191,8 @@ export WIFIPASS='your_pass'
 # ALSO NOTE: having sentry mode enabled in your Tesla will keep your car awake.
 #   But, make sure you have not excluded your home in the sentry mode settings.
 #
-# You can provide either email+password, OR accesstoken+refreshtoken:
 # export TESLA_EMAIL=joeshmo@gmail.com
 # export TESLA_PASSWORD=teslapass
-#
-# export TESLA_ACCESS_TOKEN=123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0
-# export TESLA_REFRESH_TOKEN=abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
 #
 # If you have more than one Tesla vehicle on the account, you must also provide
 # the name or VIN for the vehicle for which this TeslaUSB install will be used,
@@ -205,6 +200,13 @@ export WIFIPASS='your_pass'
 # If you only have one car on the account, you do not need to specify this.
 # export TESLA_NAME="Elon's CyberTruck"
 # export TESLA_VIN=5YJ3E1EA4JF000001
+#
+# By default, TeslaUSB uses a combination of APIs to keep the car awake,
+# similar to how to the Tesla app can wake up the car.
+# If you find your car isn't staying awake, you can try setting the
+# following to "sentry" to keep the car awake by temporarily turning
+# on Sentry mode while archiving.
+# export TESLA_WAKE_MODE=stream
 
 # Uncomment if you want to increase the size of the root
 # filesystem so there's extra space for installing additional

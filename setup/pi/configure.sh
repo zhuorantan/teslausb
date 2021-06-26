@@ -160,6 +160,8 @@ function install_and_configure_tesla_api () {
     # if tesla_api.py already exists, update it
     log_progress "Updating tesla_api.py"
     get_script /root/bin tesla_api.py run
+    install_python3_pip
+    pip3 install teslapy
     # check if the json file needs to be updated
     readonly json=/mutable/tesla_api.json
     if [ -e $json ] && ! grep -q '"id"' $json
@@ -177,6 +179,8 @@ function install_and_configure_tesla_api () {
   then
     log_progress "Installing tesla_api.py"
     get_script /root/bin tesla_api.py run
+    install_python3_pip
+    pip3 install teslapy
     # Perform the initial authentication
     mount /mutable || log_progress "Failed to mount /mutable"
     if ! /root/bin/tesla_api.py list_vehicles
@@ -196,6 +200,8 @@ function install_archive_scripts () {
   get_script "$install_path" archiveloop run
   get_script "$install_path" waitforidle run
   get_script "$install_path" remountfs_rw run
+  get_script "$install_path" awake_start run
+  get_script "$install_path" awake_stop run
   install_and_configure_tesla_api
   log_progress "Installing archive module scripts"
   get_script /tmp verify-and-configure-archive.sh "$archive_module"

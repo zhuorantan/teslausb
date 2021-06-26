@@ -489,19 +489,7 @@ function archive_teslacam_clips () {
       message+="$trackmode_count track mode file(s)"
     fi
     message+=" starting at $(date)"
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message"
-
-    # Ensure Sentry Mode is enabled before archiving
-    declare is_sentry_mode_enabled
-    if [ -x /root/bin/tesla_api.py ]
-    then
-        is_sentry_mode_enabled=$(/root/bin/tesla_api.py is_sentry_mode_enabled | tr '[:upper:]' '[:lower:]')
-        if [ "false" = "${is_sentry_mode_enabled}" ]
-        then
-            log "Temporarily enabling Sentry Mode to power the RPi while archive job completes..."
-            /root/bin/tesla_api.py enable_sentry_mode &>> ${LOG_FILE}
-        fi
-    fi
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message" || true
 
     # setup trigger files
     local -r triggerdir=/tmp/triggers
@@ -558,7 +546,6 @@ function archive_teslacam_clips () {
       fi
     done < ${sentrylist}
 
-
     # copy the list of archived files back to /mutable if it has changed
     if ! diff -q -N "${sentrylist_archived}" "${sentrylist_previously_archived}" > /dev/null
     then
@@ -580,17 +567,6 @@ function archive_teslacam_clips () {
     local -r delta=$((end_ts - start_ts))
     message+=" in $(convert_seconds_to_nice_time $delta)"
     /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}"
-
-    # If Sentry Mode was previously disabled, restore it to that state
-    if [ -x /root/bin/tesla_api.py ]
-    then
-      if [ "false" = "${is_sentry_mode_enabled}" ]
-      then
-        log "Restoring Sentry Mode to its previous state (disabled)..."
-        /root/bin/tesla_api.py disable_sentry_mode &>> ${LOG_FILE}
-      fi
-    fi
-
   fi
 
   # overlayfs behavior is undefined if the lower is changed while the overlay is active, so umount first
@@ -823,7 +799,11 @@ then
 
   set_time
 
+  /root/bin/awake_start
+
   archive_clips
+
+  /root/bin/awake_stop
 
   doubleblink
 
@@ -846,6 +826,8 @@ do
 
   set_time
 
+  /root/bin/awake_start
+
   sleep "${ARCHIVE_DELAY:-20}"
 
   # take a snapshot before archive_clips starts deleting files
@@ -858,6 +840,8 @@ do
   archive_clips
 
   truncate_log
+
+  /root/bin/awake_stop
 
   doubleblink
 

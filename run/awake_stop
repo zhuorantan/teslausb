@@ -1,0 +1,22 @@
+#!/bin/bash -eu
+
+if [ ! -x /root/bin/tesla_api.py ]
+then
+  exit
+fi
+
+# If Sentry Mode was previously disabled, restore it to that state
+if [ -e /tmp/disable_sentry_after_archiving ]
+then
+  log "Restoring Sentry Mode to its previous state (disabled)..."
+  /root/bin/tesla_api.py disable_sentry_mode &>> "${LOG_FILE}"
+  rm -f /tmp/disable_sentry_after_archiving
+fi
+
+if [ -e /tmp/keep_awake_task_pid ]
+then
+  log "Stopping wake background task."
+  kill "$(cat /tmp/keep_awake_task_pid)" || true
+  rm -f /tmp/keep_awake_task_pid
+fi
+

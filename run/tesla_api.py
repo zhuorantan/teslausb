@@ -5,6 +5,7 @@ import json
 import os
 import random
 import requests
+import teslapy
 import time
 import sys
 from datetime import datetime, timedelta
@@ -14,29 +15,23 @@ from pprint import pprint
 
 # Global vars for use by various functions.
 base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
-oauth_url = 'https://owner-api.teslamotors.com/oauth/token'
 SETTINGS = {
     'DEBUG': False,
+    'REFRESH_TOKEN': False,
     'tesla_email': '',
     'tesla_password': '',
     'tesla_access_token': '',
-    'tesla_refresh_token': '',
     'tesla_vin': '',
-    # If these two stop working, updated ones can be found linked from this page:
-    # https://tesla-api.timdorr.com/api-basics/authentication
-    'TESLA_CLIENT_ID': '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384',
-    'TESLA_CLIENT_SECRET': 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3',
 }
 date_format = '%Y-%m-%d %H:%M:%S'
 # This dict stores the data that will be written to /mutable/tesla_api.json.
 # we load its contents from disk at the start of the script, and save them back
 # to the disk whenever the contents change.
 tesla_api_json = {
+    'email': '',
     'access_token': '',
-    'refresh_token': '',
     'id': 0,
     'vehicle_id': 0,
-    'token_created_at': datetime.strptime('1970-01-01 12:00:00', date_format)
 }
 
 
@@ -128,6 +123,7 @@ def _get_api_token():
     SETTINGS, or from the Tesla API by using the credentials in SETTINGS.
     If those are also not available, kill the script, since it can't continue.
     """
+    os.chdir('/mutable');
     # If the token was already saved, work with that.
     if tesla_api_json['access_token']:
         # Due to what appears to be a bug with the fake-hwclock service,
@@ -139,16 +135,12 @@ def _get_api_token():
         if now.year < 2019: # This script was written in 2019.
             return tesla_api_json['access_token']
 
-        # If it's been 30 days since the token was created, refresh it.
-        if now >= tesla_api_json['token_created_at'] + timedelta(days=30):
-            _refresh_api_token(tesla_api_json['refresh_token'])
-        return tesla_api_json['access_token']
+        tesla = teslapy.Tesla(SETTINGS['tesla_email'], None)
+        if SETTINGS['REFRESH_TOKEN'] or 0 < tesla.expires_at < time.time():
+            _log('Refreshing api token')
+            tesla.refresh_token()
+            tesla_api_json['access_token'] = tesla.token.get('access_token')
 
-    # If there's no token in tesla_api_json, but the user provided a
-    # token in teslausb_setup_variables.conf, refresh the provided token to save
-    # the most up-to-date API data into tesla_api_json.
-    elif SETTINGS['tesla_access_token']:
-        _refresh_api_token(SETTINGS['tesla_refresh_token'])
         return tesla_api_json['access_token']
 
     # If the access token is not already stored in tesla_api_json AND the
@@ -157,69 +149,15 @@ def _get_api_token():
     # to create a new token pair, if they exist.
     elif SETTINGS['tesla_email'] and SETTINGS['tesla_password']:
         # Create a new pair of tokens from the OAuth API.
-        data = {
-          'grant_type': 'password',
-          'client_id': SETTINGS['TESLA_CLIENT_ID'],
-          'client_secret': SETTINGS['TESLA_CLIENT_SECRET'],
-          'email': SETTINGS['tesla_email'],
-          'password': SETTINGS['tesla_password']
-        }
-        headers = {
-            'User-Agent': 'github.com/marcone/teslausb',
-        }
-        _log('Retrieving new API token...')
-        # Useful for debugging credential issues
-        _log("data = {}".format(data))
-        response = requests.post(oauth_url, headers=headers, data=data)
-        result = response.json()
-        if 'access_token' not in result:
-            _error('Unable to create access token:')
-            _error(result)
-            sys.exit(1)
-        _log('Success! New Tokens:\naccess: {}\nrefresh: {}'.format(
-            result['access_token'], result['refresh_token']
-        ))
-        # Write the tokens to tesla_api_json, which is where the rest of the
-        # code retrieves them from.
-        tesla_api_json['access_token'] = result['access_token']
-        tesla_api_json['refresh_token'] = result['refresh_token']
-        tesla_api_json['token_created_at'] = datetime.now()
+        tesla = teslapy.Tesla(SETTINGS['tesla_email'], SETTINGS['tesla_password'])
+        tesla.fetch_token()
+        tesla_api_json['access_token'] = tesla.token.get('access_token')
+        tesla_api_json['email'] = SETTINGS['tesla_email']
         _write_tesla_api_json()
         return tesla_api_json['access_token']
 
     _error('Unable to perform Tesla API functions: no credentials or token.')
     sys.exit(1)
-
-
-def _refresh_api_token(refresh_token):
-    """
-    Given the specified refresh token, perform a refresh and store the new
-    access_token and refresh_token into tesla_api_json.
-    """
-    # Refresh the token.
-    data = {
-      'grant_type': 'refresh_token',
-      'client_id': SETTINGS['TESLA_CLIENT_ID'],
-      'client_secret': SETTINGS['TESLA_CLIENT_SECRET'],
-      'refresh_token': refresh_token,
-    }
-    headers = {
-        'User-Agent': 'github.com/marcone/teslausb',
-    }
-    _log('Refreshing API token...')
-    response = requests.post(oauth_url, headers=headers, data=data)
-    result = response.json()
-    if 'access_token' not in result:
-        _error('Unable to refresh access token:')
-        _error(result)
-        sys.exit(1)
-    _log('Success! New Tokens:\naccess: {}\nrefresh: {}'.format(
-        result['access_token'], result['refresh_token']
-    ))
-    tesla_api_json['access_token'] = result['access_token']
-    tesla_api_json['refresh_token'] = result['refresh_token']
-    tesla_api_json['token_created_at'] = datetime.now()
-    _write_tesla_api_json()
 
 
 def _get_id():
@@ -555,6 +493,11 @@ def _get_arg_parser():
         help="Print debug output."
     )
     parser.add_argument(
+        "--refresh_token",
+        action="store_true",
+        help="Force access token refresh."
+    )
+    parser.add_argument(
         "--email",
         help="Tesla account email."
     )
@@ -570,14 +513,6 @@ def _get_arg_parser():
         "--name",
         help="name of the car."
     )
-    parser.add_argument(
-        "--accesstoken",
-        help="Access token to use instead of email/password"
-    )
-    parser.add_argument(
-        "--refreshtoken",
-        help="Token to refresh access token"
-    )
 
     return parser
 
@@ -589,6 +524,7 @@ def main():
     args = _get_arg_parser().parse_args()
 
     SETTINGS['DEBUG'] = args.debug
+    SETTINGS['REFRESH_TOKEN'] = args.refresh_token
 
     if args.email:
         SETTINGS['tesla_email'] = args.email
@@ -610,18 +546,15 @@ def main():
     else:
         SETTINGS['tesla_name'] = os.environ.get('TESLA_NAME', '')
 
-    if args.accesstoken:
-        SETTINGS['tesla_access_token'] = args.accesstoken
-    else:
-        SETTINGS['tesla_access_token'] = os.environ.get('TESLA_ACCESS_TOKEN', '')
-
-    if args.refreshtoken:
-        SETTINGS['tesla_refresh_token'] = args.refreshtoken
-    else:
-        SETTINGS['tesla_refresh_token'] = os.environ.get('TESLA_REFRESH_TOKEN', '')
-
     # We call this now so DEBUG will be set correctly.
     _load_tesla_api_json()
+
+    if not tesla_api_json.get('email') or tesla_api_json['email'] == '':
+        tesla_api_json['email'] = SETTINGS['tesla_email']
+        _write_tesla_api_json()
+
+    if SETTINGS['tesla_email'] == '':
+        SETTINGS['tesla_email'] = tesla_api_json['email']
 
     # Apply any arguments that the user may have provided.
     kwargs = {}
