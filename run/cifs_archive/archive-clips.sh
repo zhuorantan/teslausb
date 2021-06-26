@@ -30,7 +30,7 @@ connectionmonitor $$ &
 # but rsync doesn't clean these up on subsequent runs. Putting
 # them in a temp dir allows them to be easily cleaned up.
 rsynctmp=".teslausbtmp"
-rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}"
+rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}" || true
 mkdir -p "$ARCHIVE_MOUNT/$rsynctmp"
 
 while [ -n "${1+x}" ]
@@ -41,6 +41,6 @@ do
   shift 2
 done
 
-rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}"
+rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}" || true
 
 kill %1 || true
