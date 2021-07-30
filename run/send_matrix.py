@@ -8,7 +8,7 @@ from nio import AsyncClient, LoginResponse
 
 if len(sys.argv) != 6:
     sys.stderr.write('usage: %s HOMESERVER_URL USERNAME PASSWORD ROOM_ID MESSAGE_TEXT\n' % sys.argv[0])
-    sys.exit(-1)
+    sys.exit(1)
 
 (homeserver, username, password, room_id, message) = sys.argv[1:6]
 
@@ -27,7 +27,7 @@ async def main() -> None:
 
     if not isinstance(response, LoginResponse):
         sys.stderr.write('Failed to connect to Matrix server.\n')
-        sys.exit(-1)
+        sys.exit(1)
 
     await client.room_send(
         room_id=room_id,
