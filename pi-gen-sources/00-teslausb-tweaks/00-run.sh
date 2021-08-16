@@ -11,6 +11,12 @@ on_chroot << EOF
 /usr/bin/c_rehash /etc/ssl/certs/
 EOF
 
+on_chroot << EOF
+apt-get remove -y --force-yes --purge triggerhappy bluez alsa-utils
+rm -rf /lib/modules/*-v7+
+rm -rf /lib/modules/*-v8+
+EOF
+
 # Below here is the rest of the stage2 (builds the Stretch lite image)
 # run script commented out just to give guidance on things that can be done.
 
