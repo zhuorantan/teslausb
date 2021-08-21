@@ -33,11 +33,18 @@ rsynctmp=".teslausbtmp"
 rm -rf "$ARCHIVE_MOUNT/${rsynctmp:?}" || true
 mkdir -p "$ARCHIVE_MOUNT/$rsynctmp"
 
+rm -f /tmp/archive-rsync-cmd.log /tmp/archive-error.log
+
 while [ -n "${1+x}" ]
 do
-  rsync -avhRL --remove-source-files --temp-dir="$rsynctmp" --no-perms --omit-dir-times --stats \
+  if ! (rsync -avhRL --remove-source-files --temp-dir="$rsynctmp" --no-perms --omit-dir-times --stats \
         --log-file=/tmp/archive-rsync-cmd.log --ignore-missing-args \
-        --files-from="$2" "$1/" "$ARCHIVE_MOUNT" &> /tmp/rsynclog || [[ "$?" = "24" ]]
+        --files-from="$2" "$1/" "$ARCHIVE_MOUNT" &> /tmp/rsynclog || [[ "$?" = "24" ]] )
+  then
+    cat /tmp/archive-rsync-cmd.log /tmp/rsynclog > /tmp/archive-error.log
+    exit 1
+  fi
+
   shift 2
 done
 

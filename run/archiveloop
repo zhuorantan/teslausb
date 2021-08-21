@@ -567,6 +567,12 @@ function archive_teslacam_clips () {
     local -r delta=$((end_ts - start_ts))
     message+=" in $(convert_seconds_to_nice_time $delta)"
     /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}"
+
+    if [ -e /tmp/archive-error.log ]
+    then
+      cat /tmp/archive-error.log >> ${LOG_FILE}
+      rm /tmp/archive-error.log
+    fi
   fi
 
   # overlayfs behavior is undefined if the lower is changed while the overlay is active, so umount first
@@ -799,11 +805,11 @@ then
 
   set_time
 
-  /root/bin/awake_start
+  /root/bin/awake_start || true
 
   archive_clips
 
-  /root/bin/awake_stop
+  /root/bin/awake_stop || true
 
   doubleblink
 
@@ -826,7 +832,7 @@ do
 
   set_time
 
-  /root/bin/awake_start
+  /root/bin/awake_start || true
 
   sleep "${ARCHIVE_DELAY:-20}"
 
@@ -841,7 +847,7 @@ do
 
   truncate_log
 
-  /root/bin/awake_stop
+  /root/bin/awake_stop || true
 
   doubleblink
 
