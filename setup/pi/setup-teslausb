@@ -389,7 +389,7 @@ function make_root_fs_readonly () {
 
 function update_package_index () {
   setup_progress "Updating package index files..."
-  while ! apt-get update
+  while ! apt-get update --allow-releaseinfo-change
   do
     setup_progress "Failed, retrying"
     sleep 2
