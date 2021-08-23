@@ -174,7 +174,10 @@ video {
 }
 
 .slider {
-    margin: .4rem;
+    margin-left: .4rem;
+    margin-right: .4rem;
+    margin-top: .4rem;
+    margin-bottom: 0;
 }
 
 #videocontrols {
@@ -387,7 +390,10 @@ svg:hover {
 </table>
 <div id="videocontrols" >
   <input type="range" class="slider" id="position" name="position"
-         min="0" max="60" style="width:90%;max-width:600px;height:70%;">
+         min="0" max="60" style="width:90%;max-width:600px;height:10%;">
+  <div id="tickmarks" style="width:90%;max-width:600px;height:10px;">
+    <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
+  </div>
   <div class="buttoncontainer">
     <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
       <svg><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
@@ -532,7 +538,7 @@ function starttailing({url, pre, button}) {
   request.send();
 }
 
-function readfile({url, callback, pre, tail, button}) {
+function readfile({url, callback, callbackarg, pre, tail, button}) {
   var request = new XMLHttpRequest();
   request.open('GET', cachebustingurl(url));
   request.onreadystatechange = function () {
@@ -540,7 +546,7 @@ function readfile({url, callback, pre, tail, button}) {
       var type = request.getResponseHeader('Content-Type');
       if (type.indexOf("text") !== 1) {
         if (callback != null) {
-          callback(request.responseText);
+          callback(request.responseText, callbackarg);
         }
         if (pre != null) {
           var preobj = document.getElementById(pre);
@@ -880,13 +886,26 @@ class VideoSegment {
 }
 
 var ro = new ResizeObserver(entries => {
-  if (currentsequence != undefined) {
-    currentsequence.onMapResize();
+  log(entries);
+  for (var entry of entries) {
+    entry.target.resizeHandler();
   }
 });
 
 var m = document.getElementById('sentrymap');
+m.resizeHandler = function() {
+  if (currentsequence != undefined) {
+    currentsequence.onMapResize();
+  }
+}
 ro.observe(m);
+var t = document.getElementById('tickmarkscanvas');
+t.resizeHandler = function () {
+  if (currentsequence != undefined) {
+    currentsequence.onTickResize();
+  }
+}
+ro.observe(t);
 
 /* a sequence of segments, e.g. a single sentry event, or a day's worth of RecentClips */
 class VideoSequence {
@@ -896,9 +915,8 @@ class VideoSequence {
   sequencename;
   currentsegmentidx;
   isplaying;
-  json;
-  lat;
-  lon;
+  jsonfile;
+  jsonparsed;
 
   constructor(group, name) {
     this.segments = [];
@@ -952,15 +970,16 @@ class VideoSequence {
     slider.onchange =  this.onSeekEnd.bind(this);
     this.seekTo(0);
     this.onMapResize();
+    this.onTickResize();
   }
 
   onMapResize() {
+    log("onMapResize");
     var m = document.getElementById('sentrymap');
     log("map resized to " + m.clientWidth + "x" + m.clientHeight);
-
-    if (this.lat != undefined && this.lon != undefined) {
+    if (this.jsonparsed != undefined && this.jsonparsed.est_lat != undefined && this.jsonparsed.est_lon != undefined) {
       var url = "https://www.bing.com/maps/embed?w=" + m.clientWidth + "&h=" + m.clientHeight +
-                "&cp=" + this.lat + "~" + this.lon + "&lvl=18&typ=d&sty=h&src=SHELL&FORM=MBEDV8";
+                "&cp=" + this.jsonparsed.est_lat + "~" + this.jsonparsed.est_lon + "&lvl=18&typ=d&sty=h&src=SHELL&FORM=MBEDV8";
       log("url: " + url);
       // For some reason resize events are reported even when the size
       // didn't actually change, so don't set the url the same value
@@ -974,21 +993,84 @@ class VideoSequence {
 
     m.style.visibility = "hidden";
 
-    if (this.json == undefined) {
-      log("no location");
+    this.readJsonIfNeeded();
+  }
+
+  readJsonIfNeeded() {
+    if (this.jsonparsed != undefined) {
+      // no need to parse json again
+      log("already parsed json");
       return;
     }
 
-    var jsonurl = "TeslaCam/" + this.sequencegroup + "/" + this.sequencename + "/" + this.json;
-    this.json = undefined;
-    readfile({url:jsonurl, callback:function(value) {
+    if (this.jsonfile === null) {
+      log("json fetch in progress");
+      return;
+    }
+
+    if (this.jsonfile === undefined) {
+      log("no json");
+      return;
+    }
+
+    var jsonurl = "TeslaCam/" + this.sequencegroup + "/" + this.sequencename + "/" + this.jsonfile;
+    // clear this so we only do this once
+    this.jsonfile = null;
+    log("starting json fetch");
+    readfile({url:jsonurl, callbackarg:this, callback:function(value, thiz) {
+	if (thiz != currentsequence) {
+          return;
+        }
+        log("json read callback");
         log(value);
-        var parsed = JSON.parse(value);
-        log(parsed);
-        currentsequence.lat = parsed.est_lat;
-        currentsequence.lon = parsed.est_lon;
-        currentsequence.onMapResize();
+        thiz.jsonparsed = JSON.parse(value);
+        log(thiz.jsonparsed);
+        thiz.onMapResize();
+        thiz.onTickResize();
     }});
+  }
+
+  drawTick(percent) {
+    var c = document.getElementById('tickmarkscanvas');
+    var t = c.getContext("2d");
+    var w = c.width - 15;
+    var h = c.height;
+    t.fillStyle = "#ffffff"
+    t.beginPath();
+    t.moveTo(7.5 + w * percent, 0);
+    t.lineTo(7.5 + w * percent + h / 2, h);
+    t.lineTo(7.5 + w * percent - h / 2, h);
+    t.fill();
+  }
+
+  onTickResize() {
+    log("onTickResize");
+    var c = document.getElementById('tickmarkscanvas');
+    log("tickmarks resized to " + c.clientWidth + "x" + c.clientHeight);
+    c.width = c.clientWidth;
+    c.height = c.clientHeight;
+    /* TODO: draw tickmarks at Sentry event times */
+    if (this.jsonparsed != undefined && this.jsonparsed.timestamp != undefined) {
+      var eventTimeMs = Date.parse(this.jsonparsed.timestamp);
+      var eventSegmentStartMs;
+      var segmentIdx;
+      for (segmentIdx = this.length() - 1; segmentIdx >= 0; segmentIdx--) {
+        var segment = this.getSegmentByIndex(segmentIdx);
+        var s = segment.front;
+        eventSegmentStartMs = Date.parse(
+		s.substring(0,10) + "T" + s.substring(11,13) + ":" + s.substring(14,16) + ":" + s.substring(17, 19));
+        if (eventSegmentStartMs <= eventTimeMs) {
+          break;
+        }
+      }
+      var offsetIntoSegment = eventTimeMs - eventSegmentStartMs;
+      var eventOffsetMs = (segmentIdx * 60 * 1000) + offsetIntoSegment;
+      var sequenceLengthMs = this.length() * 60 * 1000;
+      this.drawTick(eventOffsetMs / sequenceLengthMs);
+      log(eventOffsetMs / sequenceLengthMs);
+      return;
+    }
+    this.readJsonIfNeeded();
   }
 
   onSeekStart(event) {
@@ -1151,7 +1233,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     } else if (filename.includes("thumb")) {
       sequence.thumb=filename;
     } else if (filename.includes("json")) {
-      sequence.json=filename;
+      sequence.jsonfile=filename;
     }
   }
   newestsequence.select();
@@ -1159,6 +1241,10 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
     var d=document.getElementById(i);
     for (c in videos[i]) {
+      if (videos[i][c].getSegmentByIndex(0) == undefined) {
+        log("skipping empty " + i + "/" + c);
+        continue;
+      }
       var newelem = document.createElement("a");
       newelem.innerHTML = c.toString();
       newelem.group=i;
