@@ -394,6 +394,7 @@ function archive_teslacam_clips () {
   local -r overlaywork=/tmp/cam/work
   local -r overlaymerged=/tmp/cam/merged
 
+  rm -rf "$overlayupper" "$overlaywork" "$overlaymerged"
   mkdir -p "$overlayupper" "$overlaywork" "$overlaymerged"
 
   mount -t overlay overlay -o "lowerdir=$overlaylower,upperdir=$overlayupper,workdir=$overlaywork" "$overlaymerged"
@@ -428,7 +429,7 @@ function archive_teslacam_clips () {
   then
     recentclipsopt=("-o" "-path" "./RecentClips/*")
   fi
-  (cd "$overlaymerged"; find . \( \( "${savedclipsopt[@]}" "${sentryclipsopt[@]}" "${trackmodeclipsopt[@]}" "${recentclipsopt[@]}" \) -type l \) \
+  (cd "$overlaylower"; find . \( \( "${savedclipsopt[@]}" "${sentryclipsopt[@]}" "${trackmodeclipsopt[@]}" "${recentclipsopt[@]}" \) -type l \) \
         -a -fprintf "$sentrylist" '%P\n')
 
   # Copy lists of previously-archived files from /mutable
