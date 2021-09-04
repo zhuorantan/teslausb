@@ -88,6 +88,7 @@ function read_setup_variables {
   export CAM_SIZE=${CAM_SIZE:-90%}
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
   export USB_DRIVE=${USB_DRIVE:-''}
+  export USE_EXFAT=${USE_EXFAT:-false}
 }
 
 if [ "$0" = "-bash" ]
@@ -331,7 +332,7 @@ function create_usb_drive_backing_files () {
   if [ ! -e $BACKINGFILES_MOUNTPOINT/cam_disk.bin ]
   then
     setup_progress "Creating backing disk files."
-    /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT"
+    /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT" "$USE_EXFAT"
   else
     # mount cam image and make sure the right directories exist
     umount /mnt/cam > /dev/null || true

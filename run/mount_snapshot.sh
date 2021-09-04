@@ -29,9 +29,10 @@ cp --reflink=always "$SRC" "$SNAP"
 # create loopback and scan the partition table, this will create an additional loop
 # device in addition to the main loop device, e.g. /dev/loop0 and /dev/loop0p1
 
+# Use -p repair arg. It works with vfat and exfat.
 LOOP=$(losetup --show -P -f "$SNAP")
 PARTLOOP=${LOOP}p1
-fsck "$PARTLOOP" -- -a || true
+fsck "$PARTLOOP" -- -p || true
 
 # don't need to mount, because autofs will
 losetup -d "$LOOP"

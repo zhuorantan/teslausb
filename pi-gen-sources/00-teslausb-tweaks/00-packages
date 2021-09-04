@@ -8,3 +8,4 @@ nginx
 fcgiwrap
 libnginx-mod-http-fancyindex
 libfuse-dev
+exfatprogs

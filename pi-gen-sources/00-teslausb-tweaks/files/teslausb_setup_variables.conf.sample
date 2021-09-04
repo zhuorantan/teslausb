@@ -70,6 +70,13 @@ export SHARE_PASSWORD=password
 export CAM_SIZE=30G
 #export MUSIC_SIZE=4G
 
+# Use ExFAT filesystem instead of FAT32. 
+# 
+# ExFAT is supported by Tesla, and is supposed to be
+# slightly faster than FAT32. The 20210805 prebuilt
+# image already comes with kernel ExFAT support.
+# export USE_EXFAT=true
+
 # If you want to automatically copy music from a CIFS share every time
 # the Pi connects to wifi, set the following variable. The share is
 # assumed to exist on the same server as the archive share. It can
