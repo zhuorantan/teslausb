@@ -136,6 +136,22 @@ function create_default_entries () {
   fi
 }
 
+function check_for_exfat_support () {
+  # First check for built-in ExFAT support
+  # If that fails, check for an ExFAT module
+  # in this last case exfat doesn't appear
+  # in /proc/filesystems if the module is not loaded.
+  if grep -q exfat /proc/filesystems &> /dev/null
+  then
+    return 0;
+  elif modprobe -n exfat &> /dev/null
+  then
+    return 0;
+  else 
+    return 1;  
+  fi
+}
+
 CAM_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/cam_disk.bin"
 MUSIC_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/music_disk.bin"
 
@@ -165,7 +181,7 @@ rm -rf "$BACKINGFILES_MOUNTPOINT/snapshots"
 if [ "$USE_EXFAT" = true  ]
 then
   # Check if kernel supports ExFAT 
-  if ! grep -q exfat /proc/filesystems &> /dev/null
+  if ! check_for_exfat_support
   then
     log_progress "kernel does not support ExFAT FS. Reverting to FAT32."
     USE_EXFAT=false
