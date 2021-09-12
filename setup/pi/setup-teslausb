@@ -497,6 +497,11 @@ function cmd_upgrade {
     echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
     exit 1
   fi
+  if [ "$(. /etc/os-release && echo "$VERSION_ID")" = "9" ]
+  then
+    echo "STOP: can't upgrade Stretch-based install. Please flash the latest prebuilt."
+    exit 1
+  fi
   get_script /tmp setup-teslausb setup/pi &> /dev/null
   exec bash -c "/tmp/setup-teslausb upgrade_prepare && /tmp/setup-teslausb && /tmp/setup-teslausb upgrade_finish" < /dev/null
 }
