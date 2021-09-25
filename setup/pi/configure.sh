@@ -272,6 +272,23 @@ function check_gotify_configuration () {
   fi
 }
 
+function check_discord_configuration() {
+  if [ "${DISCORD_ENABLED:-false}" = "true" ]
+  then
+    if [ -z "${DISCORD_WEBHOOK_URL+x}" ]
+    then
+      log_progress "STOP: You're trying to setup Discord but didn't provide your Webhook URL."
+      log_progress "Define the variables like this:"
+      log_progress "export DISCORD_WEBHOOK_URL=put_your_webhook_url_here"
+      exit 1
+    elif [ "${DISCORD_WEBHOOK_URL}" = "put_your_webhook_url_here" ]
+    then
+      log_progress "STOP: You're trying to setup Discord, but didn't replace the default Webhook URL"
+      exit 1
+    fi
+  fi
+}
+
 function check_ifttt_configuration () {
   if [ "${IFTTT_ENABLED:-false}" = "true" ]
   then
@@ -405,6 +422,15 @@ function configure_gotify () {
   fi
 }
 
+function configure_discord () {
+  if [ "${DISCORD_ENABLED:-false}" = "true" ]
+  then
+    log_progress "Discord enabled."
+  else
+    log_progress "Discord not enabled."
+  fi
+}
+
 function configure_ifttt () {
   # remove legacy file
   rm -f /root/.teslaCamIftttSettings
@@ -489,6 +515,12 @@ function check_and_configure_gotify () {
   configure_gotify
 }
 
+function check_and_configure_discord () {
+  check_discord_configuration
+
+  configure_discord
+}
+
 function check_and_configure_ifttt () {
   check_ifttt_configuration
 
@@ -543,6 +575,7 @@ mkdir -p /root/bin
 check_and_configure_pushover
 check_and_configure_gotify
 check_and_configure_ifttt
+check_and_configure_discord
 check_and_configure_webhook
 check_and_configure_slack
 check_and_configure_matrix

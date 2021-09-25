@@ -1,4 +1,4 @@
-OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), [IFTTT](https://ifttt.com), [Telegram](https://telegram.org) and/or [AWS SNS](https://aws.amazon.com/sns/) to get a push/email notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
+OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net), [Gotify](https://gotify.net/), [IFTTT](https://ifttt.com), [Telegram](https://telegram.org), [AWS SNS](https://aws.amazon.com/sns/), and/or [Discord](https://discord.com/) to get a push/email notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.).
 
 # Pushover
 The Pushover service is free for up to 7,500 messages per month, but the [iOS](https://pushover.net/clients/ios)/[Android](https://pushover.net/clients/android) apps do have a one time cost, after a free trial period. *This also assumes your Pi is connected to a network with internet access.*
@@ -128,3 +128,19 @@ Notifications can be sent via webhook to channels or DM in Slack.
     export SLACK_ENABLED=true
     export SLACK_WEBHOOK_URL=http://localhost
     ```
+
+# Discord
+Discord is a voice, video, and text communication service that can be configured to send notifications. It requires a free server or adequate permissions to configure a webhook integration on an existing server.
+
+1. Open Discord and click the name of the server or the cog next to the channel in which you'd like the notifications to appear.
+2. Click Integrations > Webhooks > New Webhook
+3. Give your webhook a name and choose the channel you'd like the notifications to appear in
+4. Click Copy Webhook URL
+5. Remove the comments and update the following values in the `teslausb_setup_variables.conf` file
+
+   ```
+   export DISCORD_ENABLED=true
+   export DISCORD_WEBHOOK_URL=put_your_webhook_url_here
+   ```
+
+Replace the entire URL string with your URL from Step 4

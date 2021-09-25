@@ -135,6 +135,10 @@ export WIFIPASS='your_pass'
 # export IFTTT_EVENT_NAME=put_your_event_name_here
 # export IFTTT_KEY=put_your_key_here
 
+# Uncomment if setting up Discord push notifications
+# export DISCORD_ENABLED=true
+# export DISCORD_WEBHOOK_URL=put_your_webhook_url_here
+
 # Uncomment if setting up AWS SNS notifications
 # export SNS_ENABLED=true
 # export AWS_REGION=us-east-1

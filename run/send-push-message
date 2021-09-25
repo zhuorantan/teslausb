@@ -23,6 +23,14 @@ function send_gotify () {
     "$GOTIFY_DOMAIN/message?token=$GOTIFY_APP_TOKEN"
 }
 
+function send_discord() {
+  log "Sending Discord message."
+
+  curl -H "Content-Type: application/json" -d \
+    '{"username": "TeslaUSB", "content": "'"$message"'"}' \
+    "$DISCORD_WEBHOOK_URL"
+}
+
 function send_ifttt () {
   log "Sending IFTTT message."
 
@@ -69,6 +77,7 @@ log "$message"
 
 [ "${PUSHOVER_ENABLED:-false}" = "true" ] && send_pushover
 [ "${GOTIFY_ENABLED:-false}" = "true" ] && send_gotify
+[ "${DISCORD_ENABLED:-false}" = "true" ] && send_discord
 [ "${IFTTT_ENABLED:-false}" = "true" ] && send_ifttt
 [ "${SNS_ENABLED:-false}" = "true" ] && send_sns
 [ "${WEBHOOK_ENABLED:-false}" = "true" ] && send_webhook
