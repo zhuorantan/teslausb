@@ -651,6 +651,11 @@ function cmd_diagnose {
       echo "WARNING: using $REPO/$BRANCH"
     fi
 
+    if [ -x /root/bin/archive-filter ]
+    then
+      echo "Custom archive filter is in use"
+    fi
+
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DEVICE}" print || true
     if [ -n "${USB_DRIVE:+x}" ]

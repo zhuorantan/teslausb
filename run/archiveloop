@@ -315,6 +315,13 @@ function convert_seconds_to_nice_time () {
   fi
 }
 
+function filterfile {
+  if [ -x /root/bin/archive-filter ]
+  then
+    /root/bin/archive-filter "$1"
+  fi
+}
+
 function sortfile {
   touch "$1"
   sort "$1" > /tmp/sort_tmp.$$
@@ -460,6 +467,9 @@ function archive_teslacam_clips () {
 
   # remove the short files from the list of files to be archived
   prunefile "${sentrylist}" "${ignorelist}"
+
+  # apply custom removals/additions
+  filterfile "${sentrylist}"
 
   local -r sentry_count=$(grep -c -v TeslaTrackMode "$sentrylist")
   local -r trackmode_count=$(grep -c TeslaTrackMode "$sentrylist")
