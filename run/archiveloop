@@ -158,7 +158,7 @@ function mount_mountpoint () {
   log "Mounting $mount_point..."
 
   local mounted=true
-  mount "$mount_point" >> "$LOG_FILE" 2>&1 || mounted=false
+  timeout 10 mount "$mount_point" >> "$LOG_FILE" 2>&1 || mounted=false
   if [ "$mounted" = true ]
   then
     log "Mounted $mount_point."
