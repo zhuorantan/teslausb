@@ -13,6 +13,8 @@ shellcheck --exclude=SC1091 \
            ./run/auto.teslausb \
            ./run/awake_start \
            ./run/awake_stop \
+           ./run/mountimage \
+           ./run/mountoptsforimage \
            ./run/remountfs_rw \
            ./run/send-push-message \
            ./run/waitforidle \

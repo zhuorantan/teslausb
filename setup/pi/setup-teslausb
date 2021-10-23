@@ -294,6 +294,9 @@ function get_common_scripts () {
   get_script /root/bin mount_snapshot.sh run
   get_script /root/bin release_snapshot.sh run
   get_script /root/bin force_sync.sh run
+  get_script /root/bin mountoptsforimage run
+  get_script /root/bin mountimage run
+  ln -sf /root/bin/mountimage /usr/sbin/mount.teslausb
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -307,6 +310,17 @@ function fix_cmdline_txt_modules_load ()
 
 BACKINGFILES_MOUNTPOINT=/backingfiles
 MUTABLE_MOUNTPOINT=/mutable
+
+function update_backingfiles_fstab_entry () {
+  local filename="$1"
+  local mountpoint="$2"
+  sed -i "\@^$filename .*@d" /etc/fstab
+  if [ -e "$filename" ]
+  then
+    echo "$filename $mountpoint teslausb noauto 0 0" >> /etc/fstab
+    setup_progress "updated /etc/fstab for $mountpoint"
+  fi
+}
 
 function create_usb_drive_backing_files () {
   if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
@@ -339,33 +353,43 @@ function create_usb_drive_backing_files () {
   then
     setup_progress "Creating backing disk files."
     /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT" "$USE_EXFAT"
-  else
-    # mount cam image and make sure the right directories exist
-    umount /mnt/cam > /dev/null || true
-    if modprobe -r g_mass_storage && mount /mnt/cam
+  fi
+
+  update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/cam_disk.bin /mnt/cam
+  update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/music_disk.bin /mnt/music
+
+  # mount cam image and make sure the right directories exist
+  umount /mnt/cam > /dev/null || true
+  if modprobe -r g_mass_storage && mount /mnt/cam
+  then
+    mkdir -p /mnt/cam/TeslaCam
+    mkdir -p /mnt/cam/TeslaTrackMode
+    touch /mnt/cam/.metadata_never_index
+
+    local -r sentrylist_previously_archived=/mutable/sentry_files_archived
+
+    # For upgrades from before snapshot-archiving, assume everything from the
+    # snapshots -except the files still on the disk image- was already archived,
+    # to avoid re-archiving things that were manually deleted from the archive
+    # server.
+    if [ ! -e "$sentrylist_previously_archived" ] && [ -d "$MUTABLE_MOUNTPOINT/TeslaCam" ]
     then
-      mkdir -p /mnt/cam/TeslaCam
-      mkdir -p /mnt/cam/TeslaTrackMode
-
-      local -r sentrylist_previously_archived=/mutable/sentry_files_archived
-
-      # For upgrades from before snapshot-archiving, assume everything from the
-      # snapshots -except the files still on the disk image- was already archived,
-      # to avoid re-archiving things that were manually deleted from the archive
-      # server.
-      if [ ! -e "$sentrylist_previously_archived" ] && [ -d "$MUTABLE_MOUNTPOINT/TeslaCam" ]
-      then
-        find "$MUTABLE_MOUNTPOINT/TeslaCam" -type l -printf '%P\n' | sort > /tmp/allfiles.txt
-        find /mnt/cam/TeslaCam /mnt/cam/ -type f -printf '%P\n' | sort > /tmp/stilloncard.txt
-        comm -2 -3 /tmp/allfiles.txt /tmp/stilloncard.txt > "$sentrylist_previously_archived"
-        rm -f /tmp/allfiles.txt /tmp/stilloncard.txt
-      fi
-
-      umount /mnt/cam
-    else
-      setup_progress "STOP: Couldn't check image"
-      exit 1
+      find "$MUTABLE_MOUNTPOINT/TeslaCam" -type l -printf '%P\n' | sort > /tmp/allfiles.txt
+      find /mnt/cam/TeslaCam /mnt/cam/ -type f -printf '%P\n' | sort > /tmp/stilloncard.txt
+      comm -2 -3 /tmp/allfiles.txt /tmp/stilloncard.txt > "$sentrylist_previously_archived"
+      rm -f /tmp/allfiles.txt /tmp/stilloncard.txt
     fi
+
+    umount /mnt/cam
+
+    if mount /mnt/music
+    then
+      touch /mnt/music/.metadata_never_index
+      umount /mnt/music
+    fi
+  else
+    setup_progress "STOP: Couldn't check image"
+    exit 1
   fi
 }
 
@@ -654,6 +678,13 @@ function cmd_diagnose {
     if [ -x /root/bin/archive-filter ]
     then
       echo "Custom archive filter is in use"
+    fi
+
+    read -r offset <<<"$(sfdisk -l -q -o START /backingfiles/cam_disk.bin | tail -1)"
+    fstype=$(blkid --probe -o value -s TYPE --offset $((offset*512)) /backingfiles/cam_disk.bin)
+    if [ "$fstype" = "exfat" ]
+    then
+      echo "CAM drive is formatted as ExFAT. Recommend using FAT32 instead."
     fi
 
     echo -e "====== disk / images ======"

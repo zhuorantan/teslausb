@@ -112,28 +112,6 @@ function add_drive () {
   then
     mkdir "$mountpoint"
   fi
-  sed -i "\@^$filename .*@d" /etc/fstab
-  if [ "$useexfat" = true  ]
-  then
-    echo "$filename $mountpoint exfat noauto,users,umask=000,offset=$partition_offset 0 0" >> /etc/fstab
-  else
-    echo "$filename $mountpoint vfat utf8,noauto,users,umask=000,offset=$partition_offset 0 0" >> /etc/fstab
-  fi
-  log_progress "updated /etc/fstab for $mountpoint"
-}
-
-function create_default_entries () {
-  mount /mnt/cam
-  mkdir /mnt/cam/TeslaCam
-  mkdir /mnt/cam/TeslaTrackMode
-  touch /mnt/cam/.metadata_never_index
-  umount /mnt/cam
-  if [ -e /mnt/music ]
-  then
-    mount /mnt/music
-    touch /mnt/music/.metadata_never_index
-    umount /mnt/music
-  fi
 }
 
 function check_for_exfat_support () {
@@ -178,20 +156,20 @@ rm -f "$CAM_DISK_FILE_NAME"
 rm -f "$MUSIC_DISK_FILE_NAME"
 rm -rf "$BACKINGFILES_MOUNTPOINT/snapshots"
 
-if [ "$USE_EXFAT" = true  ]
+# Check if kernel supports ExFAT 
+if ! check_for_exfat_support
 then
-  # Check if kernel supports ExFAT 
-  if ! check_for_exfat_support
+  if [ "$USE_EXFAT" = true  ]
   then
     log_progress "kernel does not support ExFAT FS. Reverting to FAT32."
     USE_EXFAT=false
-  else
-    # install exfatprogs if needed
-    if ! hash mkfs.exfat &> /dev/null
-    then
-      /root/bin/remountfs_rw
-      apt install -y exfatprogs
-    fi
+  fi
+else
+  # install exfatprogs if needed
+  if ! hash mkfs.exfat &> /dev/null
+  then
+    /root/bin/remountfs_rw
+    apt install -y exfatprogs
   fi
 fi
 
@@ -220,5 +198,4 @@ else
   echo "options g_mass_storage file=$CAM_DISK_FILE_NAME removable=1 ro=0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 fi
 
-create_default_entries
 log_progress "done"

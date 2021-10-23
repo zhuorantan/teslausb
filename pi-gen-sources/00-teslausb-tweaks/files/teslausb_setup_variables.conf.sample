@@ -72,9 +72,10 @@ export CAM_SIZE=30G
 
 # Use ExFAT filesystem instead of FAT32. 
 # 
-# ExFAT is supported by Tesla, and is supposed to be
-# slightly faster than FAT32. The 20210805 prebuilt
-# image already comes with kernel ExFAT support.
+# ExFAT is the filesystem used by Tesla when the drive is formatted
+# in the car. While TeslaUSB supports ExFAT, it is recommended to
+# use the FAT32 format because the Linux ExFAT implementation
+# does not support TRIM.
 # export USE_EXFAT=true
 
 # If you want to automatically copy music from a CIFS share every time
