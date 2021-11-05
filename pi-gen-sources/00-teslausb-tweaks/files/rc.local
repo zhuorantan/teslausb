@@ -34,6 +34,7 @@ function get_script () {
   while ! curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   do
     setup_progress "get_script failed, retrying"
+    sntp -S time.google.com || true
     sleep 3
   done
   chmod +x "$local_path/$name"

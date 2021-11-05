@@ -13,7 +13,6 @@ EOF
 
 on_chroot << EOF
 apt-get remove -y --force-yes --purge triggerhappy bluez alsa-utils
-rm -rf /lib/modules/*-v7+
 rm -rf /lib/modules/*-v8+
 EOF
 
