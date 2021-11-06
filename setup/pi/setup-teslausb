@@ -296,7 +296,7 @@ function get_common_scripts () {
   get_script /root/bin force_sync.sh run
   get_script /root/bin mountoptsforimage run
   get_script /root/bin mountimage run
-  ln -sf /root/bin/mountimage /usr/sbin/mount.teslausb
+  ln -sf /root/bin/mountimage /sbin/mount.teslausb
 }
 
 function fix_cmdline_txt_modules_load ()
