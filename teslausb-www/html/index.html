@@ -157,14 +157,27 @@ video {
   z-index: 12;
 }
 
-.subnav-content a {
+.subnav-content .dropdownitem {
   float: left;
   color: white;
   text-decoration: none;
   padding: 14px 8px;
 }
 
-.subnav-content a:hover {
+.subnav-content .selecteddropdownitem {
+  float: left;
+  color: white;
+  text-decoration: underline 2px;
+  font-weight: bold;
+  padding: 14px 8px;
+}
+
+.subnav-content .dropdownitem:hover {
+  background-color: #eee;
+  color: black;
+}
+
+.subnav-content .selecteddropdownitem:hover {
   background-color: #eee;
   color: black;
 }
@@ -209,7 +222,25 @@ video {
   transition: opacity 0.5s;
 }
 
-svg {
+.settingsbutton {
+  width: 100%;
+  height: 100%;
+  fill: grey;
+  stroke: grey;
+  stroke-width: 1px;
+  opacity="1"
+}
+
+.settingsbutton:hover {
+  width: 100%;
+  height: 100%;
+  fill: black;
+  stroke: black;
+  stroke-width: 1px;
+  opacity="1"
+}
+
+.mediabutton {
   width: 100%;
   height: 100%;
   fill: black;
@@ -217,7 +248,7 @@ svg {
   stroke-width: 3px;
 }
 
-svg:hover {
+.mediabutton:hover {
   fill: white;
   stroke: white;
   width: 100%;
@@ -288,7 +319,18 @@ svg:hover {
 <input class="tabheader" type="radio" name="tabs" id="tab6" checked />
 <label for="tab6">Viewer</label>
 
-<a href="https://www.github.com/marcone/teslausb" target="_blank" style="float:right;font-size:70%;">TeslaUSB on GitHub</a>
+<div style="float:right;">
+<div style="float:left;margin-top: 7px;margin-left: 0px;margin-right: 5px;">
+<a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;">TeslaUSB on GitHub</a>
+</div>
+<!--
+<div style="padding-left:5px;font-size:200%;float:right;">
+<svg class="settingsbutton" width="25px" height="25px" viewBox="0 0 40 40">
+  <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
+</svg>
+</div>
+-->
+</div>
 
 <div class="tab content1">
 <div style="width:100%;height:100%">
@@ -396,13 +438,13 @@ svg:hover {
   </div>
   <div class="buttoncontainer">
     <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
-      <svg><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
+      <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
     </button>
     <button id="playpause" class="flatbutton play" onclick="startPlaying()">
-      <svg><path d="M 8,30 30,18 8,6 z"></path></svg>
+      <svg class="mediabutton"><path d="M 8,30 30,18 8,6 z"></path></svg>
     </button>
     <button id="skipforward" class="flatbutton skipforward" onclick="skipForward()">
-      <svg><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
+      <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
     </button>
   </div>
 </div>
@@ -1249,8 +1291,18 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       newelem.innerHTML = c.toString();
       newelem.group=i;
       newelem.sequence=videos[i][c];
+      if (newelem.sequence == newestsequence) {
+        newelem.className='selecteddropdownitem';
+      } else {
+        newelem.className='dropdownitem';
+      }
       newelem.onclick=function() {
         log(this.sequence);
+        var previousselected = document.getElementsByClassName('selecteddropdownitem');
+        for (item of previousselected) {
+          item.className='dropdownitem';
+        }
+        this.className='selecteddropdownitem'
         this.parentElement.style.display="none";
         /* There's probably a better way, but I couldn't figure it out.
            This hides the menu dropdown when clicked, then re-enables
