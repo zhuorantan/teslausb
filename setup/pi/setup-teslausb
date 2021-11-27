@@ -296,6 +296,10 @@ function get_common_scripts () {
   get_script /root/bin force_sync.sh run
   get_script /root/bin mountoptsforimage run
   get_script /root/bin mountimage run
+  get_script /root/bin prepare_gadget.sh run
+  get_script /root/bin release_gadget.sh run
+  get_script /root/bin enable_gadget_drives.sh run
+  get_script /root/bin disable_gadget_drives.sh run
   ln -sf /root/bin/mountimage /sbin/mount.teslausb
 }
 
