@@ -255,6 +255,8 @@ video {
   height: 100%;
 }
 
+/* the play/pause button is done with CSS in Chrome, and html/javascript
+   in Firefox, because Firefox doesn't support setting paths in css */
 .play svg path {
   d: path('M 8,30 30,18 8,6 z') !important;
 }
@@ -264,7 +266,7 @@ video {
 }
 
 /* Firefox doesn't support setting svg paths in css, so these are set
-   in the html instead. The play/pause button doesn't change in FF because of this */
+   in the html instead. */
 .skipback svg path {
   fill: none;
   /* d: path('M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z') !important; */
@@ -441,7 +443,7 @@ video {
       <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
     </button>
     <button id="playpause" class="flatbutton play" onclick="startPlaying()">
-      <svg class="mediabutton"><path d="M 8,30 30,18 8,6 z"></path></svg>
+      <svg class="mediabutton"><path></path></svg>
     </button>
     <button id="skipforward" class="flatbutton skipforward" onclick="skipForward()">
       <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
@@ -454,6 +456,8 @@ video {
 </div>
 
 <script>
+
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 var DEBUG = false;
 function log(what) {
@@ -766,6 +770,7 @@ class VideoSegment {
     this.onDurationChange = this.onDurationChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
     this.onVideoEnded = this.onVideoEnded.bind(this);
+    this.onVideoError = this.onVideoError.bind(this);
     this.onDblClickVideo = this.onDblClickVideo.bind(this);
     this.initdefaults();
   }
@@ -812,6 +817,7 @@ class VideoSegment {
       this.longestvideoelem.ontimeupdate = this.onTimeUpdate;
       for (var vid of this.activevideoelems) {
         vid.onended=this.onVideoEnded;
+        vid.onerror=this.onVideoError;
       }
       if (this.autoseek) {
         this.seekTo(this.autoseek);
@@ -851,10 +857,17 @@ class VideoSegment {
     }
   }
 
+  onVideoError(event) {
+    var elem = event.target;
+    log("error on '" + elem.id +"' at position " + elem.currentTime);
+    elem.errored = true;
+    this.onVideoEnded();
+  }
+
   onVideoEnded() {
     log("onvideoended");
     for (var vid of this.activevideoelems) {
-      if (!vid.ended) {
+      if (!vid.ended && !vid.errored) {
         log("still playing");
         return;
       }
@@ -877,6 +890,8 @@ class VideoSegment {
       var v = videoelems[i];
       v.ontimeupdate = undefined;
       v.onended = undefined;
+      v.onerror = undefined;
+      v.errored = false;
       v.ondblclick = this.onDblClickVideo;
       if (v.src != undefined) {
         v.ondurationchange = this.onDurationChange;
@@ -973,6 +988,9 @@ class VideoSequence {
     this.isplaying = false;
     var b = document.getElementById('playpause');
     b.classList.remove("pause");
+    if (isFirefox) {
+      b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 30,18 8,6 z');
+    }
   }
 
   getSegmentByName(timestamp) {
@@ -1183,6 +1201,9 @@ class VideoSequence {
     segment.play();
     var b = document.getElementById('playpause');
     b.classList.add("pause");
+    if (isFirefox) {
+      b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 14,30 14,6 8,6 z M 24,30 30,30 30,6 24,6 z');
+    }
   }
 
   pause() {
@@ -1191,6 +1212,9 @@ class VideoSequence {
     segment.pause();
     var b = document.getElementById('playpause');
     b.classList.remove("pause");
+    if (isFirefox) {
+      b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 30,18 8,6 z');
+    }
   }
 }
 
