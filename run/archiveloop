@@ -106,7 +106,7 @@ function archive_is_reachable () {
 
 function connect_usb_drives_to_host() {
   log "Connecting usb to host..."
-  /root/bin/enable_gadget_drives.sh
+  /root/bin/enable_gadget.sh
   log "Connected usb to host."
 }
 
@@ -290,7 +290,7 @@ function fix_errors_in_images () {
 
 function disconnect_usb_drives_from_host () {
   log "Disconnecting usb from host..."
-  /root/bin/disable_gadget_drives.sh
+  /root/bin/disable_gadget.sh
   log "Disconnected usb from host."
 }
 
@@ -797,8 +797,6 @@ log "Starting archiveloop at $(awk '{print $1}' /proc/uptime) seconds uptime..."
 set_sys_param /proc/sys/vm/dirty_background_bytes DIRTY_BACKGROUND_BYTES 65536
 set_sys_param /proc/sys/vm/dirty_ratio DIRTY_RATIO 80
 set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVERNOR conservative
-
-/root/bin/prepare_gadget.sh
 
 /root/bin/make_snapshot.sh
 snapshotloop &

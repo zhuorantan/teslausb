@@ -296,10 +296,8 @@ function get_common_scripts () {
   get_script /root/bin force_sync.sh run
   get_script /root/bin mountoptsforimage run
   get_script /root/bin mountimage run
-  get_script /root/bin prepare_gadget.sh run
-  get_script /root/bin release_gadget.sh run
-  get_script /root/bin enable_gadget_drives.sh run
-  get_script /root/bin disable_gadget_drives.sh run
+  get_script /root/bin enable_gadget.sh run
+  get_script /root/bin disable_gadget.sh run
   ln -sf /root/bin/mountimage /sbin/mount.teslausb
 }
 
@@ -364,7 +362,7 @@ function create_usb_drive_backing_files () {
 
   # mount cam image and make sure the right directories exist
   umount /mnt/cam > /dev/null || true
-  if modprobe -r g_mass_storage && mount /mnt/cam
+  if /root/bin/disable_gadget.sh && mount /mnt/cam
   then
     mkdir -p /mnt/cam/TeslaCam
     mkdir -p /mnt/cam/TeslaTrackMode
@@ -476,7 +474,15 @@ function set_timezone () {
 # There's probably a better way of doing this.
 # If not, there should be.
 function get_usb_state {
-  local last
+  local current
+  local last;
+  current=$(cat /sys/class/udc/*/state)
+  echo -n "Gadget state: $current"
+  if [ "$current" = "configured" ]
+  then
+    echo
+    return
+  fi
   last=$(dmesg | grep 'g_mass_storage\|dwc2' | tail -1)
   if [ -z "$last" ]
   then
@@ -486,15 +492,16 @@ function get_usb_state {
   local usbstatetime
   usbstatetime=$(echo "$last" | tr -d '[]' | awk '{print $1}')
   now=$(awk '{print $1}' /proc/uptime)
-  awk "BEGIN {printf \"USB state (%.1f seconds ago): \", $now-$usbstatetime}"
+  awk "BEGIN {printf \". %.1f seconds ago: \", $now-$usbstatetime}"
   case $last in
+    # this message is now a debug log and doesn't show in normal builds
     *"Linux File-Backed Storage")
       echo "connected to host and host mounted drive(s)"
       ;;
     *"new device"*)
       ;&
     *"new address"*)
-      echo "connected to host, but host didn't mount drive(s)"
+      echo "connected to host"
       ;;
     *"bound driver"*)
       echo "mass storage ready, but not connected to host (check cable)"
@@ -545,7 +552,7 @@ function cmd_upgrade_prepare {
     umount /backingfiles/snapshots/snap*/mnt || true
     umount /mnt/cam /mnt/music || true
     umount /mnt/archive /mnt/musicarchive || true
-    modprobe -r g_mass_storage
+    /root/bin/disable_gadget.sh || true
     /root/bin/remountfs_rw
   ) &> /dev/null
 }

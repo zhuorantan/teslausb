@@ -58,7 +58,7 @@ then
 fi
 
 # remove device from any attached host
-modprobe -r g_mass_storage
+/root/bin/disable_gadget.sh
 
 # fsck the image, since we may have just yanked it out from under the host.
 # Use -p repair arg. It works with vfat and exfat.

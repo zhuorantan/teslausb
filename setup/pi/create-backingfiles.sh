@@ -146,7 +146,7 @@ then
   esac
 fi
 killall archiveloop || true
-modprobe -r g_mass_storage
+/root/bin/disable_gadget.sh
 umount -d /mnt/cam || true
 umount -d /mnt/music || true
 umount -d /backingfiles/snapshots/snap*/mnt || true

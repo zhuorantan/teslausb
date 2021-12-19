@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-modprobe -r g_mass_storage
+/root/bin/disable_gadget.sh
 
 mount /mnt/cam || true
 
