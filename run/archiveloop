@@ -108,6 +108,7 @@ function connect_usb_drives_to_host() {
   log "Connecting usb to host..."
   /root/bin/enable_gadget.sh
   log "Connected usb to host."
+  sleep 5
 }
 
 function wait_for_archive_to_be_reachable () {
@@ -292,6 +293,7 @@ function disconnect_usb_drives_from_host () {
   log "Disconnecting usb from host..."
   /root/bin/disable_gadget.sh
   log "Disconnected usb from host."
+  sleep 5
 }
 
 function convert_seconds_to_nice_time () {
