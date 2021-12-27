@@ -714,7 +714,7 @@ function cmd_diagnose {
     else
       echo "no music disk image found"
     fi
-
+    df -h /boot/ / /backingfiles/ /mutable/
     echo -e "====== network ======"
     ifconfig
     iwconfig wlan0 | grep Link
