@@ -105,13 +105,17 @@ function dehumanize () {
 }
 
 function manage_free_space {
-  # Try to maintain 9 GB of free space, which should be enough to
-  # hold the next hour of recordings.
+  # Try to make free space equal to 10 GB plus three percent of the total
+  # available space. This should be enough to hold the next hour of
+  # recordings without completely filling up the filesystem.
   # todo: this could be put in a background task and with a lower free
   # space requirement, to delete old snapshots just before running out
   # of space and thus make better use of space
   local reserve
-  reserve=$(dehumanize "9G")
+  reserve=$(dehumanize "10G")
+  local threepctoftotalspace
+  threepctoftotalspace=$(eval "$(stat --file-system --format="echo \$((%b*%S/33))" /backingfiles/cam_disk.bin)")
+  reserve=$((reserve+threepctoftotalspace))
   while true
   do
     local freespace
