@@ -234,7 +234,7 @@ static int do_read( const char *path, char *buffer, size_t size, off_t offset, s
   */
 
   int ctts = fh->cttsoffset;
-  if (ctts) {
+  if (ctts > 0) {
     ctts += 4; // location of fourcc
     int s = max(offset, ctts);
     int e = min(offset + size, ctts + 4);
