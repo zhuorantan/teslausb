@@ -144,8 +144,42 @@ video {
   margin: 0;
 }
 
+.subnav .layoutbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 6px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+
+
 .navbar a:hover, .subnav:hover .subnavbtn {
   background-color: rgb(100,100,100);
+}
+
+.navbar a:hover, .subnav:hover .layoutbtn {
+  background-color: rgb(100,100,100);
+}
+
+.navbar a:hover, .subnav:hover .layoutbtn .layoutsvg {
+  background-color: rgb(100,100,100);
+  fill: white;
+  stroke: white;
+  stroke-width: 1px;
+}
+
+.layoutsvg {
+  width: 100%;
+  height: 100%;
+  fill: grey;
+  stroke: grey;
+  stroke-width: 1px;
+  opacity: 1;
+  margin-top: 2px;
+  margin-left: 1px;
 }
 
 .subnav-content {
@@ -228,7 +262,7 @@ video {
   fill: grey;
   stroke: grey;
   stroke-width: 1px;
-  opacity="1"
+  opacity: 1;
 }
 
 .settingsbutton:hover {
@@ -237,7 +271,7 @@ video {
   fill: black;
   stroke: black;
   stroke-width: 1px;
-  opacity="1"
+  opacity: 1;
 }
 
 .mediabutton {
@@ -389,41 +423,54 @@ video {
     <button class="subnavbtn">SentryClips</button>
     <div id="SentryClips" class="subnav-content"></div>
   </div>
+  <div class="subnav" style="float:right;">
+    <button class="layoutbtn">
+    <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
+      <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
+    </svg></button>
+    <div id="layouts" class="subnav-content" style="left:initial;right:0;width:180px;">
+    <div class="dropdownitem" onclick="setLayout(1)">Sides on top, rear on bottom, mirrored</div>
+    <div class="dropdownitem" onclick="setLayout(2)">Side and rear on bottom, mirrored</div>
+    <div class="dropdownitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
+    </div>
+  </div>
 </div>
 <div>
 <table id="videoholder" style="width:100%;height:100%;" cellspacing="0" onmousemove="showcontrols()">
 <tr>
-  <td width="33%">
-  <div style="display:grid;">
-    <video id="leftview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
-    <canvas id="leftviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  <td id="topleft" width="33%">
+  <div id="leftviewholder" style="display:grid;">
+      <video id="leftview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+      <canvas id="leftviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
   </div>
   </td>
-  <td width="34%">
-  <div style="display:grid;">
-    <video id="frontview" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
-    <canvas id="frontviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  <td id="topmiddle" width="34%">
+  <div id="frontviewholder" style="display:grid;">
+      <video id="frontview" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+      <canvas id="frontviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
   </div>
   </td>
-  <td width="33%">
-  <div style="display:grid;">
-    <video id="rightview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
-    <canvas id="rightviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
+  <td id="topright" width="33%">
+  <div id="rightviewholder" style="display:grid;">
+      <video id="rightview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
+      <canvas id="rightviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
   </div>
   </td>
 </tr>
 <tr>
-  <td height="100%">
-    <iframe id="sentrymap"></iframe>
+  <td id="bottomleft" height="100%">
+    <div id="mapholder" style="margin:0px;height:100%">
+      <iframe id="sentrymap"></iframe>
+    </div>
   </td>
-  <td>
-  <div style="display:grid;">
+  <td id="bottommiddle">
+  <div id="backviewholder" style="display:grid;">
     <video id="backview" class="flipped" width="100%" style="grid-column:1;grid-row:1;z-index:1;"></video>
     <canvas id="backviewfreeze" style="grid-column:1;grid-row:1;z-index:0;width:100%;height:100%;"></canvas>
   </div>
   </td>
-  <td>
-    <div style="margin-left:12px;color:white;height:100%;">
+  <td id="bottomright">
+    <div id="infoholder" style="margin-left:12px;color:white;height:100%;">
       <div id="sequencename" style="margin-top:12px;margin-bottom:2px;"></div>
       <div id="segmentname" style="margin-bottom:12px;"></div>
       <span id="currenttime" style="margin-top:24px;"></span><span id="totaltime"></span>
@@ -493,6 +540,69 @@ function showcontrols() {
 }
 
 showcontrols();
+
+var currentLayout = 1;
+
+function setLayout(layout) {
+  var tl = document.getElementById("topleft");
+  var tm = document.getElementById("topmiddle");
+  var tr = document.getElementById("topright");
+  var bl = document.getElementById("bottomleft");
+  var bm = document.getElementById("bottommiddle");
+  var br = document.getElementById("bottomright");
+  var leftviewholder = document.getElementById("leftviewholder");
+  var leftview = document.getElementById("leftview");
+  var frontviewholder = document.getElementById("frontviewholder");
+  var rightviewholder = document.getElementById("rightviewholder");
+  var rightview = document.getElementById("rightview");
+  var backviewholder = document.getElementById("backviewholder");
+  var backview = document.getElementById("backview");
+  var mapview = document.getElementById("mapholder");
+  var infoview = document.getElementById("infoholder");
+  if (layout == 2) {
+    // alternative layout 1: map-front-info on top, mirrorleft-mirrorrear-mirrorright on bottom
+    tl.appendChild(mapview);
+    tm.appendChild(frontviewholder);
+    tr.appendChild(infoview);
+    bl.appendChild(leftviewholder);
+    bm.appendChild(backviewholder);
+    br.appendChild(rightviewholder);
+    leftview.classList.add("flipped");
+    rightview.classList.add("flipped");
+    backview.classList.add("flipped");
+  } else if (layout == 3) {
+    // alternative layout 3: map-front-info on top, right-rear-left on bottom
+    tl.appendChild(mapview);
+    tm.appendChild(frontviewholder);
+    tr.appendChild(infoview);
+    bl.appendChild(rightviewholder);
+    bm.appendChild(backviewholder);
+    br.appendChild(leftviewholder);
+    leftview.classList.remove("flipped");
+    rightview.classList.remove("flipped");
+    backview.classList.remove("flipped");
+  } else {
+    // original layout: mirrorleft-front-mirrorright on top, map-mirrorrear-info on bottom
+    layout = 1;
+    tl.appendChild(leftviewholder);
+    tm.appendChild(frontviewholder);
+    tr.appendChild(rightviewholder);
+    bl.appendChild(mapview);
+    bm.appendChild(backviewholder);
+    br.appendChild(infoview);
+    leftview.classList.add("flipped");
+    rightview.classList.add("flipped");
+    backview.classList.add("flipped");
+  }
+  currentLayout = layout;
+  localStorage.setItem("layout", layout);
+}
+
+function cycleLayout() {
+  setLayout(currentLayout + 1);
+}
+
+setLayout(localStorage.layout);
 
 function skipBack() {
   var slider=document.getElementById('position');
