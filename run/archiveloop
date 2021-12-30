@@ -94,7 +94,7 @@ function fix_errors_in_image () {
 function archive_is_reachable () {
   local reachable=true
 
-  /root/bin/archive-is-reachable.sh "$ARCHIVE_SERVER" || reachable=false
+  /root/bin/archive-is-reachable.sh "$ARCHIVE_SERVER" "$ARCHIVE_PORT" || reachable=false
 
   if [ "$reachable" = false ]
   then

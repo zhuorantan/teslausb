@@ -89,6 +89,7 @@ function read_setup_variables {
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
   export USB_DRIVE=${USB_DRIVE:-''}
   export USE_EXFAT=${USE_EXFAT:-false}
+  export ARCHIVE_PORT=${ARCHIVE_PORT:-22}
 }
 
 if [ "$(. /etc/os-release && echo "$VERSION_ID")" = "9" ]
