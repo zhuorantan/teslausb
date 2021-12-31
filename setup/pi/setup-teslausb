@@ -422,6 +422,9 @@ function make_root_fs_readonly () {
 
 function update_package_index () {
   setup_progress "Updating package index files..."
+  # the package index might be in a bad state if setup was previously
+  # interrupted, so fix it up first
+  dpkg --configure -a || true
   while ! (apt-get update || apt-get update --allow-releaseinfo-change)
   do
     setup_progress "Failed, retrying"
