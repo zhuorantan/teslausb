@@ -6,6 +6,9 @@ then
   return 1 # shouldn't use exit when sourced
 fi
 
+# Unload the module that was loaded by /boot/cmdline.txt
+modprobe -r g_ether
+
 export LOG_FILE=/mutable/archiveloop.log
 
 function log () {
