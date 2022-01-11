@@ -302,13 +302,38 @@ function get_common_scripts () {
   ln -sf /root/bin/mountimage /sbin/mount.teslausb
 }
 
-function fix_cmdline_txt_modules_load ()
-{
-  setup_progress "Fixing the modules-load parameter in /boot/cmdline.txt..."
-  cp /boot/cmdline.txt ~
-  sed 's/ modules-load=dwc2,g_ether/ modules-load=dwc2/' ~/cmdline.txt > /boot/cmdline.txt
-  rm ~/cmdline.txt
-  setup_progress "Fixed cmdline.txt."
+# If only the dwc2 module is loaded at boot then the Pi will present
+# itself as a non-responsive USB device until a gadget is created.
+# When connected to a Windows host, this will show as a device with
+# vendor ID 0 (which is invalid), and Windows might pop up an error
+# message saying "USB device not recognized", while a connected Linux
+# host will log messages like "device descriptor read/64, error -110"
+# to the kernel log, and 'lsusb' might hang for over a minute or until
+# a gadget is created.
+# To work around this, make sure the g_ether module is loaded along
+# with dwc2. The archiveloop script will then unload the g_ether
+# module (the attached host will see no device at all at this point)
+# before creating the mass storage gadget.
+function fix_cmdline_txt_modules_load () {
+  # Extract the modules-load portion of the command line.
+  # Note that this not handle spaces in the argument.
+  local curparam
+  curparam=$(grep -P -o " modules.load=[^\s\$]*" /boot/cmdline.txt)
+  if [[ "$curparam" == "" ]]
+  then
+    curparam="\$"
+  elif [[ "$curparam" == *"dwc2"* ]] && [[ "$curparam" == *"g_ether"* ]]
+  then
+    setup_progress "/boot/cmdline.txt is up to date"
+    return
+  fi
+
+  # replace the current parameter
+  setup_progress "Updated /boot/cmdline.txt from:"
+  setup_progress "$(cat /boot/cmdline.txt)"
+  sed -i "s/${curparam}/ modules-load=dwc2,g_ether/" /boot/cmdline.txt
+  setup_progress "to:"
+  setup_progress "$(cat /boot/cmdline.txt)"
 }
 
 BACKINGFILES_MOUNTPOINT=/backingfiles
