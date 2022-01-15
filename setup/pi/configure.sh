@@ -175,7 +175,7 @@ function install_and_configure_tesla_api () {
         log_progress "tesla_api.py config update failed"
       fi
     fi
-  elif [[ ( -n "${TESLA_EMAIL:+x}" && -n "${TESLA_PASSWORD:+x}" ) || ( -n "${TESLA_ACCESS_TOKEN:+x}" && -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
+  elif [[ ( -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
   then
     log_progress "Installing tesla_api.py"
     get_script /root/bin tesla_api.py run
