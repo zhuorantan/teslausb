@@ -27,4 +27,4 @@ rmdir "$gadget_root"/configs/* || true
 rmdir "$gadget_root"/strings/* || true
 rmdir "$gadget_root"
 
-modprobe -r usb_f_mass_storage libcomposite
+modprobe -r usb_f_mass_storage g_ether usb_f_ecm usb_f_rndis libcomposite || true

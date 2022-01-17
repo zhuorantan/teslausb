@@ -6,6 +6,9 @@ then
   return 1 # shouldn't use exit when sourced
 fi
 
+# Unload the module that was loaded by /boot/cmdline.txt
+modprobe -r g_ether
+
 export LOG_FILE=/mutable/archiveloop.log
 
 function log () {
@@ -343,7 +346,7 @@ function clean_cam_mount {
   log "cleaning cam mount"
   # Delete the files that fsck "recovered". These are generally files
   # that were deleted previously by the car or teslausb
-  find "${CAM_MOUNT}" \( -type f -name FSCK\*.REC \) -o \( -type d -name \*.M \) -print0 | xargs -0 rm -rf
+  find "${CAM_MOUNT}" \( \( -type f -name FSCK\*.REC \) -o \( -type d -name \*.M \) \) -print0 | xargs -0 rm -rf
 
   # Remove files, oldest first, until there is at least 20GB of free space
 
