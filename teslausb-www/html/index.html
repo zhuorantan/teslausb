@@ -357,6 +357,7 @@ video {
 
 <div style="float:right;">
 <div style="float:left;margin-top: 7px;margin-left: 0px;margin-right: 5px;">
+<a href="/new/?source=legacy" target="_self" style="margin-right: 2em;">Try new UI</a>
 <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;">TeslaUSB on GitHub</a>
 </div>
 <!--
@@ -1287,7 +1288,7 @@ class VideoSequence {
   }
 
   next() {
-    var nextsegment = this.currentsegmentidx + 1; 
+    var nextsegment = this.currentsegmentidx + 1;
     log("next: " + this.currentsegmentidx);
     if (nextsegment >= this.length()) {
       return false;
