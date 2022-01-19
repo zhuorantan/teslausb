@@ -32,6 +32,11 @@ ln -sf /etc/nginx/sites-available/teslausb.nginx /etc/nginx/sites-enabled/defaul
 # between Chrome and Tesla's recordings
 g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/teslausb-www/cttseraser.cpp" -lstdc++ -lfuse
 
+# install new UI (compiled js/css files)
+wget -O /tmp/teslausb-ui.tgz https://github.com/"$REPO"/teslausb/releases/latest/download/teslausb-ui.tgz
+tar -C /var/www/html -xf /tmp/teslausb-ui.tgz
+
+
 cat > /sbin/mount.ctts << EOF
 #!/bin/bash -eu
 /root/cttseraser "\$@" -o allow_other
