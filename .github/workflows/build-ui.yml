@@ -33,7 +33,7 @@ jobs:
       id: current_release
       env:
         token: ${{ secrets.GITHUB_TOKEN }}
-        repository: "marcone/teslausb"
+        repository: ${{ github.repository }}
         type: "latest"
 
     - name: Upload files to a GitHub release
