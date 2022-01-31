@@ -1,6 +1,6 @@
 #! /bin/bash
 
-shopt -s globstar nullglob
+shopt -s globstar nullglob extglob
 
 # print shellcheck version so we know what Github uses
 shellcheck -V
@@ -18,4 +18,5 @@ shellcheck --exclude=SC1091 \
            ./run/remountfs_rw \
            ./run/send-push-message \
            ./run/waitforidle \
-           ./**/*.{sh,ksh,bash}
+           ./!(ui)/**/*.{sh,ksh,bash} \
+           ./ui/build.sh
