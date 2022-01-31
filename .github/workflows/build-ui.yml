@@ -27,19 +27,3 @@ jobs:
         cd "${GITHUB_WORKSPACE}/ui"
         npm ci
         ./build.sh
-
-    - name: Get latest release of NodeJS
-      uses: rez0n/actions-github-release@main
-      id: current_release
-      env:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        repository: ${{ github.repository }}
-        type: "latest"
-
-    - name: Upload files to a GitHub release
-      uses: svenstaro/upload-release-action@2.2.1
-      with:
-        tag: ${{ steps.current_release.outputs.release }}
-        file: teslausb-ui.tgz
-        overwrite: false
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
