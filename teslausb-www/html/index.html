@@ -405,7 +405,7 @@ video {
 
 <div class="tab content5">
 <div style="width:100%;height:100%;">
-<iframe class="recordings" src="TeslaCam/" ></iframe>
+<iframe class="recordings" src="TeslaCam/" onload="hideRecordingParent();"></iframe>
 </div>
 </div>
 
@@ -511,6 +511,14 @@ var DEBUG = false;
 function log(what) {
   if (DEBUG) {
     console.log(what);
+  }
+}
+
+function hideRecordingParent() {
+  var i = document.querySelector(".recordings");
+  if (i.contentWindow.location.pathname === "/TeslaCam/") {
+    var parentlink = i.contentDocument.querySelector("#list tbody tr");
+    parentlink.parentElement.removeChild(parentlink);
   }
 }
 
@@ -855,7 +863,7 @@ function showCurrentTime(time) {
 
 function showCurrentSegment(segmentname) {
   var elem = document.getElementById('segmentname');
-  elem.innerText = segmentname;
+  elem.innerText = prettyname(segmentname);
 }
 
 /* a collection of videos that share the same timestamp */
@@ -1133,7 +1141,7 @@ class VideoSequence {
     this.reset();
     currentsequence=this;
     var name = document.getElementById('sequencename');
-    name.innerText = this.sequencegroup + " / " + this.sequencename;
+    name.innerText = this.sequencegroup + " / " + prettyname(this.sequencename);
     var slider = document.getElementById('position');
     slider.max = (this.length() * 60000) - 1;
     slider.oninput = this.onSeek.bind(this);
@@ -1371,6 +1379,17 @@ function unfreezeVideoElems() {
 
 }
 
+function prettyname(name) {
+  if (name.length == 10) {
+    return name;
+  }
+
+  var d = name.substr(0,10);
+  var t = name.substr(11,8);
+
+  return d + " / " + t.replaceAll("-", ":");
+}
+
 readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
@@ -1423,7 +1442,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         continue;
       }
       var newelem = document.createElement("a");
-      newelem.innerHTML = c.toString();
+      newelem.innerHTML = prettyname(c.toString());
       newelem.group=i;
       newelem.sequence=videos[i][c];
       if (newelem.sequence == newestsequence) {
