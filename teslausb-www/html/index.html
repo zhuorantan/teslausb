@@ -473,7 +473,8 @@ video {
   <td id="bottomright">
     <div id="infoholder" style="margin-left:12px;color:white;height:100%;">
       <div id="sequencename" style="margin-top:12px;margin-bottom:2px;"></div>
-      <div id="segmentname" style="margin-bottom:12px;"></div>
+      <div id="sequencelocation" style="margin-top:7px;margin-bottom:7px;"></div>
+      <div id="segmentname" style="margin-top:7px;margin-bottom:12px;"></div>
       <span id="currenttime" style="margin-top:24px;"></span><span id="totaltime"></span>
       <div id="debuginfo"></div>
     </div>
@@ -1150,6 +1151,7 @@ class VideoSequence {
     this.seekTo(0);
     this.onMapResize();
     this.onTickResize();
+    this.showSentryLocation();
   }
 
   onMapResize() {
@@ -1206,6 +1208,7 @@ class VideoSequence {
         log(thiz.jsonparsed);
         thiz.onMapResize();
         thiz.onTickResize();
+        thiz.showSentryLocation();
     }});
   }
 
@@ -1250,6 +1253,15 @@ class VideoSequence {
       return;
     }
     this.readJsonIfNeeded();
+  }
+
+  showSentryLocation() {
+    var d = document.getElementById("sequencelocation");
+    if (this.jsonparsed != undefined && this.jsonparsed.city != undefined) {
+      d.innerText = this.jsonparsed.city;
+    } else {
+      d.innerText = "";
+    }
   }
 
   onSeekStart(event) {
