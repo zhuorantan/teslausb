@@ -33,8 +33,12 @@ ln -sf /etc/nginx/sites-available/teslausb.nginx /etc/nginx/sites-enabled/defaul
 g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/teslausb-www/cttseraser.cpp" -lstdc++ -lfuse
 
 # install new UI (compiled js/css files)
-get_script /tmp teslausb-ui.tgz ui
-tar -C /var/www/html -xf /tmp/teslausb-ui.tgz
+tar -C /var/www/html -xf "$SOURCE_DIR/ui/teslausb-ui.tgz"
+if [ -d /var/www/html/new ] && ! [ -e /var/www/html/new/favicon.ico ]
+then
+  ln -s /var/www/html/favicon.ico /var/www/html/new/favicon.ico
+fi
+
 
 cat > /sbin/mount.ctts << EOF
 #!/bin/bash -eu
