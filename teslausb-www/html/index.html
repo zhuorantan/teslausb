@@ -81,6 +81,10 @@ button {
   padding:6px;
 }
 
+.group2 {
+  width: 200px;
+}
+
 .tabholder {
   width:100%;
   height:calc(100% - 60px);
@@ -331,6 +335,13 @@ video {
   color: white;
 }
 
+.pistatus {
+  position: relative;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid lightgrey;
+}
+
 </style>
 </head>
 <body>
@@ -395,11 +406,20 @@ video {
 </div>
 
 <div class="tab content4">
-<div style="width:100%;height:100%">
+<div style="width:100%;height:100%;">
 <p>
-<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px"></span>
+<div class="pistatus">
+<div class="status_uptime"></div>
+<div class="status_temp"></div>
+<div class="status_drives"></div>
+<div class="status_space"></div>
+<div class="status_snapshots"></div>
+</div>
+<button class="group2" id="toggledrives" onclick="toggledrivesfunc();"></button>
 <p>
-<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px"></span>
+<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px;"></span>
+<p>
+<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px;"></span>
 </div>
 </div>
 
@@ -642,8 +662,12 @@ function cachebustingurl(url) {
   return url + '?' + Math.random();
 }
 
+function isElementVisible(elem) {
+  return !(window.getComputedStyle(elem).visibility === "hidden");
+}
+
 function starttailing({url, pre, button}) {
-  if (window.getComputedStyle(pre).visibility === "hidden") {
+  if (!isElementVisible(pre)) {
     setTimeout(function() {
                             starttailing({url:url, pre:pre, button:button});
                           }, 1000);
@@ -821,11 +845,95 @@ function refreshdiagnostics() {
   }});
 }
 
+function uptimeString(secs) {
+  secs = Math.round(secs);
+  var days = Math.trunc(secs / (24 * 3600));
+  var hours = Math.trunc(secs % (24 * 3600) / 3600);
+  var minutes = Math.trunc(secs % (3600) / 60);
+  var seconds = Math.trunc(secs % 60);
+  var out = "";
+  if (days == 1) {
+    out = "1 day, "
+  } else if (days > 1) {
+    out = days + " days, "
+  }
+  return out + hours.toString().padStart(2, 0) + ":" +
+               minutes.toString().padStart(2,0) + ":" +
+               seconds.toString().padStart(2,0);
+}
+
+function spaceString(bytes) {
+  if (bytes > 1024 * 1024 * 1024) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(0) + "G";
+  } else if (bytes > 100 * 1024 * 1024) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + "G";
+  } else {
+    return (bytes / (1024 * 1024)).toFixed(0) + "M";
+  }
+}
+
+const dtopts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const dateTimeFormat = new Intl.DateTimeFormat(navigator.language, dtopts);
+
+function dateFromSeconds(seconds) {
+  var d = new Date(0);
+  d.setUTCSeconds(seconds);
+  return dateTimeFormat.format(d);
+}
+
+function toggledrivesfunc() {
+  callcgi('cgi-bin/toggledrives.sh');
+}
+
+function showstatus() {
+  var uptimediv = document.querySelector(".status_uptime");
+  if (isElementVisible(uptimediv) || uptimediv.clientHeight == 0) {
+    readfile({url:'cgi-bin/status.sh', callback:function(value) {
+      statusvals=JSON.parse(value);
+      uptimediv.innerText = "Uptime: " + uptimeString(statusvals.uptime);
+
+      var tempdiv = document.querySelector(".status_temp");
+      tempdiv.innerText = "Core temperature: " + (statusvals.cpu_temp / 1000).toFixed(1) + " C";
+
+      var drivesdiv = document.querySelector(".status_drives");
+      var togglebutton = document.getElementById("toggledrives");
+      if (statusvals.drives_active != togglebutton.drives_active) {
+        if (statusvals.drives_active == "yes") {
+          drivesdiv.innerText = "Drives: visible to host";
+          togglebutton.innerText = "Disconnect drives from host";
+        } else {
+          drivesdiv.innerText = "Drives: not visible to host";
+          togglebutton.innerText = "Connect drives to host";
+        }
+        togglebutton.drives_active = statusvals.drives_active;
+      }
+
+      var drivesdiv = document.querySelector(".status_space");
+      var total = statusvals.total_space;
+      var used = total - statusvals.free_space;
+      drivesdiv.innerText = "Disk usage: " + spaceString(used) + " (" +
+                          (used * 100 / total).toFixed(0) + "%)";
+
+      var drivesdiv = document.querySelector(".status_snapshots");
+      var snaps = "Snapshots: " + statusvals.num_snapshots;
+      if (statusvals.num_snapshots > 0) {
+        snaps += " (" + dateFromSeconds(statusvals.snapshot_oldest);
+        if (statusvals.num_snapshots > 1) {
+          snaps += " - " + dateFromSeconds(statusvals.snapshot_newest) + ")";
+        }
+      }
+      drivesdiv.innerText = snaps;
+    }});
+  }
+  setTimeout(showstatus, 1000);
+}
+
 function initialize() {
   setbuttonsdisabled('group1', true);
   setbuttonsdisabled('group2', false);
   readfile({pre:'archivelooppre', url:'archiveloop.log', tail:true, button:'aldwnbtn'});
   readfile({pre:'setuplogpre', url:'teslausb-headless-setup.log', tail:true, button:'sudwnbtn'});
+  showstatus();
   refreshdiagnostics();
 }
 
