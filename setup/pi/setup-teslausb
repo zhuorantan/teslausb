@@ -597,7 +597,7 @@ function cmd_upgrade_finish {
   systemctl start reboot.target
 }
 
-function cmd_diagnose {
+function diagnose {
   local hardware
   local os
 
@@ -800,7 +800,11 @@ function cmd_diagnose {
     ps -eaf
     echo "$(hostname) has been $(uptime -p). System time is $(date)"
     echo -e "====== end of diagnostics ======"
-  } |
+  }
+}
+
+function cmd_diagnose {
+  { diagnose || true; } |&
     # clean up the output a bit
     tr '\r' '\n' |
     sed '/^ *$/d' |
