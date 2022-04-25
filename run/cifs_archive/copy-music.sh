@@ -37,7 +37,7 @@ function do_music_sync {
   log "Syncing music from archive..."
 
   # return immediately if the archive mount can't be accessed
-  if ! timeout 5 stat "$SRC"
+  if ! timeout 5 stat "$SRC" > /dev/null
   then
     log "Error: $SRC is not accessible"
     return
