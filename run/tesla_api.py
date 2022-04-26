@@ -36,6 +36,12 @@ tesla_api_json = {
 
 mutable_dir = '/mutable'
 
+def _invalidate_access_token():
+    if not tesla_api_json.get('refresh_token') or tesla_api_json['refresh_token'] == '':
+        tesla_api_json['refresh_token'] = SETTINGS['refresh_token']
+    tesla_api_json['access_token'] = None
+    _write_tesla_api_json()
+
 def _execute_request(url=None, method=None, data=None, require_vehicle_online=True):
     """
     Wrapper around requests to the Tesla REST Service which ensures the vehicle is online before proceeding
@@ -110,6 +116,9 @@ def _rest_request(url, method=None, data=None):
     if not response.text:
         _error("Fatal Error: Tesla REST Service failed to return a response, access token may have expired")
         sys.exit(1)
+    if  'invalid bearer token' in response.text:
+        _error("Invalid Access token, removing from cache...")
+        _invalidate_access_token()
     json_response = response.json()
 
     # log full JSON response for debugging
