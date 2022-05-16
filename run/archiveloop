@@ -459,7 +459,7 @@ function archive_teslacam_clips () {
   then
     (cd "$overlaymerged"; xargs -a "${sentrylist}" echo "find -L" | while read -r line
         do
-          eval "$line \( -name \*.mp4 -a -size -100000c -fprintf ${ignorelist} '%p\n' \) -o -print"
+          eval "$line \( -name \*.mp4 -a -size -100000c -fprintf ${ignorelist} '%p\n' \)"
         done)
   else
     touch "${ignorelist}"
