@@ -81,6 +81,10 @@ button {
   padding:6px;
 }
 
+.group2 {
+  width: 200px;
+}
+
 .tabholder {
   width:100%;
   height:calc(100% - 60px);
@@ -331,6 +335,13 @@ video {
   color: white;
 }
 
+.pistatus {
+  position: relative;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid lightgrey;
+}
+
 </style>
 </head>
 <body>
@@ -357,6 +368,7 @@ video {
 
 <div style="float:right;">
 <div style="float:left;margin-top: 7px;margin-left: 0px;margin-right: 5px;">
+<a href="/new/?source=legacy" target="_self" style="margin-right: 2em;">Try new UI</a>
 <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;">TeslaUSB on GitHub</a>
 </div>
 <!--
@@ -394,17 +406,26 @@ video {
 </div>
 
 <div class="tab content4">
-<div style="width:100%;height:100%">
+<div style="width:100%;height:100%;">
 <p>
-<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px"></span>
+<div class="pistatus">
+<div class="status_uptime"></div>
+<div class="status_temp"></div>
+<div class="status_drives"></div>
+<div class="status_space"></div>
+<div class="status_snapshots"></div>
+</div>
+<button class="group2" id="toggledrives" onclick="toggledrivesfunc();"></button>
 <p>
-<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px"></span>
+<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px;"></span>
+<p>
+<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px;"></span>
 </div>
 </div>
 
 <div class="tab content5">
 <div style="width:100%;height:100%;">
-<iframe class="recordings" src="TeslaCam/" ></iframe>
+<iframe class="recordings" src="TeslaCam/" onload="hideRecordingParent();"></iframe>
 </div>
 </div>
 
@@ -472,7 +493,8 @@ video {
   <td id="bottomright">
     <div id="infoholder" style="margin-left:12px;color:white;height:100%;">
       <div id="sequencename" style="margin-top:12px;margin-bottom:2px;"></div>
-      <div id="segmentname" style="margin-bottom:12px;"></div>
+      <div id="sequencelocation" style="margin-top:7px;margin-bottom:7px;"></div>
+      <div id="segmentname" style="margin-top:7px;margin-bottom:12px;"></div>
       <span id="currenttime" style="margin-top:24px;"></span><span id="totaltime"></span>
       <div id="debuginfo"></div>
     </div>
@@ -510,6 +532,14 @@ var DEBUG = false;
 function log(what) {
   if (DEBUG) {
     console.log(what);
+  }
+}
+
+function hideRecordingParent() {
+  var i = document.querySelector(".recordings");
+  if (i.contentWindow.location.pathname === "/TeslaCam/") {
+    var parentlink = i.contentDocument.querySelector("#list tbody tr");
+    parentlink.parentElement.removeChild(parentlink);
   }
 }
 
@@ -632,8 +662,12 @@ function cachebustingurl(url) {
   return url + '?' + Math.random();
 }
 
+function isElementVisible(elem) {
+  return !(window.getComputedStyle(elem).visibility === "hidden");
+}
+
 function starttailing({url, pre, button}) {
-  if (window.getComputedStyle(pre).visibility === "hidden") {
+  if (!isElementVisible(pre)) {
     setTimeout(function() {
                             starttailing({url:url, pre:pre, button:button});
                           }, 1000);
@@ -811,11 +845,95 @@ function refreshdiagnostics() {
   }});
 }
 
+function uptimeString(secs) {
+  secs = Math.round(secs);
+  var days = Math.trunc(secs / (24 * 3600));
+  var hours = Math.trunc(secs % (24 * 3600) / 3600);
+  var minutes = Math.trunc(secs % (3600) / 60);
+  var seconds = Math.trunc(secs % 60);
+  var out = "";
+  if (days == 1) {
+    out = "1 day, "
+  } else if (days > 1) {
+    out = days + " days, "
+  }
+  return out + hours.toString().padStart(2, 0) + ":" +
+               minutes.toString().padStart(2,0) + ":" +
+               seconds.toString().padStart(2,0);
+}
+
+function spaceString(bytes) {
+  if (bytes > 1024 * 1024 * 1024) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(0) + "G";
+  } else if (bytes > 100 * 1024 * 1024) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + "G";
+  } else {
+    return (bytes / (1024 * 1024)).toFixed(0) + "M";
+  }
+}
+
+const dtopts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const dateTimeFormat = new Intl.DateTimeFormat(navigator.language, dtopts);
+
+function dateFromSeconds(seconds) {
+  var d = new Date(0);
+  d.setUTCSeconds(seconds);
+  return dateTimeFormat.format(d);
+}
+
+function toggledrivesfunc() {
+  callcgi('cgi-bin/toggledrives.sh');
+}
+
+function showstatus() {
+  var uptimediv = document.querySelector(".status_uptime");
+  if (isElementVisible(uptimediv) || uptimediv.clientHeight == 0) {
+    readfile({url:'cgi-bin/status.sh', callback:function(value) {
+      statusvals=JSON.parse(value);
+      uptimediv.innerText = "Uptime: " + uptimeString(statusvals.uptime);
+
+      var tempdiv = document.querySelector(".status_temp");
+      tempdiv.innerText = "Core temperature: " + (statusvals.cpu_temp / 1000).toFixed(1) + " C";
+
+      var drivesdiv = document.querySelector(".status_drives");
+      var togglebutton = document.getElementById("toggledrives");
+      if (statusvals.drives_active != togglebutton.drives_active) {
+        if (statusvals.drives_active == "yes") {
+          drivesdiv.innerText = "Drives: visible to host";
+          togglebutton.innerText = "Disconnect drives from host";
+        } else {
+          drivesdiv.innerText = "Drives: not visible to host";
+          togglebutton.innerText = "Connect drives to host";
+        }
+        togglebutton.drives_active = statusvals.drives_active;
+      }
+
+      var drivesdiv = document.querySelector(".status_space");
+      var total = statusvals.total_space;
+      var used = total - statusvals.free_space;
+      drivesdiv.innerText = "Disk usage: " + spaceString(used) + " (" +
+                          (used * 100 / total).toFixed(0) + "%)";
+
+      var drivesdiv = document.querySelector(".status_snapshots");
+      var snaps = "Snapshots: " + statusvals.num_snapshots;
+      if (statusvals.num_snapshots > 0) {
+        snaps += " (" + dateFromSeconds(statusvals.snapshot_oldest);
+        if (statusvals.num_snapshots > 1) {
+          snaps += " - " + dateFromSeconds(statusvals.snapshot_newest) + ")";
+        }
+      }
+      drivesdiv.innerText = snaps;
+    }});
+  }
+  setTimeout(showstatus, 1000);
+}
+
 function initialize() {
   setbuttonsdisabled('group1', true);
   setbuttonsdisabled('group2', false);
   readfile({pre:'archivelooppre', url:'archiveloop.log', tail:true, button:'aldwnbtn'});
   readfile({pre:'setuplogpre', url:'teslausb-headless-setup.log', tail:true, button:'sudwnbtn'});
+  showstatus();
   refreshdiagnostics();
 }
 
@@ -854,7 +972,7 @@ function showCurrentTime(time) {
 
 function showCurrentSegment(segmentname) {
   var elem = document.getElementById('segmentname');
-  elem.innerText = segmentname;
+  elem.innerText = prettyname(segmentname);
 }
 
 /* a collection of videos that share the same timestamp */
@@ -1132,7 +1250,7 @@ class VideoSequence {
     this.reset();
     currentsequence=this;
     var name = document.getElementById('sequencename');
-    name.innerText = this.sequencegroup + " / " + this.sequencename;
+    name.innerText = this.sequencegroup + " / " + prettyname(this.sequencename);
     var slider = document.getElementById('position');
     slider.max = (this.length() * 60000) - 1;
     slider.oninput = this.onSeek.bind(this);
@@ -1141,6 +1259,7 @@ class VideoSequence {
     this.seekTo(0);
     this.onMapResize();
     this.onTickResize();
+    this.showSentryLocation();
   }
 
   onMapResize() {
@@ -1197,6 +1316,7 @@ class VideoSequence {
         log(thiz.jsonparsed);
         thiz.onMapResize();
         thiz.onTickResize();
+        thiz.showSentryLocation();
     }});
   }
 
@@ -1243,6 +1363,15 @@ class VideoSequence {
     this.readJsonIfNeeded();
   }
 
+  showSentryLocation() {
+    var d = document.getElementById("sequencelocation");
+    if (this.jsonparsed != undefined && this.jsonparsed.city != undefined) {
+      d.innerText = this.jsonparsed.city;
+    } else {
+      d.innerText = "";
+    }
+  }
+
   onSeekStart(event) {
     log("seek start");
   }
@@ -1287,7 +1416,7 @@ class VideoSequence {
   }
 
   next() {
-    var nextsegment = this.currentsegmentidx + 1; 
+    var nextsegment = this.currentsegmentidx + 1;
     log("next: " + this.currentsegmentidx);
     if (nextsegment >= this.length()) {
       return false;
@@ -1370,6 +1499,17 @@ function unfreezeVideoElems() {
 
 }
 
+function prettyname(name) {
+  if (name.length == 10) {
+    return name;
+  }
+
+  var d = name.substr(0,10);
+  var t = name.substr(11,8);
+
+  return d + " / " + t.replaceAll("-", ":");
+}
+
 readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
@@ -1422,7 +1562,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         continue;
       }
       var newelem = document.createElement("a");
-      newelem.innerHTML = c.toString();
+      newelem.innerHTML = prettyname(c.toString());
       newelem.group=i;
       newelem.sequence=videos[i][c];
       if (newelem.sequence == newestsequence) {

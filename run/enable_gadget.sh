@@ -1,7 +1,5 @@
 #!/bin/bash -eu
 
-set -x
-
 function isPi4 {
   grep -q "Pi 4" /sys/firmware/devicetree/base/model
 }

@@ -186,7 +186,7 @@ function snapshot {
   # check whether this snapshot is actually different from the previous one
   find "$newsnapmnt" -type f -printf '%s %P\n' > "${newsnapname}.toc_"
   log "comparing new snapshot with $oldname"
-  if [[ ! -e "${oldname}.toc" ]] || diff "${oldname}.toc" "${newsnapname}.toc_" | grep -e '^>'
+  if [[ ! -e "${oldname}.toc" ]] || diff "${oldname}.toc" "${newsnapname}.toc_" | grep -qe '^>'
   then
     ln -s "$newsnapmnt" "$newsnapdir/mnt"
     make_links_for_snapshot "$newsnapmnt" "$newsnapdir/mnt"

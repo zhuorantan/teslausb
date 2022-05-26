@@ -1,5 +1,4 @@
 #!/bin/bash -eu
-set -x
 
 # g_mass_storage module may be loaded on a system that
 # is being transitioned from module to configfs

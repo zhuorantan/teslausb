@@ -25,6 +25,10 @@ function append_cmdline_txt_param() {
   fi
 }
 
+function remove_cmdline_txt_param() {
+  sed -i "s/\(\s\)${1}\(\s\|$\)//" /boot/cmdline.txt > /dev/null
+}
+
 log_progress "Disabling unnecessary service..."
 systemctl disable apt-daily.timer
 systemctl disable apt-daily-upgrade.timer
@@ -38,10 +42,16 @@ apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
 
 log_progress "Configuring system..."
 
-# Add fastboot, noswap and/or ro to end of /boot/cmdline.txt
-append_cmdline_txt_param fastboot
+# Add fsck.mode=auto, noswap and/or ro to end of /boot/cmdline.txt
+# Remove the fastboot paramater because it makes fsck not run
+remove_cmdline_txt_param fastboot
+append_cmdline_txt_param fsck.mode=auto
 append_cmdline_txt_param noswap
 append_cmdline_txt_param ro
+
+# set root and mutable max mount count to 1, so they're checked every boot
+tune2fs -c 1 /dev/disk/by-label/rootfs || log_progress "tune2fs failed for rootfs"
+tune2fs -c 1 /dev/disk/by-label/mutable || log_progress "tune2fs failed for mutable"
 
 # we're not using swap, so delete the swap file for some extra space
 rm -f /var/swap

@@ -598,7 +598,16 @@ function cmd_upgrade_finish {
   systemctl start reboot.target
 }
 
-function cmd_diagnose {
+function checkfsrw() {
+  local -r opts=$(findmnt -n -o options "$1")
+  local -r rw=${opts:0:2}
+  if [[ "$rw" != "$2" ]]
+  then
+    echo "$1 is $rw, should be $2"
+  fi
+}
+
+function diagnose {
   local hardware
   local os
 
@@ -722,6 +731,10 @@ function cmd_diagnose {
     then
       echo "CAM drive is formatted as ExFAT. Recommend using FAT32 instead."
     fi
+    checkfsrw / ro
+    checkfsrw /boot ro
+    checkfsrw /backingfiles rw
+    checkfsrw /mutable rw
 
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DEVICE}" print || true
@@ -801,7 +814,11 @@ function cmd_diagnose {
     ps -eaf
     echo "$(hostname) has been $(uptime -p). System time is $(date)"
     echo -e "====== end of diagnostics ======"
-  } |
+  }
+}
+
+function cmd_diagnose {
+  { diagnose || true; } |&
     # clean up the output a bit
     tr '\r' '\n' |
     sed '/^ *$/d' |
