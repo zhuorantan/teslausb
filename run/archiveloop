@@ -493,15 +493,18 @@ function archive_teslacam_clips () {
     local message="Archiving "
     if [[ $sentry_count -gt 0 && $trackmode_count -gt 0 ]]
     then
-      message+="$event_count event folder(s) with $sentry_count file(s) and $trackmode_count track mode file(s)"
+      message+="$trackmode_count track mode file(s) and $sentry_count file(s) including $event_count event folder(s)"
+    elif [[ $sentry_count -gt 0 && $event_count -gt 0 ]]
+    then
+      message+="$sentry_count file(s) including $event_count event folder(s)"
     elif [[ $sentry_count -gt 0 ]]
     then
-      message+="$event_count event folder(s) with $sentry_count file(s)"
+      message+="$sentry_count file(s)"
     else
       message+="$trackmode_count track mode file(s)"
     fi
     message+=" starting at $(date)"
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message" || true
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message" || log "failed to send push message"
 
     # setup trigger files
     local -r triggerdir=/tmp/triggers
@@ -568,10 +571,10 @@ function archive_teslacam_clips () {
     message+="Archived "
     if [[ $sentry_count -gt 0 && $trackmode_count -gt 0 ]]
     then
-      message+="${sentry_archived} event files and ${trackmode_archived} trackmode files"
+      message+="${trackmode_archived} trackmode files and ${sentry_archived} other files"
     elif [[ $sentry_count -gt 0 ]]
     then
-      message+="${sentry_archived} event files"
+      message+="${sentry_archived} files"
     else
       message+="${trackmode_archived} trackmode files"
     fi
